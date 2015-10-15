@@ -1,5 +1,5 @@
-\documentclass[a4paper, twoside, english, 12pt]{article}
-\usepackage[english]{babel}
+\documentclass[a4paper, twoside, finnish, english, 12pt]{article}
+\usepackage[english,finnish]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 %\usepackage[fixlanguage]{babelbib}
@@ -34,7 +34,6 @@
 \usepackage{subcaption} %kuvakollaasin tekoon
 \usepackage[section]{placeins}
 %\usepackage{bibliography}
-
 
 \title{}
 \author{Joakim Linja}
@@ -92,6 +91,7 @@ Joakim Linja
 \hfill \texttt{15.10.2015}
 \end{flushleft}
 \setcounter{page}{1}
+\selectlanguage{finnish}
 
 \begin{center}
 \huge
@@ -99,37 +99,34 @@ Joakim Linja
 \end{center}
 %\question{}
 
-\section{Tiivistelmä}
+%\section{Tiivistelmä}
 Tarkoituksena on tehdä sovellus, joka web--käyttöliittymän avulla näyttää reaaliaikaisesti Jyväskylän kaupungin alueella liikkuvien linja-autojen arvioidun sijainnin kartalla. 
 
-\section{Kohderyhmä}
-Kaikki jotka käyttävät linja-autoja Jyväskylän kaupungin alueella ja muut, joita kiinnostaa Jyväskylän kaupungin alueen linja-autoliikenne. 
+%\section{Kohderyhmä}
+Kohderyhmänä projektille ovat kaikki jotka käyttävät linja-autoja Jyväskylän kaupungin alueella ja muut, joita kiinnostaa Jyväskylän kaupungin alueen linja-autoliikenne. 
 
-\section{Miellekkyys}
+%\section{Miellekkyys}
 Projektin mielekkyys muodostuu kuriositeetista, joka kohdentuu linja-autojen kulkemisen visualisointiin. 
 Tarkoituksena on konkretisoida linja-autojen liikennöintiä kaupungin alueella. 
 
 \section{Resurssit}
-Projektissa käytetään Jyväskylän kaupungin tarjoamaa avointa linkkidataa. 
-Kartan piirrossa käytetään Mapboxin kartta-API:tä. 
-
-\section{Datan saatavuus ja käyttöehdot}
+Projektin resurssikäyttönä on Jyväskylän kaupungin tarjoama avoin linkkidata ja kartan piirrossa käytetään Mapboxin kartta-API:tä. 
+%\section{Datan saatavuus ja käyttöehdot}
 Jyväskylän kaupungin tarjoaman linkkidatan käytössä on vaatimuksena maininta sovellukseen, että sovelluksen datan lähteenä on Jyväskylän kaupunki. 
 Mapboxin käytön rajoitteena on, ettei Mapboxin tarjoamia tietoja käytetä mihinkään laittomaan toimintaan. 
 Lisäksi kartassa tulee olla ''Improve this map''-linkki ja maininta siitä, että kartta on Mapboxilta lähtöisin. 
 
-\section{Datan formaatti}
+%\section{Datan formaatti}
 Linkkidata haetaan Jyväskylän kaupungin sivustolta \url{http://data.jyvaskyla.fi/}, josta sen saa .zip--pakettina. 
 Kyseinen zip-paketti sisältää kasan tekstitiedostoja, jotka vaativat jatkokäsittelyä. 
-
-\section{Käytettävät teknologiat}
+%\section{Käytettävät teknologiat}
 Kartan piirto suoritetaan Leafletin päälle rakennetulla kirjastolla Mapbox. 
 Palvelinohjelmisto tehdään alustavasti pythonilla. %Riippuen moniajolukon ilmenemisestä 
 Asiakaspalvelu suoritetaan pythonin ja javascriptin yhteistyössä. 
 Ohjelmointikielien tarkempia versionumeroita ei ole vielä tämän dokumentin kirjoitusvaiheessa päätetty. 
 Projektin tuotoksen on tarkoitus pyöriä palvelimella siten, että sovellukseen pääsee netistä käsin kiinni. 
 
-\section{Rajaus}
+\section{Projektin tavoitteet}
 Minimitavoitteena haluamme saada aikaan web--käyttöliittymän, jonka kartalla näkyy jonkin tietyn linjan linja-autojen sijainnit arvioiduilla reaalisijainneillaan. 
 Laajennettuna tavoitteena on 
 \begin{itemize}
@@ -139,6 +136,14 @@ Laajennettuna tavoitteena on
 \item[-] Kartan piirto linja-autoineen käyttäjän valitsemalla ajanhetkellä. 
 \end{itemize}
 
+%\section{Arkkitehtuurinen suunnitelma}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{projektisuunnitelma.png}
+\caption{Projektin arkkitehtuurisuunnitelma}
+\label{fig:arkkitehtuurisuunnitelma}
+\end{figure}
 
 %\bibliographystyle{jyflkandi_maunuksela_defined2}%babunsrt-fl}
 %\selectbiblanguage{finnish}
