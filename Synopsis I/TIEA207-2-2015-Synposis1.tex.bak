@@ -2,7 +2,7 @@
 \usepackage[english,finnish]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-%\usepackage[fixlanguage]{babelbib}
+\usepackage[fixlanguage]{babelbib}
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -99,6 +99,7 @@ Joakim Linja
 \end{center}
 %\question{}
 
+\section{Projektista yleisesti}
 %\section{Tiivistelmä}
 Tarkoituksena on tehdä sovellus, joka web--käyttöliittymän avulla näyttää reaaliaikaisesti Jyväskylän kaupungin alueella liikkuvien linja-autojen arvioidun sijainnin kartalla. 
 
@@ -109,7 +110,7 @@ Kohderyhmänä projektille ovat kaikki jotka käyttävät linja-autoja Jyväskyl
 Projektin mielekkyys muodostuu kuriositeetista, joka kohdentuu linja-autojen kulkemisen visualisointiin. 
 Tarkoituksena on konkretisoida linja-autojen liikennöintiä kaupungin alueella. 
 
-\section{Resurssit}
+\section{Projektin resurssikäyttö ja rajoitteet}
 Projektin resurssikäyttönä on Jyväskylän kaupungin tarjoama avoin linkkidata ja kartan piirrossa käytetään Mapboxin kartta-API:tä. 
 %\section{Datan saatavuus ja käyttöehdot}
 Jyväskylän kaupungin tarjoaman linkkidatan käytössä on vaatimuksena maininta sovellukseen, että sovelluksen datan lähteenä on Jyväskylän kaupunki. 
@@ -135,6 +136,7 @@ Laajennettuna tavoitteena on
 \item[-] Linja-autopysäkkien sijainnit, sekä linja-autopysäkkien kautta kulkevien linja-autojen erillisväritys. 
 \item[-] Kartan piirto linja-autoineen käyttäjän valitsemalla ajanhetkellä. 
 \end{itemize}
+Projektin arkkitehtuurisuunnitelma on esitetty kuvassa \ref{fig:arkkitehtuurisuunnitelma}. 
 
 %\section{Arkkitehtuurinen suunnitelma}
 
