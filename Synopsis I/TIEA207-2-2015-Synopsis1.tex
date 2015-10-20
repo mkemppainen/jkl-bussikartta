@@ -1,0 +1,154 @@
+\documentclass[a4paper, twoside, finnish, english, 12pt]{article}
+\usepackage[english,finnish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[fixlanguage]{babelbib}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{icomma}
+\usepackage{graphicx}
+\usepackage{appendix}
+\usepackage[center, it]{caption}
+\usepackage{verbatim}
+\usepackage{enumerate}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{booktabs}
+\usepackage{comment}
+\usepackage{dsfont}
+%\usepackage{cmll} %Ei työkoneella
+\usepackage{leftidx}
+\usepackage{bbold}
+\usepackage{todonotes} %Ei työkoneella
+%\usepackage{SIunits}
+\usepackage{units}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{fancyhdr}
+\usepackage[noindentafter,nobottomtitles,toctitles]{titlesec}
+\usepackage[nottoc]{tocbibind}
+\usepackage{tocloft}
+\usepackage{subcaption} %kuvakollaasin tekoon
+\usepackage[section]{placeins}
+%\usepackage{bibliography}
+
+\title{}
+\author{Joakim Linja}
+%\numberwithin{equation}{section}
+
+\hypersetup{%
+	pdftitle = {TIEA207 Synopsis 1},                                 % tutkielman otsikko
+	pdfauthor = {Linja Joakim Johannes , Ilmonen Kasimir Jyry Santeri, Homanen Mikko Aleksanteri, Kemppainen Mikko Taito Antero},                                % tekijä
+	pdfsubject = {TIEA207},                                     % dokumentin tyyppi
+	pdfproducer = {Linja Joakim Johannes , Ilmonen Kasimir Jyry Santeri, Homanen Mikko Aleksanteri, Kemppainen Mikko Taito Antero}     % Julkaisija
+}
+
+\begin{document}
+\setlength{\parindent}{0pt} %Kommentoi englanninkielisessä dokumentissa
+\setlength{\parskip}{4mm} %oli 4mm %Kommentoi englanninkielisessä dokumentissa
+\onehalfspacing
+\newcommand{\pound}{\operatornamewithlimits{\#}}
+\newcommand{\lA}{\left\langle}
+\newcommand{\rA}{\right\rangle}
+\newcommand{\lI}{\left|}
+\newcommand{\rI}{\right|}
+\newcommand{\Unit}[1]{\ \unit{#1}}
+\newcommand{\Var}[2]{$#1\ \unit{#2}$}
+\newcommand{\Varf}[3]{$#1\ \frac{\unit{#2}}{\unit{#3}}$}
+\newcommand{\Eqen}{\text{.}}
+\newcommand{\todoi}[1]{\todo[inline]{#1}}
+%\newcommand{\11}{\operatornamewithlimits{\mathbb{1}}}
+%\let\imath=\i
+\newcommand{\cluster}[2]{$\text{#1}_{#2}$}
+%\newcommand{\picsize2}{0.175}
+\newcommand{\vuosi}{2014}
+\newcommand{\question}[1]{\subsection*{Question {#1} solution}}
+\newcommand{\labwork}[1]{\newpage \section{#1}}
+\newcommand{\E}[1]{\cdot 10^{#1}}
+\newcommand{\Et}[1]{\ \text{x}10^{#1}}
+\newcommand{\EUnit}[2]{\E{#1}\Unit{#2}}
+\newcommand{\FUnit}[2]{\ \frac{\unit{#1}}{\unit{#2}}}
+\newcommand{\EFUnit}[3]{\E{#1}\frac{\unit{#2}}{\unit{#3}}}
+\newcommand{\upd}{\text{d}}
+
+%\renewcommand\thesection{\Alph{section}}
+%\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+
+\begin{flushleft}
+Joakim Linja
+\hfill 
+\textsf{joakim.j.linja@student.jyu.fi}\hfill
+\\ Kasimir Ilmonen\hfill
+\textsf{kasimir.j.s.ilmonen@student.jyu.fi}\hfill
+\\ Mikko Homanen\hfill
+\textsf{mikko.a.homanen@student.jyu.fi}\hfill
+\\ Mikko Kemppainen\hfill
+\textsf{mikko.t.a.kemppainen@student.jyu.fi}\hfill
+
+\hfill \texttt{15.10.2015}
+\end{flushleft}
+\setcounter{page}{1}
+\selectlanguage{finnish}
+
+\begin{center}
+\huge
+{TIEA207 Synopsis I}
+\end{center}
+%\question{}
+
+\section{Projektista yleisesti}
+%\section{Tiivistelmä}
+Tarkoituksena on tehdä sovellus, joka web--käyttöliittymän avulla näyttää reaaliaikaisesti Jyväskylän kaupungin alueella liikkuvien linja-autojen arvioidun sijainnin kartalla. 
+
+%\section{Kohderyhmä}
+Kohderyhmänä projektille ovat kaikki jotka käyttävät linja-autoja Jyväskylän kaupungin alueella ja muut, joita kiinnostaa Jyväskylän kaupungin alueen linja-autoliikenne. 
+
+%\section{Miellekkyys}
+Projektin mielekkyys muodostuu kuriositeetista, joka kohdentuu linja-autojen kulkemisen visualisointiin. 
+Tarkoituksena on konkretisoida linja-autojen liikennöintiä kaupungin alueella. 
+
+\section{Projektin resurssikäyttö ja rajoitteet}
+Projektin resurssikäyttönä on Jyväskylän kaupungin tarjoama avoin linkkidata ja kartan piirrossa käytetään Mapboxin kartta-API:tä. 
+%\section{Datan saatavuus ja käyttöehdot}
+Jyväskylän kaupungin tarjoaman linkkidatan käytössä on vaatimuksena maininta sovellukseen, että sovelluksen datan lähteenä on Jyväskylän kaupunki. 
+Mapboxin käytön rajoitteena on, ettei Mapboxin tarjoamia tietoja käytetä mihinkään laittomaan toimintaan. 
+Lisäksi kartassa tulee olla ''Improve this map''-linkki ja maininta siitä, että kartta on Mapboxilta lähtöisin. 
+
+%\section{Datan formaatti}
+Linkkidata haetaan Jyväskylän kaupungin sivustolta \url{http://data.jyvaskyla.fi/}, josta sen saa .zip--pakettina. 
+Kyseinen zip-paketti sisältää kasan tekstitiedostoja, jotka vaativat jatkokäsittelyä. 
+%\section{Käytettävät teknologiat}
+Kartan piirto suoritetaan Leafletin päälle rakennetulla kirjastolla Mapbox. 
+Palvelinohjelmisto tehdään alustavasti pythonilla. %Riippuen moniajolukon ilmenemisestä 
+Asiakaspalvelu suoritetaan pythonin ja javascriptin yhteistyössä. 
+Ohjelmointikielien tarkempia versionumeroita ei ole vielä tämän dokumentin kirjoitusvaiheessa päätetty. 
+Projektin tuotoksen on tarkoitus pyöriä palvelimella siten, että sovellukseen pääsee netistä käsin kiinni. 
+
+\section{Projektin tavoitteet}
+Minimitavoitteena haluamme saada aikaan web--käyttöliittymän, jonka kartalla näkyy jonkin tietyn linjan linja-autojen sijainnit arvioiduilla reaalisijainneillaan. 
+Laajennettuna tavoitteena on 
+\begin{itemize}
+\item[-] Kunkin yksittäisen linja-auton reitin erillisväritys kyseisen linja-auton kuvaketta klikkaamalla. 
+\item[-] Erilaisia käyttäjän saatavilla olevia suodattimia linja-autojen ja niiden reittien visualisoinniksi. 
+\item[-] Linja-autopysäkkien sijainnit, sekä linja-autopysäkkien kautta kulkevien linja-autojen erillisväritys. 
+\item[-] Kartan piirto linja-autoineen käyttäjän valitsemalla ajanhetkellä. 
+\end{itemize}
+Projektin arkkitehtuurisuunnitelma on esitetty kuvassa \ref{fig:arkkitehtuurisuunnitelma}. 
+
+%\section{Arkkitehtuurinen suunnitelma}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{projektisuunnitelma.png}
+\caption{Projektin arkkitehtuurisuunnitelma}
+\label{fig:arkkitehtuurisuunnitelma}
+\end{figure}
+
+%\bibliographystyle{jyflkandi_maunuksela_defined2}%babunsrt-fl}
+%\selectbiblanguage{finnish}
+%%\selectlanguage{english}
+%\bibliography{lahteet}
+\end{document}
