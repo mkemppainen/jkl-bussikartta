@@ -1,0 +1,116 @@
+\documentclass[a4paper, twoside, finnish, english, 12pt]{article}
+\usepackage[english,finnish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[fixlanguage]{babelbib}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{icomma}
+\usepackage{graphicx}
+\usepackage{appendix}
+\usepackage[center, it]{caption}
+\usepackage{verbatim}
+\usepackage{enumerate}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{booktabs}
+\usepackage{comment}
+\usepackage{dsfont}
+%\usepackage{cmll} %Ei työkoneella
+\usepackage{leftidx}
+\usepackage{bbold}
+\usepackage{todonotes} %Ei työkoneella
+%\usepackage{SIunits}
+\usepackage{units}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{fancyhdr}
+\usepackage[noindentafter,nobottomtitles,toctitles]{titlesec}
+\usepackage[nottoc]{tocbibind}
+\usepackage{tocloft}
+\usepackage{subcaption} %kuvakollaasin tekoon
+\usepackage[section]{placeins}
+%\usepackage{bibliography}
+
+\title{}
+\author{Joakim Linja}
+%\numberwithin{equation}{section}
+
+\hypersetup{%
+	pdftitle = {TIEA207 Synopsis 2},                                 % tutkielman otsikko
+	pdfauthor = {Linja Joakim Johannes , Ilmonen Kasimir Jyry Santeri, Homanen Mikko Aleksanteri, Kemppainen Mikko Taito Antero},                                % tekijä
+	pdfsubject = {TIEA207},                                     % dokumentin tyyppi
+	pdfproducer = {Linja Joakim Johannes , Ilmonen Kasimir Jyry Santeri, Homanen Mikko Aleksanteri, Kemppainen Mikko Taito Antero}     % Julkaisija
+}
+
+\begin{document}
+\setlength{\parindent}{0pt} %Kommentoi englanninkielisessä dokumentissa
+\setlength{\parskip}{4mm} %oli 4mm %Kommentoi englanninkielisessä dokumentissa
+\onehalfspacing
+\newcommand{\pound}{\operatornamewithlimits{\#}}
+\newcommand{\lA}{\left\langle}
+\newcommand{\rA}{\right\rangle}
+\newcommand{\lI}{\left|}
+\newcommand{\rI}{\right|}
+\newcommand{\Unit}[1]{\ \unit{#1}}
+\newcommand{\Var}[2]{$#1\ \unit{#2}$}
+\newcommand{\Varf}[3]{$#1\ \frac{\unit{#2}}{\unit{#3}}$}
+\newcommand{\Eqen}{\text{.}}
+\newcommand{\todoi}[1]{\todo[inline]{#1}}
+%\newcommand{\11}{\operatornamewithlimits{\mathbb{1}}}
+%\let\imath=\i
+\newcommand{\cluster}[2]{$\text{#1}_{#2}$}
+%\newcommand{\picsize2}{0.175}
+\newcommand{\vuosi}{2014}
+\newcommand{\question}[1]{\subsection*{Question {#1} solution}}
+\newcommand{\labwork}[1]{\newpage \section{#1}}
+\newcommand{\E}[1]{\cdot 10^{#1}}
+\newcommand{\Et}[1]{\ \text{x}10^{#1}}
+\newcommand{\EUnit}[2]{\E{#1}\Unit{#2}}
+\newcommand{\FUnit}[2]{\ \frac{\unit{#1}}{\unit{#2}}}
+\newcommand{\EFUnit}[3]{\E{#1}\frac{\unit{#2}}{\unit{#3}}}
+\newcommand{\upd}{\text{d}}
+
+%\renewcommand\thesection{\Alph{section}}
+%\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+
+\begin{flushleft}
+Joakim Linja
+\hfill 
+\textsf{joakim.j.linja@student.jyu.fi}\hfill
+\\ Kasimir Ilmonen\hfill
+\textsf{kasimir.j.s.ilmonen@student.jyu.fi}\hfill
+\\ Mikko Homanen\hfill
+\textsf{mikko.a.homanen@student.jyu.fi}\hfill
+\\ Mikko Kemppainen\hfill
+\textsf{mikko.t.a.kemppainen@student.jyu.fi}\hfill
+
+\hfill \texttt{20.10.2015}
+\end{flushleft}
+\setcounter{page}{1}
+\selectlanguage{finnish}
+
+\begin{center}
+\huge
+{TIEA207 Synopsis II}
+\end{center}
+%\question{}
+
+%\section{Sovittu prosessimalli}
+
+Viikoittain kirjoitetaan jokaiselle projektin jäsenelle tehtäviä, joiden määrä arvioidaan niiden vaativuuden avulla. 
+Viikon jälkeen arvoidaan suoriutumista ja tehdään mahdollisia korvaavia liikkeitä. 
+
+Tarkoituksena on pitää viikoittaisia tapaamisia, joissa tarkastellaan tilannetta ja määrätään seuraavan työviikon suunta. 
+
+Projektin jäsenten tehtävänannot muuttuvat projektin edetessä, riippuen avoinna olevista tekemättömistä tehtävistä. 
+
+
+%\bibliographystyle{jyflkandi_maunuksela_defined2}%babunsrt-fl}
+%\selectbiblanguage{finnish}
+%%\selectlanguage{english}
+%\bibliography{lahteet}
+\end{document}
