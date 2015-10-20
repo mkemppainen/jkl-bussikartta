@@ -1,0 +1,11 @@
+[package]
+name = "parsija"
+version = "0.1.0"
+authors = ["Kasimir Ilmonen <kajysail@student.jyu.fi>"]
+
+[lib]
+name = "parsija"
+crate-type = ["dylib"]
+
+[dependencies]
+libc = "*"
