@@ -4,17 +4,20 @@
     <meta charset="utf-8">
     <title>My test page</title>
     <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" / >-->
-    <link href="styles/style.css" rel="stylesheet" type="text/css">
+    <!-- <link href="styles/style.css" rel="stylesheet" type="text/css"> -->
     <link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet' />
     <script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
     <style>
       body { margin:0; padding:0; }
-      #map { position:absolute; top:0; bottom:0; width:100%; }
+      #map { position:absolute; top:0; bottom:0; width:100%; height:50%; }
+      #teksti { position:absolute; bottom:0 }
     </style>
   </head>
   <body>
       <div id="map">
 	<p>jotain tekstii</p>
+      </div>
+      <div id="teksti">
       </div>
     <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
     <script src="main.js"></script>
