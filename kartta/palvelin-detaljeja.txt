@@ -1,0 +1,16 @@
+Tässä vähän tietoja millaiseksi dataa pitäisi parsia.
+
+Mapbox API:lla saa haettua tarkan reitin teitä pitkin bussipysäkiltä bussipysäkille seuraavanlaisella kyselyllä:
+https://api.mapbox.com/v4/directions/mapbox.driving/25.70022,62.25287;25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false
+
+Access token on rekisteröity minun tunnukselle, se tulee pakosta olemaan jokseenkin julkinen ja näkymään sivun sourcessa. Käytetään sitä.
+Reitissä voi olla enintään 25 pistettä kerrallaan.
+
+Mapboxin vastaus on seuraavanlaista JSONia:
+{"origin":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.700225830078125,62.252872467041016]},"properties":{"name":"Laajavuorentie"}},"destination":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.70514488220215,62.24816131591797]},"properties":{"name":"Tilustie"}},"waypoints":[],"routes":[{"distance":747,"duration":61,"summary":"","geometry":{"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705143,62.24816]]},"steps":[]}]}
+
+Siitä oleellisin osa on:
+{"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705143,62.24816]]}
+
+,joka on tarkka reitti tietä pitkin. Sen avulla voi piirtää reitin ja liikuttaa busseja kartalla.
+Yhden bussin reitti pysäkiltä pysäkille olisi siis tuota muotoa.
