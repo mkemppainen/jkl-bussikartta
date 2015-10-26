@@ -1,21 +1,51 @@
+#![feature(cstr_memory2)]
 extern crate libc;
 
 use libc::c_char;
-use std::slice;
 use std::mem;
 use std::ffi::CString;
+use std::ffi::CStr;
 
 /// Sisältää pysäkin tiedot
 #[repr(C)]
 pub struct Pysakki {
-    id: *mut c_char,
-    nimi: *mut c_char, 
-    lat: *mut c_char,
-    lon: *mut c_char,
+    id: *const c_char,
+    nimi: *const c_char, 
+    lat: *const c_char,
+    lon: *const c_char,
 }
 
 #[test]
 fn it_works() {
+}
+
+
+#[no_mangle]
+pub extern fn pysakki_free(pysakki: Pysakki) {
+   println!("Tultiin pysakin poistamiseen");
+   cstring_free(pysakki.id);
+   cstring_free(pysakki.nimi);
+   cstring_free(pysakki.lon);
+   cstring_free(pysakki.lat);
+   println!("Lähdetään pysäkin poistamisesta.");
+}
+
+#[no_mangle]
+pub extern fn cstring_free(p: *const c_char) {
+    unsafe { CString::from_ptr(p) };
+    println!("Tuhotaan jotain.");
+}
+
+#[no_mangle]
+pub extern fn free_query(c: *mut c_char) {
+    let c_str = unsafe { CStr::from_ptr(c) };
+    let bytes_len = c_str.to_bytes_with_nul().len();
+    let _ = unsafe { Vec::from_raw_parts(c, bytes_len, bytes_len) };
+}
+
+#[no_mangle]
+pub extern fn anna_esimerkki_teksti() -> *const c_char {
+    CString::new("112514").unwrap().into_ptr()
 }
 
 /// Antaa esimerkki pysäkin.
@@ -35,5 +65,6 @@ pub extern fn anna_esimerkki_pysakki() -> Pysakki {
     mem::forget(c);
     mem::forget(d);
 
-    Pysakki{id: a_p as *mut _, nimi: b_p as *mut _ , lat: c_p as *mut _ , lon: d_p as *mut _}
+    let pysakki = Pysakki{id: a_p as *mut _, nimi: b_p as *mut _ , lat: c_p as *mut _ , lon: d_p as *mut _};
+    pysakki
 }
