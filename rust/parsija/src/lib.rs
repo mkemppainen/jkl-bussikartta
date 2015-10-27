@@ -4,7 +4,6 @@ extern crate libc;
 use libc::c_char;
 use std::mem;
 use std::ffi::CString;
-use std::ffi::CStr;
 
 /// Sisältää pysäkin tiedot
 #[repr(C)]
@@ -34,13 +33,6 @@ pub extern fn pysakki_free(pysakki: Pysakki) {
 pub extern fn cstring_free(p: *const c_char) {
     unsafe { CString::from_ptr(p) };
     println!("Tuhotaan jotain.");
-}
-
-#[no_mangle]
-pub extern fn free_query(c: *mut c_char) {
-    let c_str = unsafe { CStr::from_ptr(c) };
-    let bytes_len = c_str.to_bytes_with_nul().len();
-    let _ = unsafe { Vec::from_raw_parts(c, bytes_len, bytes_len) };
 }
 
 #[no_mangle]
