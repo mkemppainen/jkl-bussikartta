@@ -1,9 +1,15 @@
 #![feature(cstr_memory2)]
 extern crate libc;
+extern crate regex;
 
 use libc::c_char;
+use regex::Regex; 
+use std::path::Path;
 use std::mem;
 use std::ffi::CString;
+use std::io::BufReader;
+use std::fs::File;
+use std::io::prelude::*;
 
 /// Sisältää pysäkin tiedot
 #[repr(C)]
@@ -14,8 +20,58 @@ pub struct Pysakki {
     lon: *const c_char,
 }
 
-#[test]
-fn it_works() {
+
+struct PysakkiData {
+    stop_id: String,
+    nimi: String,
+    lat: String,
+    lon: String,
+}
+
+struct MatkatData {
+    route_id: String,
+    service_id: String,
+    trip_id: String,
+    nimi: String,
+}
+
+struct PysahtymisAjatData {
+    trip_id: String,
+    saapumis_aika: String,
+    lahto_aika: String,
+    stop_id: String,
+    jnum: String,
+}
+
+fn lue_pysahtymisajat() -> Option<Vec<PysahtymisAjatData>> {
+    let mut f = match File::open("./linkkidata/stop_times.txt") {
+        Ok(f) => f,
+        Err(e) => return None,
+    };
+
+    let lukija: BufReader<_> = BufReader::new(f);
+
+    let mut lista = lukija.lines().filter_map(|x| anna_pysahtymisaika(&x.unwrap())).collect();
+    Some(lista) 
+}
+
+fn anna_pysahtymisaika(teksti: &str) -> Option<PysahtymisAjatData> {
+    println!("{}",teksti);
+    let re = Regex::new(r##""((\w+-){4}\w+)","(\d\d:\d\d:\d\d)","(\d\d:\d\d:\d\d)","(\d+)","(\d+)""##).unwrap();
+    let napatut = match re.captures(teksti) {
+        Some(a) => a,
+        None => return None,
+    };
+    
+    println!("id{}, saika{}, laika{}, stopid{}, jnum{}", napatut.at(1).unwrap(), napatut.at(3).unwrap(), napatut.at(4).unwrap(), napatut.at(5).unwrap(), napatut.at(6).unwrap());
+    Some(PysahtymisAjatData{trip_id: napatut.at(1).unwrap().to_string(), saapumis_aika: napatut.at(3).unwrap().to_string(), lahto_aika: napatut.at(4).unwrap().to_string(), stop_id: napatut.at(5).unwrap().to_string(), jnum: napatut.at(6).unwrap().to_string()})
+}
+
+#[no_mangle]
+pub extern fn testi_anna_pysahtymisaika() {
+    println!("Moi");
+    anna_pysahtymisaika(r#""fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3","05:01:00","05:01:00","303713","2""#);
+    println!("{}",lue_pysahtymisajat().unwrap().len());
 }
 
 

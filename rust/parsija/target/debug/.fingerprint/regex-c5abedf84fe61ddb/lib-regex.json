@@ -1,0 +1,1 @@
+{"rustc":946760347603715549,"target":6123754056967243118,"profile":2512772377220700060,"local":{"variant":"Precalculated","fields":["0.1.41"]},"features":"None","deps":[["aho-corasick v0.3.4",8679754034791171606],["memchr v0.1.6",442020256908394440],["regex-syntax v0.2.2",11754558827020587937]]}
