@@ -1,10 +1,6 @@
 // MAPBOX APISSA LATITUDE JA LONGITUDE ON TOISINPAIN
+// 
 
-
-//var myHeading = document.querySelector('h1');
-//myHeading.innerHTML = 'Hello world!';
-//alert("Hello! I am an alert box!!");
-//var map = L.map('map').setView([51.505, -0.09], 13);
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 // Create a map in the div #map
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
@@ -12,8 +8,6 @@ var m1 = [62.244, 25.736];
 var m2 = [62.248, 25.705];
 var m3 = [62.236, 25.715];
 var m4 = [62.230, 25.700];
-
-var routebb = {"type":"LineString","coordinates":[[62.244, 25.736],[62.248, 25.705],[62.236, 25.715],[62.230, 25.700]]};
 
 var marker1 = L.marker(m1).addTo(map);
 var marker2 = L.marker(m2).addTo(map);
@@ -26,53 +20,9 @@ var route = {"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302
 
 var original ={"origin":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.700225830078125,62.252872467041016]},"properties":{"name":"Laajavuorentie"}},"destination":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.70514488220215,62.24816131591797]},"properties":{"name":"Tilustie"}},"waypoints":[],"routes":[{"distance":747,"duration":61,"summary":"","geometry":{"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705143,62.24816]]},"steps":[]}]};
 
-console.log(original.routes[0].geometry.coordinates);
-//route = JSON.parse(route);
-
-// Generate a GeoJSON line. You could also load GeoJSON via AJAX
-// or generate it some other way.
-var geojson = { type: 'LineString', coordinates: [] };
-var start = [10, 20];
-var momentum = [3, 3];
-
-
-// tee epamaaraiset viivat maailmankartalle
-for (var i = 0; i < 300; i++) {
-    start[0] += momentum[0];
-    start[1] += momentum[1];
-    if (start[1] > 60 || start[1] < -60) momentum[1] *= -1;
-    if (start[0] > 170 || start[0] < -170) momentum[0] *= -1;
-    geojson.coordinates.push(start.slice());}
-
-
-// piirra viivatp maailmankartalle
-//L.geoJson(route2).addTo(map);
-geojson = route;
-L.geoJson(geojson).addTo(map);
-//console.log(geojson.coordinates[0]);
-//console.log(route.coordinates[0]);
-
-// debuggaus muuttujia
-var test = liikuKohti([10,10],[15,11],11);
-
-var kommentti1 = route.coordinates;
-var kommentti2 = route.coordinates[0];
-var kommentti3 = route.coordinates[0][0];
-
-// testiiiiiiiiii
-// document.getElementById('teksti').innerHTML = '<p>'+ route.coordinates + '</p>';
-var mydiv = document.getElementById("teksti");
-mydiv.appendChild(document.createTextNode(kommentti1 + "_________"));
-mydiv.appendChild(document.createTextNode(kommentti2 + "_________"));
-mydiv.appendChild(document.createTextNode(kommentti3));
-
-
-
-
-// Create a counter with a value of 0.
 var j = 0;
+L.geoJson(route).addTo(map);
 
-// Create a marker and add it to the map.
 var marker = L.marker(m1, {
   icon: L.mapbox.marker.icon({
     'marker-color': '#f86767'
@@ -88,13 +38,58 @@ var piste = pisteet[0];
 var kohde = pisteet[1];
 var nopeus = 0.001;
 
-
-
 var m0 = [62.25287, 25.70022];
 var m9 = [62.24816, 25.70514];
 
 var marker0 = L.marker(m0).addTo(map);
 tick();
+
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+    // tama funktio kutsutaan kun serverin vastaus on valmis
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+	serveriVastasi(xhttp.responseText);
+    }
+};
+xhttp.open("GET", "reitti?time=12:30", true); // kysyy bussien datan kello 12:30
+xhttp.send();
+
+var bussireitit =
+[{
+    "reitinNimi":"kuokkala",
+    "pysakinValit":[ // lista kaikista reitin pysakkien valeista
+	{"lahtoNimi":"pysakki3", // pysakin nimi
+	 "lahtoAika":"12:15",
+	 "lahtoPiste":[62.25287, 25.70022], // [lat, lon]
+	 "paateNimi":"pysakki17",
+	 "paatePiste":[62.24816, 25.70514],
+	 "paateAika": "12:20",
+	 "duration": 300, // mapboxin reittihaun palauttama aika-arvio sekunteina
+	 "coordinates":[[25.700226,62.252873],[25.700302,62.25277], 
+			[25.700522,62.252304],[25.700153,62.251181],
+			[25.700726,62.252204],[25.70153,62.252123]]},
+
+	// toinen pysakkien vali esimerkiksi
+	{"lahtoNimi":"pysakki17", 
+	 "lahtoAika":"12:30",
+	 "lahtoPiste":"[62.25334, 25.70234]",
+	 "paateNimi":"pysakki68",
+	 "paatePiste":[62.24816, 25.70514],
+	 "paateAika": "13:15",
+	 "coordinates":[[25.700226,62.252873],[25.700302,62.25277], 
+			[25.700522,62.252304],[25.700153,62.251181],
+			[25.700726,62.252204],[25.70153,62.252123]]}
+    ] // pysakinvalit loppu
+    
+},
+ { /* tahan toinen samanlainen reittihomma, kuten edella olevien
+    * kaarisulkujen sisassa, ja loput reitit omiin sulkuihinsa */ }];
+
+
+function serveriVastasi (vastaus) {
+    var parsittu = JSON.parse(vastaus);
+    //parsittu.coordinates
+}
 
 function tick() {
     console.log("alku");
@@ -122,16 +117,7 @@ function tick() {
 	var suuntavektori = liikuKohti(piste,kohde,nopeus);
 	piste = [suuntavektori[0] + piste[0], suuntavektori[1] + piste[1]];
     }
-   
 
-  
-//    marker.setLatLng(L.latLng(
-//        route.coordinates[j][0],
-//        route.coordinates[j][1]));
-
-    // Move to the next point of the line
-    // until `j` reaches the length of the array.
-    //if (++j < route.coordinates.length)
     console.log("ennen tick");
     setTimeout(tick, 100);
 }
@@ -145,45 +131,3 @@ function liikuKohti(alkupiste,loppupiste,nopeus){
     return suuntavektori;
 }
 
-
-//document.getElementById('teksti').innerText = '<p> ' + 'Some Text' + ' </p>'; //
-//var https://api.mapbox.com/v4/directions/{profile}/{waypoints}.json?access_token=<your access token>
-
-//var featureLayer = L.mapbox.featureLayer().loadURL('/mapbox.js/assets/data/example-single.geojson');
-//featureLayer.addTo(map);
-
-// jykyla koordinaatit: 62.244, 25.736
-// jy kortepohja:       62.248, 25.705
-
-//var https://api.mapbox.com/v4/directions/{profile}/{waypoints}.json?access_token=<your accestss token>
-// https://api.mapbox.com/v4/directions/mapbox.walking/62.218,25.705;62.244,25.736;62.248,25.733.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false
-//https://api.mapbox.com/v4/directions/mapbox.driving/25.705,62.218;25.735,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false
-
-//https://api.mapbox.com/v4/directions/mapbox.driving/62.25287,25.70022;62.24816,25.70514;62.244,25.836.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false
-
-//var m0 = [62.25287, 25.70022];
-//var m9 = [62.24816, 25.70514];
-//var m1 = [62.244, 25.736];
-// {"type":"LineString","coordinates":[[62.244, 25.736],[62.248, 25.705],[62.236, 25.715],[62.230, 25.700]]};
-//
-
-/* 
-
-Mapbox API:lla saa haettua tarkan reitin teitä pitkin bussipysäkiltä bussipysäkille seuraavanlaisella kyselyllä:
-https://api.mapbox.com/v4/directions/mapbox.driving/25.70022,62.25287;25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false
-
-Access token on rekisteröity minun tunnukselle, se tulee pakosta olemaan jokseenkin julkinen ja näkymään sivun sourcessa. Käytetään sitä.
-Reitissä voi olla enintään 25 pistettä kerrallaan.
-
-Mapboxin vastaus on seuraavanlaista JSONia:
-{"origin":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.700225830078125,62.252872467041016]},"properties":{"name":"Laajavuorentie"}},"destination":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.70514488220215,62.24816131591797]},"properties":{"name":"Tilustie"}},"waypoints":[],"routes":[{"distance":747,"duration":61,"summary":"","geometry":{"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705143,62.24816]]},"steps":[]}]}
-
-Siitä oleellisin osa on:
-{"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705143,62.24816]]}
-
-,joka on tarkka reitti tietä pitkin. Sen avulla voi piirtää reitin ja liikuttaa busseja kartalla.
-Yhden bussin reitti pysäkiltä pysäkille olisi siis tuota muotoa.
-
-
-
-*/
