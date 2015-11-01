@@ -3,7 +3,7 @@ import ctypes
 class Pysakki(ctypes.Structure):
     _fields_ = [("id", ctypes.c_char_p), ("nimi", ctypes.c_char_p), ("lat", ctypes.c_char_p), ("lon", ctypes.c_char_p)]
 
-lib = ctypes.cdll.LoadLibrary("parsija/target/release/libparsija.so")
+lib = ctypes.cdll.LoadLibrary("parsija\target\release\libparsija.so")
 
 lib.anna_esimerkki_pysakki.restype = Pysakki
 
