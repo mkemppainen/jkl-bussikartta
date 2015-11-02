@@ -153,19 +153,19 @@ fn anna_matkanimet(teksti: &str) -> Option<MatkaNimetData> {
 /// Antaa esimerkki ajan pysähtymisestä ja tulostaa sen.
 #[no_mangle]
 pub extern fn testi_anna_pysahtymisaika() {
-    match lue_pysahtymisajat(Path::new(r".\linkkidata\stop_times.txt")) {
+    match lue_pysahtymisajat(Path::new(r"./linkkidata/stop_times.txt")) {
         Some(a) => println!("{}",a.len()),
         None => println!("Tiedostoa ei voitu lukea"),
     }
-    match lue_matkat(Path::new(r".\linkkidata\trips.txt")) {
+    match lue_matkat(Path::new(r"./linkkidata/trips.txt")) {
         Some(a) => println!("{}",a.len()),
         None => println!("Tiedostoa ei voitu lukea"),
     }
-    match lue_pysakit(Path::new(r".\linkkidata\stops.txt")) {
+    match lue_pysakit(Path::new(r"./linkkidata/stops.txt")) {
         Some(a) => println!("{}",a.len()),
         None => println!("Tiedostoa ei voitu lukea"),
     }
-    match lue_nimet(Path::new(r".\linkkidata\routes.txt")) {
+    match lue_nimet(Path::new(r"./linkkidata/routes.txt")) {
         Some(a) => println!("{}",a.len()),
         None => println!("Tiedostoa ei voitu lukea"),
     }
