@@ -1,6 +1,6 @@
 // MAPBOX APISSA LATITUDE JA LONGITUDE ON TOISINPAIN
 // 
-
+var asdf = 123;
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 // Create a map in the div #map
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
@@ -44,17 +44,19 @@ var m9 = [62.24816, 25.70514];
 var marker0 = L.marker(m0).addTo(map);
 tick();
 
-var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-    // tama funktio kutsutaan kun serverin vastaus on valmis
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-	serveriVastasi(xhttp.responseText);
-    }
-};
-xhttp.open("GET", "reitti?time=12:30", true); // kysyy bussien datan kello 12:30
-xhttp.send();
+function reittiPyynto(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+	// tama funktio kutsutaan kun serverin vastaus on valmis
+	if (xhttp.readyState == 4 && xhttp.status == 200) {
+	    serveriVastasi(xhttp.responseText);
+	}
+    };
+    xhttp.open("GET", "reitti?time=12:30", true); // kysyy bussien datan kello 12:30
+    xhttp.send();
+}
 
-var bussireitit =
+var bussireitit =    
 [{
     "reitinNimi":"kuokkala",
     "pysakinValit":[ // lista kaikista reitin pysakkien valeista
@@ -85,25 +87,38 @@ var bussireitit =
  { /* tahan toinen samanlainen reittihomma, kuten edella olevien
     * kaarisulkujen sisassa, ja loput reitit omiin sulkuihinsa */ }];
 
+serveriVastasi (bussireitit);
+
 
 function serveriVastasi (vastaus) {
-    var parsittu = JSON.parse(vastaus);
-    //parsittu.coordinates
+    //var parsittu = JSON.parse(vastaus);
+    var parsittu = vastaus;
+
+    // for looppi, etsi kellonajan perusteella piste missa ollaan
+    // 
+    var coordinates = bussireitit[0].pysakinValit[0].coordinates;
+    // seuraavaVali = bussireitit[0].pysakinValit[1].coordinates;
+
+    // pysakinvalit indeksi, coordinaattien ajan perusteella arvioitu indeksi
+    var sijaintiReitilla = [0,4];
+    // kasvata jalkimmaista kunnes length-1, sen jalkeen kasvata eka
+
 }
 
+
+
+// kertoo, onko kellonaika alku- ja loppuajan valilla
+function onkoAjanValilla(alku, loppu, aika) { /*implement*/}
+
 function tick() {
-    console.log("alku");
     m0 = [62.249, 25.706];
     //marker.setLatLng(L.latLng(m0[0],m0[1]));
 
     var dx = kohde[0] - piste[0];
     var dy = kohde[1] - piste[1];
-    console.log(piste);
-    console.log(kohde);
 
     // onko markkeri lahempana kohdetta kuin nopeus
     if (Math.sqrt(dx*dx + dy*dy) < nopeus){
-	console.log("lahellla lopppua if");
 	marker.setLatLng(L.latLng(kohde[1],kohde[0])); // lat long toisinpain koska api
 	piste = kohde; // piste on nyt edellinen kohde
 	if (++n === pisteet.length){
@@ -113,12 +128,9 @@ function tick() {
 	
     } else {
 	marker.setLatLng(L.latLng(piste[1],piste[0]));
-	console.log("siirrettiin markkeri");
 	var suuntavektori = liikuKohti(piste,kohde,nopeus);
 	piste = [suuntavektori[0] + piste[0], suuntavektori[1] + piste[1]];
     }
-
-    console.log("ennen tick");
     setTimeout(tick, 100);
 }
 
