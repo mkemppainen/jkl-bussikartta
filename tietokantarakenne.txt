@@ -1,0 +1,32 @@
+Tämä tiedosto sisältää alustavan suunnitelman sovelluksessa käytettävän tietokannan tauluista.
+Pidätämme oikeuden muutoksiin.
+
+Kaikki alla olevien taulujen sarakkeiden tietotyypit ovat oletusarvoisesti tekstiä tyyliin "Maanantai"
+
+Esitys on muodossa:
+Taulun_nimi
+-sarakkeen1_nimi:("esimerkki",tarkoitus)--kommentti
+-sarakkeen2_nimi:("esimerkki",tarkoitus,yhdistävä numerokoodi toisessa taulussa olevaan sarakkeeseen. Yleensä id)
+
+Pysakit
+-stop_id:("112514",yksilöi kunkin pysäkin,1)
+-nimi:("Laukaa linja-autoasema", Pysäkin nimi)
+-lat:("62.4146943734173", pysäkin latitude sijainti eli koordinaatti)
+-lon:("25.9521651226176", pysäkin longitude sijainti)
+
+Matkat
+-trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",yksilöi kaikki matkat,2)
+-route_id:("9011", yhdistää kunkin matkan reittiin, jota kuljetaan. käytetään vain nimen selvittämiseen kai,3)
+-service_id:("M-P kesä", käytetään selvittämiseen milloin kulkee.)
+
+Pysahtymis_ajat
+-trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",kertoo mihin matkaan pysähtyminen kuuluu, 2)
+-stop_id:("112514",kertoo millä pysäkillä pysähtyy,1)
+-saapumis_aika:("05:00:00",milloin bussi saapuu pysäkille)
+-lahto_aika:("05:00:00",milloin bussi lähtee pysäkiltä)
+-jnum:("4",Kertoo monesko pysäkki on reitillä.)--voisi olla myös oikeasti numero. Vertailujen kannalta varmaan järkevämpää.
+
+Matkojen_nimet
+-route_id:("9011",yhdistää nimen reittiin,3)
+-lnimi:("27", lyhyt nimi. Yleensä se mikä näkyy bussissa)
+-pnimi:("27 MUSTALAMPI-PALOKKA-HEIKKILÄ", reitin pitkä nimi)
