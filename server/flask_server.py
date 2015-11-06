@@ -19,8 +19,25 @@ def index():
 def get_route():
     if request.method == 'GET':
         print(request.args.get('time'), file=sys.stderr) # testi
-        r = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/25.70022,62.25287;25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')
+
+        #Tassa haetaan selaimelta pyydetyn reitin tiedot, toistaiseksi staattinen
         
+        #kannasta haetut pysakkien koordinaatit taulukossa
+        stop_crdnts = [['62.25287', '25.70022'],['62.24816', '25.270514']]
+        stop_crdnts2 = []
+        #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
+        for i in stop_crdnts:
+            strng = i[1] + ',' + i[0]
+            #haetaan pysakkien valin koordinaatit
+            r  = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/'+ strng + ';25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')     
+            #heitetaan koordinaatit reitin listalle
+            jisondata = json.loads(r.text)
+            stop_crdnts2.append(jisondata["routes"][0]["geometry"]["coordinates"])
+            #mapbox-pyynto mallina 
+            """
+            rr = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/25.70022,62.25287;25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')
+            """
+
         #MIKSI TAMA EI TALLENNU OIKEASSA MUODOSSA? Vai onko silla valia?
         r2 = [{
             "reitinNimi":"kuokkala",
@@ -39,8 +56,8 @@ def get_route():
 
     resp = Response(response=json.dumps(r2),
         status=200,
-        mimetype="application/json")
-    #print(resp.response, file=sys.stderr) #TESTI
+        mimetype="application/json")   
+        
     return(resp)
     
 
