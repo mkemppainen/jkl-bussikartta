@@ -1,0 +1,26 @@
+Pientä aihiota sille, miten kannasta saadaan haettua tarvittavaa data.
+
+1.
+Tietyn reitin välille kuuluvat pysäkit ja niiden koordinaatit.
+Nämä tulisi vielä jotenkin järkevästi yhdistää.
+
+Haetaan argumenttina saadulle reitille kuuluvat trip id:t
+
+select trip_id
+from matkat
+where route_id in 
+   (select route_id
+    from matkojen_nimet
+    where lnimi is ARGUMENTTI)
+
+Haetaan löydetyille trip_id:lle kuuluvat stop_id:t
+
+select stop_id
+from pysahtymis_ajat
+where trip_id in (ylempi kysely)
+
+Haetaan löydetyille stop_id:lle koordinaatit
+
+select lat, lon
+from pysakit
+where stop_id in (ylempi kysely)

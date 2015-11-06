@@ -13,16 +13,15 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-#reitti?time=12:30 saisiko tammosella avattua routen?
 #Pitaa muokata hakemaan dataa dynaamisesti, nyt palautuu staattinen
 #JSON-data
 @app.route("/get_route")
 def get_route():
     if request.method == 'GET':
-        print('success', file=sys.stderr) # testi
+        print(request.args.get('time'), file=sys.stderr) # testi
         r = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/25.70022,62.25287;25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')
         
-        #MIKSI TAMA EI TALLENNU OIKEASSA MUODOSSA?
+        #MIKSI TAMA EI TALLENNU OIKEASSA MUODOSSA? Vai onko silla valia?
         r2 = [{
             "reitinNimi":"kuokkala",
             "pysakinValit":[{
@@ -41,7 +40,7 @@ def get_route():
     resp = Response(response=json.dumps(r2),
         status=200,
         mimetype="application/json")
-    print(resp.response, file=sys.stderr) #TESTI
+    #print(resp.response, file=sys.stderr) #TESTI
     return(resp)
     
 
