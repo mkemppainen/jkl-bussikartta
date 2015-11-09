@@ -10,3 +10,7 @@ crate-type = ["dylib"]
 [dependencies]
 libc = "0.1.10"
 regex = "0.1.41"
+rusqlite = "0.4.0"
+#Pitää asentaa sqlite-devel
+#ehkä PKG_CONFIG_PATH=`echo /usr/local/Cellar/sqlite/*/lib/pkgconfig/
+#ainakin sudo yum install sqlite-devel

@@ -1,5 +1,6 @@
 extern crate libc;
 extern crate regex;
+extern crate rusqlite;
 
 use libc::c_char;
 use regex::Regex; 
@@ -9,6 +10,7 @@ use std::ffi::CString;
 use std::io::BufReader;
 use std::fs::File;
 use std::io::prelude::*;
+use rusqlite::SqliteConnection;
 
 
 
@@ -153,22 +155,83 @@ fn anna_matkanimet(teksti: &str) -> Option<MatkaNimetData> {
 /// Antaa esimerkki ajan pysähtymisestä ja tulostaa sen.
 #[no_mangle]
 pub extern fn testi_anna_pysahtymisaika() {
-    match lue_pysahtymisajat(Path::new(r"./linkkidata/stop_times.txt")) {
-        Some(a) => println!("{}",a.len()),
-        None => println!("Tiedostoa ei voitu lukea"),
+    let pysahtymis_ajat = match lue_pysahtymisajat(Path::new(r"./linkkidata/stop_times.txt")) {
+        Some(a) => { println!("{}",a.len()); a},
+        None => panic!("Tiedostoa ei voitu lukea"),
+    };
+    let matkat = match lue_matkat(Path::new(r"./linkkidata/trips.txt")) {
+        Some(a) => { println!("{}",a.len()); a},
+        None => panic!("Tiedostoa ei voitu lukea"),
+    };
+    let pysakit = match lue_pysakit(Path::new(r"./linkkidata/stops.txt")) {
+        Some(a) => { println!("{}",a.len()); a},
+        None => panic!("Tiedostoa ei voitu lukea"),
+    };
+    let nimet = match lue_nimet(Path::new(r"./linkkidata/routes.txt")) {
+        Some(a) => { println!("{}",a.len()); a},
+        None => panic!("Tiedostoa ei voitu lukea"),
+    };
+
+    kirjoita_tietokantaan(Path::new(r"./tietokanta_testi.data"),matkat,nimet,pysakit,pysahtymis_ajat);
+}
+
+
+///Kirjoittaa tiedot sqlite tietokantaan.
+fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<MatkaNimetData>, pysakit: Vec<PysakkiData>, pysahtymis_ajat: Vec<PysahtymisAjatData>) -> bool{
+    let yhteys = match SqliteConnection::open(polku) {
+        Ok(a) => a,
+        Err(_) => {println!("Tietokantaa ei voida avata, eikä sinne kirjoittaminen ole siksi mahdollista (vika voi olla toki jossain muussakin kuin avaamisessa. Tarkalleen ottaen ei voida muodostaa yhteyttä.)"); return false;},
+    };
+
+    match yhteys.execute("CREATE TABLE Pysakit (
+                    stop_id     varchar(255) PRIMARY KEY,
+                    nimi        varchar(255) NOT NULL,
+                    lat         varchar(255) NOT NULL,
+                    lon         varchar(255) NOT NULL
+                    )", &[]) {
+                    Ok(_) => (),
+                    Err(_) => {println!("Virhe Pysakit-taulun luonnissa."); return false;},
     }
-    match lue_matkat(Path::new(r"./linkkidata/trips.txt")) {
-        Some(a) => println!("{}",a.len()),
-        None => println!("Tiedostoa ei voitu lukea"),
+
+    match yhteys.execute("CREATE TABLE Matkat (
+                    trip_id     varchar(255) NOT NULL,
+                    route_id    varchar(255) NOT NULL,
+                    service_id  varchar(255) NOT NULL
+                    )", &[]) {
+                    Ok(_) => (),
+                    Err(_) => {println!("Virhe Matkat-taulun luonnissa."); return false;},
     }
-    match lue_pysakit(Path::new(r"./linkkidata/stops.txt")) {
-        Some(a) => println!("{}",a.len()),
-        None => println!("Tiedostoa ei voitu lukea"),
+
+    match yhteys.execute("CREATE TABLE Pysahtymis_ajat (
+                    trip_id     varchar(255) NOT NULL,
+                    stop_id     varchar(255) NOT NULL,
+                    saapumis_aika varchar(255) NOT NULL,
+                    lahto_aika  varchar(255) NOT NULL,
+                    jnum        varchar(255) NOT NULL
+                    )", &[]) {
+                    Ok(_) => (),
+                    Err(_) => {println!("Virhe Pysahtymis_ajat-taulun luonnissa."); return false;},
     }
-    match lue_nimet(Path::new(r"./linkkidata/routes.txt")) {
-        Some(a) => println!("{}",a.len()),
-        None => println!("Tiedostoa ei voitu lukea"),
+
+    match yhteys.execute("CREATE TABLE Matkojen_nimet (
+                    route_id    varchar(255) NOT NULL,
+                    lnimi       varchar(255) NOT NULL,
+                    pnimi       varchar(255) NOT NULL
+                    )", &[]) {
+                    Ok(_) => (),
+                    Err(_) => {println!("Virhe Matkojen_nimet-taulun luonnissa."); return false;},
     }
+
+    for rivi in pysakit {
+        match yhteys.execute("INSERT INTO Pysakit (stop_id, nimi, lat, lon)
+                        VALUES ($1, $2, $3, $4)",
+                        &[&rivi.stop_id, &rivi.nimi, &rivi.lat, &rivi.lon]) {
+                            Ok(_) => (),
+                            Err(_) => panic!("Pysakit-tauluun kirjoittaminen epäonnistui."),
+                        }
+    }
+
+    true
 }
 
 
