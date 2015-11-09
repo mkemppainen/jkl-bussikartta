@@ -184,39 +184,39 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
     };
 
     match yhteys.execute("CREATE TABLE Pysakit (
-                    stop_id     varchar(255) PRIMARY KEY,
-                    nimi        varchar(255) NOT NULL,
-                    lat         varchar(255) NOT NULL,
-                    lon         varchar(255) NOT NULL
+                    stop_id     varchar(50) PRIMARY KEY,
+                    nimi        varchar(50) NOT NULL,
+                    lat         varchar(30) NOT NULL,
+                    lon         varchar(30) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Pysakit-taulun luonnissa."); return false;},
     }
 
     match yhteys.execute("CREATE TABLE Matkat (
-                    trip_id     varchar(255) NOT NULL,
-                    route_id    varchar(255) NOT NULL,
-                    service_id  varchar(255) NOT NULL
+                    trip_id     varchar(50) NOT NULL,
+                    route_id    varchar(50) NOT NULL,
+                    service_id  varchar(50) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Matkat-taulun luonnissa."); return false;},
     }
 
     match yhteys.execute("CREATE TABLE Pysahtymis_ajat (
-                    trip_id     varchar(255) NOT NULL,
-                    stop_id     varchar(255) NOT NULL,
-                    saapumis_aika varchar(255) NOT NULL,
-                    lahto_aika  varchar(255) NOT NULL,
-                    jnum        varchar(255) NOT NULL
+                    trip_id     varchar(50) NOT NULL,
+                    stop_id     varchar(50) NOT NULL,
+                    saapumis_aika varchar(30) NOT NULL,
+                    lahto_aika  varchar(30) NOT NULL,
+                    jnum        varchar(30) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Pysahtymis_ajat-taulun luonnissa."); return false;},
     }
 
     match yhteys.execute("CREATE TABLE Matkojen_nimet (
-                    route_id    varchar(255) NOT NULL,
-                    lnimi       varchar(255) NOT NULL,
-                    pnimi       varchar(255) NOT NULL
+                    route_id    varchar(50) NOT NULL,
+                    lnimi       varchar(30) NOT NULL,
+                    pnimi       varchar(50) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Matkojen_nimet-taulun luonnissa."); return false;},
