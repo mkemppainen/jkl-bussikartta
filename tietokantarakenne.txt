@@ -17,7 +17,7 @@ Pysakit
 Matkat
 -trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",yksilöi kaikki matkat,2)
 -route_id:("9011", yhdistää kunkin matkan reittiin, jota kuljetaan. käytetään vain nimen selvittämiseen kai,3)
--service_id:("M-P kesä", käytetään selvittämiseen milloin kulkee.)
+-service_id:("M-P kesä", käytetään selvittämiseen milloin kulkee.,4)
 
 Pysahtymis_ajat
 -trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",kertoo mihin matkaan pysähtyminen kuuluu, 2)
@@ -30,3 +30,15 @@ Matkojen_nimet
 -route_id:("9011",yhdistää nimen reittiin,3)
 -lnimi:("27", lyhyt nimi. Yleensä se mikä näkyy bussissa)
 -pnimi:("27 MUSTALAMPI-PALOKKA-HEIKKILÄ", reitin pitkä nimi)
+
+Kalenteri
+-service_id:("Pe kesä", yksilöi kunkin kalenterityypin,4)
+-maanantai:("1",1 jos kulkee maanantaisin, 0 jos ei)
+-tiistai: (katso yllä)
+-keskiviikko: (katso yllä)
+-torstai: (katso yllä)
+-perjantai: (katso yllä)
+-lauantai: (katso yllä)
+-sunnuntai: (katso yllä)
+-alku_paiva: ("20150722", Paiva, josta eteenpain kulkee)
+-loppu_paiva: ("20161231", Paiva, jonka jalkeen ei enää kulje)
