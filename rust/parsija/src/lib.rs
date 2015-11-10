@@ -42,7 +42,7 @@ struct PysahtymisAjatData {
     saapumis_aika: String,
     lahto_aika: String,
     stop_id: String,
-    jnum: String,
+    jnum: i32,
 }
 
 struct MatkaNimetData {
@@ -111,8 +111,13 @@ fn anna_pysahtymisaika(teksti: &str) -> Option<PysahtymisAjatData> {
         Some(a) => a,
         None => return None,
     };
+
+    let jnum:i32 = match napatut.at(6).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
     
-    Some(PysahtymisAjatData{trip_id: napatut.at(1).unwrap().to_string(), saapumis_aika: napatut.at(3).unwrap().to_string(), lahto_aika: napatut.at(4).unwrap().to_string(), stop_id: napatut.at(5).unwrap().to_string(), jnum: napatut.at(6).unwrap().to_string()})
+    Some(PysahtymisAjatData{trip_id: napatut.at(1).unwrap().to_string(), saapumis_aika: napatut.at(3).unwrap().to_string(), lahto_aika: napatut.at(4).unwrap().to_string(), stop_id: napatut.at(5).unwrap().to_string(), jnum: jnum})
 }
 
 
@@ -183,11 +188,16 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
         Err(_) => {println!("Tietokantaa ei voida avata, eikä sinne kirjoittaminen ole siksi mahdollista (vika voi olla toki jossain muussakin kuin avaamisessa. Tarkalleen ottaen ei voida muodostaa yhteyttä.)"); return false;},
     };
 
+    let mut tx = match yhteys.transaction() {
+        Ok(t) => t,
+        Err(_) => {println!("Transaktiota ei voitu muodostaa."); return false;},
+    };
+
     match yhteys.execute("CREATE TABLE Pysakit (
-                    stop_id     varchar(50) PRIMARY KEY,
+                    stop_id     varchar(10) PRIMARY KEY,
                     nimi        varchar(50) NOT NULL,
-                    lat         varchar(30) NOT NULL,
-                    lon         varchar(30) NOT NULL
+                    lat         varchar(20) NOT NULL,
+                    lon         varchar(20) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Pysakit-taulun luonnissa."); return false;},
@@ -195,8 +205,8 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
 
     match yhteys.execute("CREATE TABLE Matkat (
                     trip_id     varchar(50) NOT NULL,
-                    route_id    varchar(50) NOT NULL,
-                    service_id  varchar(50) NOT NULL
+                    route_id    varchar(10) NOT NULL,
+                    service_id  varchar(30) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Matkat-taulun luonnissa."); return false;},
@@ -204,18 +214,18 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
 
     match yhteys.execute("CREATE TABLE Pysahtymis_ajat (
                     trip_id     varchar(50) NOT NULL,
-                    stop_id     varchar(50) NOT NULL,
-                    saapumis_aika varchar(30) NOT NULL,
-                    lahto_aika  varchar(30) NOT NULL,
-                    jnum        varchar(30) NOT NULL
+                    stop_id     varchar(10) NOT NULL,
+                    saapumis_aika varchar(10) NOT NULL,
+                    lahto_aika  varchar(10) NOT NULL,
+                    jnum        integer NOT NULL
                     )", &[]) {
                     Ok(_) => (),
                     Err(_) => {println!("Virhe Pysahtymis_ajat-taulun luonnissa."); return false;},
     }
 
     match yhteys.execute("CREATE TABLE Matkojen_nimet (
-                    route_id    varchar(50) NOT NULL,
-                    lnimi       varchar(30) NOT NULL,
+                    route_id    varchar(10) NOT NULL,
+                    lnimi       varchar(10) NOT NULL,
                     pnimi       varchar(50) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
@@ -227,10 +237,42 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                         VALUES ($1, $2, $3, $4)",
                         &[&rivi.stop_id, &rivi.nimi, &rivi.lat, &rivi.lon]) {
                             Ok(_) => (),
-                            Err(_) => panic!("Pysakit-tauluun kirjoittaminen epäonnistui."),
+                            Err(_) => println!("Pysakit-tauluun kirjoittaminen epäonnistui."),
                         }
     }
 
+    println!("Pysakit-taulu suoritettu.");
+
+    for rivi in nimet {
+        match yhteys.execute("INSERT INTO Matkojen_nimet (route_id, lnimi, pnimi)
+                        VALUES ($1, $2, $3)",
+                        &[&rivi.route_id, &rivi.lnimi, &rivi.pnimi]) {
+                            Ok(_) => (),
+                            Err(_) => println!("Matkojen_nimet-tauluun kirjoittaminen epäonnistui."),
+                        }
+    }
+    println!("Matkojen_nimet-taulu suoritettu.");
+    for rivi in pysahtymis_ajat {
+        match yhteys.execute("INSERT INTO Pysahtymis_ajat(trip_id, stop_id, saapumis_aika, lahto_aika, jnum)
+                        VALUES ($1, $2, $3, $4, $5)",
+                        &[&rivi.trip_id, &rivi.stop_id, &rivi.saapumis_aika, &rivi.lahto_aika, &rivi.jnum]) {
+                            Ok(_) => (),
+                            Err(_) => println!("Matkojen_nimet-tauluun kirjoittaminen epäonnistui."),
+                        }
+    }
+    println!("Pysahtymis_ajat-taulu suoritettu");
+    for rivi in matkat{
+        match yhteys.execute("INSERT INTO Matkat(trip_id, route_id, service_id)
+                        VALUES ($1, $2, $3)",
+                        &[&rivi.trip_id, &rivi.route_id, &rivi.service_id]) {
+                            Ok(_) => (),
+                            Err(_) => println!("Matkojen_nimet-tauluun kirjoittaminen epäonnistui."),
+                        }
+    }
+    println!("Matkat-taulu suoritettu");
+
+    tx.commit();
+ 
     true
 }
 
