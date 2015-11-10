@@ -13,7 +13,6 @@ use std::io::prelude::*;
 use rusqlite::SqliteConnection;
 
 
-
 /// Sisältää pysäkin tiedot
 #[repr(C)]
 pub struct Pysakki {
@@ -23,6 +22,19 @@ pub struct Pysakki {
     lon: *mut c_char,
 }
 
+
+struct KalenteriData {
+    service_id: String,
+    maanantai: String,
+    tiistai: String,
+    keskiviikko: String,
+    torstai: String,
+    perjantai: String,
+    lauantai: String,
+    sunnuntai: String,
+    alku_paiva: String,
+    loppu_paiva: String,
+}
 
 struct PysakkiData {
     stop_id: String,
@@ -49,6 +61,18 @@ struct MatkaNimetData {
     route_id: String,
     lnimi: String,
     pnimi: String,
+}
+
+
+fn lue_kalenteri(polku: &Path) -> Option<Vec<KalenteriData>> {
+    let f = match File::open(polku) {
+        Ok(f) => f,
+        Err(_) => return None,
+    };
+
+    let lukija: BufReader<_> = BufReader::new(f);
+    let lista = lukija.lines().filter_map(|x| anna_kalenteri(&x.unwrap())).collect();
+    Some(lista) 
 }
 
 
@@ -157,6 +181,17 @@ fn anna_matkanimet(teksti: &str) -> Option<MatkaNimetData> {
 }
 
 
+fn anna_kalenteri(teksti: &str) -> Option<KalenteriData> {
+    let re = Regex::new(r##""([^,"]+)","(0|1)","(0|1)","(0|1)","(0|1)","(0|1)","(0|1)","(0|1)","(\d{8})","(\d{8})""##).unwrap();
+    let napatut = match re.captures(teksti) {
+        Some(a) => a,
+        None => return None,
+    };
+    
+    Some(KalenteriData{service_id: napatut.at(1).unwrap().to_string(), maanantai: napatut.at(2).unwrap().to_string(), tiistai: napatut.at(3).unwrap().to_string(), keskiviikko: napatut.at(4).unwrap().to_string(), torstai: napatut.at(5).unwrap().to_string(), perjantai: napatut.at(6).unwrap().to_string(), lauantai: napatut.at(7).unwrap().to_string(), sunnuntai: napatut.at(8).unwrap().to_string(), alku_paiva: napatut.at(9).unwrap().to_string(), loppu_paiva: napatut.at(10).unwrap().to_string()}) 
+}
+
+
 /// Lukee tarvittavat tiedostot ja luo tietokannan
 #[no_mangle]
 pub extern fn luo_tietokanta() -> i32 {
@@ -176,13 +211,17 @@ pub extern fn luo_tietokanta() -> i32 {
         Some(a) => { println!("{}",a.len()); a},
         None => return 14,
     };
+    let kalenteri = match lue_kalenteri(Path::new(r"./linkkidata/calendar.txt")) {
+        Some(a) => { println!("{}",a.len()); a},
+        None => return 15,
+    };
 
-    kirjoita_tietokantaan(Path::new(r"./tietokanta_testi.data"),matkat,nimet,pysakit,pysahtymis_ajat)
+    kirjoita_tietokantaan(Path::new(r"./tietokanta_testi.data"),matkat,nimet,pysakit,pysahtymis_ajat, kalenteri)
 }
 
 
 ///Kirjoittaa tiedot sqlite tietokantaan ja palauttaa virhekoodin. 0 jos ei virhettä.
-fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<MatkaNimetData>, pysakit: Vec<PysakkiData>, pysahtymis_ajat: Vec<PysahtymisAjatData>) -> i32{
+fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<MatkaNimetData>, pysakit: Vec<PysakkiData>, pysahtymis_ajat: Vec<PysahtymisAjatData>, kalenteri: Vec<KalenteriData>) -> i32{
     let yhteys = match SqliteConnection::open(polku) {
         Ok(a) => a,
         Err(_) => {println!("Tietokantaa ei voida avata, eikä sinne kirjoittaminen ole siksi mahdollista (vika voi olla toki jossain muussakin kuin avaamisessa. Tarkalleen ottaen ei voida muodostaa yhteyttä.)"); return 21;},
@@ -200,7 +239,7 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     lon         varchar(20) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
-                    Err(_) => {println!("Virhe Pysakit-taulun luonnissa."); return 23;},
+                    Err(_) => {println!("Virhe Pysakit-taulun luonnissa."); return 31;},
     }
 
     match yhteys.execute("CREATE TABLE Matkat (
@@ -209,7 +248,7 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     service_id  varchar(30) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
-                    Err(_) => {println!("Virhe Matkat-taulun luonnissa."); return 24;},
+                    Err(_) => {println!("Virhe Matkat-taulun luonnissa."); return 32;},
     }
 
     match yhteys.execute("CREATE TABLE Pysahtymis_ajat (
@@ -220,7 +259,7 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     jnum        integer NOT NULL
                     )", &[]) {
                     Ok(_) => (),
-                    Err(_) => {println!("Virhe Pysahtymis_ajat-taulun luonnissa."); return 25;},
+                    Err(_) => {println!("Virhe Pysahtymis_ajat-taulun luonnissa."); return 33;},
     }
 
     match yhteys.execute("CREATE TABLE Matkojen_nimet (
@@ -229,7 +268,32 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     pnimi       varchar(50) NOT NULL
                     )", &[]) {
                     Ok(_) => (),
-                    Err(_) => {println!("Virhe Matkojen_nimet-taulun luonnissa."); return 26;},
+                    Err(_) => {println!("Virhe Matkojen_nimet-taulun luonnissa."); return 34;},
+    }
+
+    match yhteys.execute("CREATE TABLE Kalenteri (
+                    service_id  varchar(30) NOT NULL,
+                    maanantai   varchar(5) NOT NULL,
+                    tiistai     varchar(5) NOT NULL,
+                    keskiviikko varchar(5) NOT NULL,
+                    torstai     varchar(5) NOT NULL,
+                    perjantai   varchar(5) NOT NULL,
+                    lauantai    varchar(5) NOT NULL,
+                    sunnuntai   varchar(5) NOT NULL,
+                    alku_paiva  varchar(10) NOT NULL,
+                    loppu_paiva varcahr(10) NOT NULL
+                    )", &[]) {
+                    Ok(_) => (),
+                    Err(_) => {println!("Virhe Kalenteri-taulun luonnissa."); return 35;},
+    }
+
+    for rivi in kalenteri{
+        match yhteys.execute("INSERT INTO Kalenteri (service_id, maanantai, tiistai, keskiviikko, torstai, perjantai, lauantai, sunnuntai, alku_paiva, loppu_paiva)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+                        &[&rivi.service_id, &rivi.maanantai, &rivi.tiistai, &rivi.keskiviikko, &rivi.torstai, &rivi.perjantai, &rivi.lauantai, &rivi.sunnuntai, &rivi.alku_paiva, &rivi.loppu_paiva]) {
+                            Ok(_) => (),
+                            Err(_) => println!("Kalenteri-tauluun kirjoittaminen epäonnistui."),
+                        }
     }
 
     for rivi in pysakit {
@@ -273,7 +337,7 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
 
     match tx.commit() {
         Ok(_) => 0,
-        Err(_) => 30,
+        Err(_) => 40,
     }
 }
 
