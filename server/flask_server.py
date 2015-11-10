@@ -6,6 +6,7 @@ from flask import url_for, redirect, jsonify, make_response
 import requests
 import json
 import sys
+import sqlite3
 
 app = Flask(__name__)
 
@@ -18,13 +19,17 @@ def index():
 @app.route("/get_route")
 def get_route():
     if request.method == 'GET':
-        print(request.args.get('time'), file=sys.stderr) # testi
-
-        #Tassa haetaan selaimelta pyydetyn reitin tiedot, toistaiseksi staattinen
+        #Haetaan kannasta halutulle linjalle kuuluvat pysakit
+        connection = sqlite3.connect("tietokanta_testi.data")
+        connection.text_factory = str
+        cursor = connection.cursor()
+        #TODO jarjestaminen reitin pysakkien jnumin mukaan?
+        cursor.execute("select lat, lon from pysakit where stop_id in (select stop_id from pysahtymis_ajat where trip_id in (select trip_id from matkat where route_id in (select route_id  from matkojen_nimet where lnimi like \"27\")))")
         
         #kannasta haetut pysakkien koordinaatit taulukossa
-        stop_crdnts = [['62.25287', '25.70022'],['62.24816', '25.270514']]
-        stop_crdnts2 = []
+        stop_crdnts = [[item for item in r] for r in cursor.fetchall()]
+        route_crdnts = [] #reitin kaikki koordinaatit
+
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
         for i in stop_crdnts:
             strng = i[1] + ',' + i[0]
@@ -32,13 +37,14 @@ def get_route():
             r  = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/'+ strng + ';25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')     
             #heitetaan koordinaatit reitin listalle
             jisondata = json.loads(r.text)
-            stop_crdnts2.append(jisondata["routes"][0]["geometry"]["coordinates"])
+            route_crdnts.append(jisondata["routes"][0]["geometry"]["coordinates"])
             #mapbox-pyynto mallina 
             """
             rr = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/25.70022,62.25287;25.70514,62.24816;25.736,62.244.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')
             """
 
-        #MIKSI TAMA EI TALLENNU OIKEASSA MUODOSSA? Vai onko silla valia?
+        #Tassa muodossa palautus selaimelle
+        #TODO kannasta saadut tiedot staattisien tilalle
         r2 = [{
             "reitinNimi":"kuokkala",
             "pysakinValit":[{
