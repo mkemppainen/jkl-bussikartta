@@ -1,0 +1,2 @@
+"trans_id","lang","translation"
+"Testipysäkki","sv","Teststop"
