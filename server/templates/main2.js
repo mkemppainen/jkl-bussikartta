@@ -52,7 +52,7 @@ xhttp.onreadystatechange = function() {
     }
 };
 // #reitti?time=12:30
-xhttp.open("GET", "/get_route?time=12:30", true); // kysyy bussien datan kello 12:30
+xhttp.open("GET", "/get_route?time=12:30&route=27", true); // kysyy bussien datan kello 12:30
 xhttp.send();
 
 var bussireitit =
