@@ -24,3 +24,35 @@ Haetaan löydetyille stop_id:lle koordinaatit
 select lat, lon
 from pysakit
 where stop_id in (ylempi kysely)
+
+2.
+Valittuna olevan linjan bussien sijainnit argumenttina saadun ajan peruteella
+linja = argumentti
+aika = argumentti
+pvm = argumentti
+
+select stop_id
+from pysahtymis_ajat
+where saapumis_aika_tunnit = 11 and
+saapumis_aika_minuutit between 49 and 59
+and
+trip_id in
+(select trip_id
+from matkat
+where route_id in
+(select route_id
+from matkojen_nimet
+where lnimi like "27")
+and service_id like "M-P Kesä")
+
+
+3.
+Tietylle linjalle liittyvien pysähdysten aikataulut
+select distinct pysakit.lat, pysakit.lon, pysahtymis_ajat.saapumis_aika_tunnit, pysahtymis_ajat.saapumis_aika_minuutit, pysahtymis_ajat.lahto_aika_tunnit, pysahtymis_ajat.lahto_aika_minuutit, pysahtymis_ajat.jnum
+from pysakit, pysahtymis_ajat
+where pysakit.stop_id = pysahtymis_ajat.stop_id and
+pysahtymis_ajat.trip_id in 
+(select trip_id from matkat
+where route_id in
+(select route_id from matkojen_nimet where lnimi like "27"))
+order by pysahtymis_ajat.lahto_aika_tunnit;
