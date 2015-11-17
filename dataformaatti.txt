@@ -26,6 +26,6 @@
 	     "lahtoPiste":[25.70022,62.25287],  // 
 	     "paatePiste":[25.70514, 62.24816], //
 	     "duration": 300,
-	     "coordinates": {}}]
+	     "coordinates": []}]
     }
 ];
