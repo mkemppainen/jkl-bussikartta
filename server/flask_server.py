@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 from flask import Flask, Response
 from flask import render_template
@@ -7,12 +9,63 @@ import requests
 import json
 import sys
 import sqlite3
+import time
+import datetime
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route("/get_stops")
+def get_stops():
+    
+    #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
+    if request.method == 'GET' and request.args.get('time') is not None:
+        try:
+            time.strptime(str(request.args.get('time')), '%H:%M:%S')            
+            stoptime = map(int, request.args.get('time').split(':',2))
+            print(stoptime, file=sys.stderr)#test
+            service_id = get_weekday(datetime.datetime.today().weekday())
+            print(service_id, file=sys.stderr)#test
+        except ValueError:
+            return render_template('index.html')
+        
+        #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
+        #TODO kaivannee lisatietoa: lat, lon, trip_id, saapumisajat, lahtoajat?
+        #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
+        con = sqlite3.connect("tietokanta_testi.data")
+        con.text_factory = str
+        cur = con.cursor()
+        cur.execute('select stop_id from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1]) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and service_id like \"' + service_id + ' Kesa\"))')
+        
+        #TODO kannasta haettujen tietojen palautus selaimelle seuraavanlaisena jsonina
+        """
+        stopit = {
+             "reitinNimi: "27",
+             "pysahdykset": [
+             "lahtoID": id,
+	     "lahtoNimi": "nimi",
+	     "paateID": id,
+	     "paateNimi": "nimi,
+	     "lahtoAika": "12:30",
+	     "paateAika": "12:31",
+	     "duration": 300
+	 ]}
+        """
+    return render_template('index.html')
+
+def get_weekday(weekday_number):
+    return {
+        0: "M-P",
+        1: "M-P",
+        2: "M-P",
+        3: "M-P",
+        4: "M-P",
+        5: "L",
+        6: "S"
+    }[weekday_number]
 
 #Pitaa muokata hakemaan dataa dynaamisesti, nyt palautuu osittain staattinen
 #JSON-data
