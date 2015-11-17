@@ -22,9 +22,13 @@ Matkat
 Pysahtymis_ajat
 -trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",kertoo mihin matkaan pysähtyminen kuuluu, 2)
 -stop_id:("112514",kertoo millä pysäkillä pysähtyy,1)
--saapumis_aika:("05:00:00",milloin bussi saapuu pysäkille)
--lahto_aika:("05:00:00",milloin bussi lähtee pysäkiltä)
--jnum:("4",Kertoo monesko pysäkki on reitillä.)--voisi olla myös oikeasti numero. Vertailujen kannalta varmaan järkevämpää.
+-saapumis_aika_tunnit:(13,tunti jolloin bussi saapuu pysäkille)//integer
+-saapumis_aika_minuutit:(55,minuutti, -*-)//integer
+-saapumis_aika_sekunnit:(0,sekunnit, -*-)//integer
+-lahto_aika_tunnit:(5,tunti jolloin bussi lähtee pysäkiltä)//integer
+-lahto_aika_minuutit:(0,minuutti -*-)//integer
+-lahto_aika_sekunnit:(0,sekuntti -*-)//integer
+-jnum:("4",Kertoo monesko pysäkki on reitillä.)//integer
 
 Matkojen_nimet
 -route_id:("9011",yhdistää nimen reittiin,3)
