@@ -51,8 +51,12 @@ struct MatkatData {
 
 struct PysahtymisAjatData {
     trip_id: String,
-    saapumis_aika: String,
-    lahto_aika: String,
+    saapumis_aika_tunnit: i32 ,
+    saapumis_aika_minuutit: i32,
+    saapumis_aika_sekunnit: i32,
+    lahto_aika_tunnit: i32,
+    lahto_aika_minuutit: i32,
+    lahto_aika_sekunnit: i32,
     stop_id: String,
     jnum: i32,
 }
@@ -130,18 +134,44 @@ fn lue_nimet(polku: &Path) -> Option<Vec<MatkaNimetData>> {
 
 /// Parsii pysähtymisaika tiedoston tyylisen rivin ja palauttaa sen, jos pystyttiin parsimaan.
 fn anna_pysahtymisaika(teksti: &str) -> Option<PysahtymisAjatData> {
-    let re = Regex::new(r##""((\w+-){4}\w+)","(\d\d:\d\d:\d\d)","(\d\d:\d\d:\d\d)","(\d+)","(\d+)""##).unwrap();
+    let re = Regex::new(r##""((\w+-){4}\w+)","(\d\d):(\d\d):(\d\d)","(\d\d):(\d\d):(\d\d)","(\d+)","(\d+)""##).unwrap();
     let napatut = match re.captures(teksti) {
         Some(a) => a,
         None => return None,
     };
 
-    let jnum:i32 = match napatut.at(6).unwrap().parse::<i32>() {
+    let jnum:i32 = match napatut.at(10).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
+
+    let st:i32 = match napatut.at(3).unwrap().parse::<i32>() {
         Ok(a) => a,
         Err(_) => return None,
     };
     
-    Some(PysahtymisAjatData{trip_id: napatut.at(1).unwrap().to_string(), saapumis_aika: napatut.at(3).unwrap().to_string(), lahto_aika: napatut.at(4).unwrap().to_string(), stop_id: napatut.at(5).unwrap().to_string(), jnum: jnum})
+    let sm:i32 = match napatut.at(4).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
+    let ss:i32 = match napatut.at(5).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
+    let lt:i32 = match napatut.at(6).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
+    let lm:i32 = match napatut.at(7).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
+    let ls:i32 = match napatut.at(8).unwrap().parse::<i32>() {
+        Ok(a) => a,
+        Err(_) => return None,
+    };
+
+    Some(PysahtymisAjatData{trip_id: napatut.at(1).unwrap().to_string(), saapumis_aika_tunnit: st, saapumis_aika_minuutit: sm, saapumis_aika_sekunnit: ss, lahto_aika_tunnit: lt, lahto_aika_minuutit: lm, lahto_aika_sekunnit: ls, stop_id: napatut.at(9).unwrap().to_string(), jnum: jnum})
 }
 
 
@@ -254,8 +284,12 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
     match yhteys.execute("CREATE TABLE Pysahtymis_ajat (
                     trip_id     varchar(50) NOT NULL,
                     stop_id     varchar(10) NOT NULL,
-                    saapumis_aika varchar(10) NOT NULL,
-                    lahto_aika  varchar(10) NOT NULL,
+                    saapumis_aika_tunnit integer NOT NULL,
+                    saapumis_aika_minuutit integer NOT NULL,
+                    saapumis_aika_sekunnit integer NOT NULL,
+                    lahto_aika_tunnit integer NOT NULL,
+                    lahto_aika_minuutit integer NOT NULL,
+                    lahto_aika_sekunnit integer NOT NULL,
                     jnum        integer NOT NULL
                     )", &[]) {
                     Ok(_) => (),
@@ -317,11 +351,11 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
     }
     println!("Matkojen_nimet-taulu suoritettu.");
     for rivi in pysahtymis_ajat {
-        match yhteys.execute("INSERT INTO Pysahtymis_ajat(trip_id, stop_id, saapumis_aika, lahto_aika, jnum)
-                        VALUES ($1, $2, $3, $4, $5)",
-                        &[&rivi.trip_id, &rivi.stop_id, &rivi.saapumis_aika, &rivi.lahto_aika, &rivi.jnum]) {
+        match yhteys.execute("INSERT INTO Pysahtymis_ajat(trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+                        &[&rivi.trip_id, &rivi.stop_id, &rivi.saapumis_aika_tunnit, &rivi.saapumis_aika_minuutit, &rivi.saapumis_aika_sekunnit, &rivi.lahto_aika_tunnit, &rivi.lahto_aika_minuutit, &rivi.lahto_aika_sekunnit, &rivi.jnum]) {
                             Ok(_) => (),
-                            Err(_) => println!("Matkojen_nimet-tauluun kirjoittaminen epäonnistui."),
+                            Err(_) => println!("Pysahtymis_ajat-tauluun kirjoittaminen epäonnistui."),
                         }
     }
     println!("Pysahtymis_ajat-taulu suoritettu");
