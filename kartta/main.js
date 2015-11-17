@@ -1,9 +1,13 @@
 // MAPBOX APISSA LATITUDE JA LONGITUDE ON TOISINPAIN
-// 
-var asdf = 123;
+// TODO: paivamaarat huomioon, kesa-talviaika
+// onko (lon, lat) aina oikeinpain
+
+// L on leafletin/mapboxin maarittelema
+var L;
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 // Create a map in the div #map
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
+
 var m1 = [62.244, 25.736];
 var m2 = [62.248, 25.705];
 var m3 = [62.236, 25.715];
@@ -47,7 +51,7 @@ tick();
 function reittiPyynto(){
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-	// tama funktio kutsutaan kun serverin vastaus on valmis
+	// funktiota kutsutaan kun serverin vastaus on valmis
 	if (xhttp.readyState == 4 && xhttp.status == 200) {
 	    serveriVastasi(xhttp.responseText);
 	}
@@ -143,3 +147,49 @@ function liikuKohti(alkupiste,loppupiste,nopeus){
     return suuntavektori;
 }
 
+// liikuttaa reitilla, reitilla monia bussipysakkeja
+// reitti: [{pysakinId, pysakinNimi, saapumisaika, lahtoaika, kohdeId, }]
+// reitti:lahtoNimi,lahtoAika, lahtoPiste, paateNimi, paatePiste, paateAika, duration, coordinates
+var ReitillaLiikuttaja = function(reitti){
+    this.reitti = reitti;
+    // reitin indeksi
+    this.reittino = 0;
+    this.viimeksiSiirretty = null;
+    this.ValillaLiikuttaja = new ValillaLiikuttaja(bussireitit[0].pysakinValit[this.reittino].coordinates);
+
+    // palauta uusi sijainti
+    this.liikuta = function(date){
+        // hae daten perusteella oikea pysakki, liikuta siina tarpeeksi pitkalle
+        if (this.viimeksiSiirretty === null){
+            this.viimeksiSiirretty = date;
+        }
+        // etsi aikaa vastaava reitin piste
+        // muokkaa rettino
+
+        // ... ... ...
+        
+
+    };
+    
+};
+
+// liikuttaa yhdelta pysakilta toiselle
+// vali: [[lon, lat]]
+var ValillaLiikuttaja = function(vali, sijainti){
+    this.reitti = vali;
+    var seuraavanIndeksi = 1;
+    this.sijainti = sijainti; // lon, lat
+
+    // palauta uusi sijainti
+    // muuta sijaintia ja indeksia
+    this.siirra = function(matka){
+        var kohde = this.reitti[seuraavanIndeksi];
+        var dx = kohde[0] - this.sijainti[0];
+        var dy = kohde[1] - this.sijainti[1];
+        var matkaKohteeseen = Math.sqrt(dx*dx + dy*dy);
+        var matkaaJaljella = matkaKohteeseen - matka;
+        
+        var suuntavektori = [(dx / Math.sqrt(dx*dx + dy*dy))*nopeus,(dy / Math.sqrt(dx*dx + dy*dy))*nopeus];
+        return suuntavektori;
+    };
+};
