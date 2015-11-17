@@ -9,19 +9,19 @@ Taulun_nimi
 -sarakkeen2_nimi:("esimerkki",tarkoitus,yhdistävä numerokoodi toisessa taulussa olevaan sarakkeeseen. Yleensä id)
 
 Pysakit
--stop_id:("112514",yksilöi kunkin pysäkin,1)
--nimi:("Laukaa linja-autoasema", Pysäkin nimi)
--lat:("62.4146943734173", pysäkin latitude sijainti eli koordinaatti)
--lon:("25.9521651226176", pysäkin longitude sijainti)
+-stop_id:("112514",yksilöi kunkin pysäkin,1)//varchar(10)
+-nimi:("Laukaa linja-autoasema", Pysäkin nimi)//varchar(50)
+-lat:("62.4146943734173", pysäkin latitude sijainti eli koordinaatti)//varchar(20)
+-lon:("25.9521651226176", pysäkin longitude sijainti)//varchar(20)
 
 Matkat
--trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",yksilöi kaikki matkat,2)
--route_id:("9011", yhdistää kunkin matkan reittiin, jota kuljetaan. käytetään vain nimen selvittämiseen kai,3)
--service_id:("M-P kesä", käytetään selvittämiseen milloin kulkee.,4)
+-trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",yksilöi kaikki matkat,2)//varchar(50)
+-route_id:("9011", yhdistää kunkin matkan reittiin, jota kuljetaan. käytetään vain nimen selvittämiseen kai,3)//varchar(10)
+-service_id:("M-P kesä", käytetään selvittämiseen milloin kulkee.,4)//varchar(30)
 
 Pysahtymis_ajat
--trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",kertoo mihin matkaan pysähtyminen kuuluu, 2)
--stop_id:("112514",kertoo millä pysäkillä pysähtyy,1)
+-trip_id:("fe8ad47e-e0db-4d5b-be89-8ec759ecd6d3",kertoo mihin matkaan pysähtyminen kuuluu, 2)//varchar(50)
+-stop_id:("112514",kertoo millä pysäkillä pysähtyy,1)//varchar(10)
 -saapumis_aika_tunnit:(13,tunti jolloin bussi saapuu pysäkille)//integer
 -saapumis_aika_minuutit:(55,minuutti, -*-)//integer
 -saapumis_aika_sekunnit:(0,sekunnit, -*-)//integer
@@ -31,21 +31,21 @@ Pysahtymis_ajat
 -jnum:("4",Kertoo monesko pysäkki on reitillä.)//integer
 
 Matkojen_nimet
--route_id:("9011",yhdistää nimen reittiin,3)
--lnimi:("27", lyhyt nimi. Yleensä se mikä näkyy bussissa)
--pnimi:("27 MUSTALAMPI-PALOKKA-HEIKKILÄ", reitin pitkä nimi)
+-route_id:("9011",yhdistää nimen reittiin,3)//varchar(10)
+-lnimi:("27", lyhyt nimi. Yleensä se mikä näkyy bussissa)//varchar(10)
+-pnimi:("27 MUSTALAMPI-PALOKKA-HEIKKILÄ", reitin pitkä nimi)//varchar(50)
 
 Kalenteri
--service_id:("Pe kesä", yksilöi kunkin kalenterityypin,4)
--maanantai:("1",1 jos kulkee maanantaisin, 0 jos ei)
--tiistai: (katso yllä)
--keskiviikko: (katso yllä)
--torstai: (katso yllä)
--perjantai: (katso yllä)
--lauantai: (katso yllä)
--sunnuntai: (katso yllä)
--alku_paiva: ("20150722", Paiva, josta eteenpain kulkee)
--loppu_paiva: ("20161231", Paiva, jonka jalkeen ei enää kulje)
+-service_id:("Pe kesä", yksilöi kunkin kalenterityypin,4)//varchar(30)
+-maanantai:("1",1 jos kulkee maanantaisin, 0 jos ei)//varchar(5)
+-tiistai: (katso yllä)//varchar(5)
+-keskiviikko: (katso yllä)//varchar(5)
+-torstai: (katso yllä)//varchar(5)
+-perjantai: (katso yllä)//varchar(5)
+-lauantai: (katso yllä)//varchar(5)
+-sunnuntai: (katso yllä)//varchar(5)
+-alku_paiva: ("20150722", Paiva, josta eteenpain kulkee)//varchar(10)
+-loppu_paiva: ("20161231", Paiva, jonka jalkeen ei enää kulje)//varchar(10)
 
 Pysakkiparit
 -stop_id_1: 143105 //text
