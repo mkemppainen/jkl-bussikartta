@@ -189,7 +189,7 @@ fn anna_pysakit(teksti: &str) -> Option<PysakkiData> {
 
 /// Parsii matkat tiedoston tyylisen rivin ja palauttaa sen, jos pystyttiin parsimaan.
 fn anna_matkat(teksti: &str) -> Option<MatkatData> {
-    let re = Regex::new(r##""(\d*)","([^,"])+","(((\w+-){4}\w+))","(\d+)",("([^,"]*)")?"##).unwrap();
+    let re = Regex::new(r##""(\d*)","([^,"]+)","(((\w+-){4}\w+))","(\d+)",("([^,"]*)")?"##).unwrap();
     let napatut = match re.captures(teksti) {
         Some(a) => a,
         None => return None,
