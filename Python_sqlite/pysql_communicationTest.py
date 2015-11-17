@@ -8,7 +8,7 @@ Created on Mon Nov  2 09:43:02 2015
 import sqlite3 as lite
 import sys
 
-con = lite.connect('test.db')
+con = lite.connect('test2.db')
 
 with con:
     cur = con.cursor()    
@@ -21,5 +21,7 @@ with con:
     cur.execute("INSERT INTO Cars VALUES(6,'Citroen',21000)")
     cur.execute("INSERT INTO Cars VALUES(7,'Hummer',41400)")
     cur.execute("INSERT INTO Cars VALUES(8,'Volkswagen',21600)")
-    
+    cur.execute("INSERT INTO Cars VALUES(8,'((1.1,2.1),(1.1,3.3),(4.4,5.5))',21600)")
+ 
+con.close   
 print('\nEnd of Line')

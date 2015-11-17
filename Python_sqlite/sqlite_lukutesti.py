@@ -15,6 +15,8 @@ con = lite.connect('tietokanta_testi.data')
 with con:
     cur = con.cursor()    
     #testi = cur.execute("SELECT * FROM Pysakit")
+    testi = cur.execute("SELECT COUNT(stop_id) FROM Pysakit")
+    #testi = cur.execute("SELECT * FROM Pysahtymis_ajat")
     #testi = cur.execute("SELECT stop_id FROM Pysakit")
     #testi = cur.execute("SELECT mn.lnimi,  FROM Pysakit p, Matkat m,"+\
     #" Pysahtymis_ajat pa, Matkojen_nimet mn, Kalenteri k"+\
@@ -26,9 +28,10 @@ with con:
     #"m.trip_id==pa.trip_id AND "+\
     #"pa.stop_id==p.stop_id AND "+\
     #"p.nimi LIKE \"Laukaa linja-autoasema\"") #EI TOIMI
-    testi=cur.execute("SELECT lnimi FROM Matkojen_nimet WHERE "+\
-    "route_id==(SELECT route_id FROM Matkat WHERE "+\
-    "route_id LIKE 9011)")
+    #testi=cur.execute("SELECT lnimi FROM Matkojen_nimet WHERE "+\
+    #"route_id==(SELECT route_id FROM Matkat WHERE "+\
+    #"route_id LIKE 9011)")
+    #cur.close()
     
 print(list(testi)) 
     
