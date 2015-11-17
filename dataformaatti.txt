@@ -1,0 +1,31 @@
+[
+    {
+	"reitit":
+	{"reitinNimi":"kuokkala",
+	 "pysakinValit":
+	 [
+             {"lahtoNimi":"laukaan asema",
+              "paateNimi":"Tervala P",
+              "lahtoId":142788,
+              "paateId": 143237,
+	      "date":"20150230-12:15", //yyyymmdd-12:30
+              "paateAika": "12:20",
+	      "coordinates":[[25.700226,62.252873],[25.700302,62.25277], 
+                             [25.700522,62.252304],[25.700153,62.251181],
+                             [25.700726,62.252204],[25.70153,62.252123]]
+	     }
+	 ]
+	}
+	
+	// lista kahden pysakin valeista, koordinaatit mapboxin
+	[{"lahtoNimi":"laukaan asema",
+	     "paateNimi":"Tervala P",
+	     // "lahtoId":142788,
+	     // "paateId": 143237,
+	     "lahtoPaateId": "14278-143237",
+	     "lahtoPiste":[25.70022,62.25287],  // 
+	     "paatePiste":[25.70514, 62.24816], //
+	     "duration": 300,
+	     "coordinates": []}]
+    }
+];
