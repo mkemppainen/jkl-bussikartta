@@ -1,0 +1,19 @@
+reitti = {
+       "reitinNimi": "27",
+       "pysakinValit": [
+          "lahtoPiste": "koordinaatit",
+	  "paatePiste": "koordinaatit",
+	  "coordinates": [[koordinaatit],[koordinaatit]]
+       ]}
+
+stopit = {
+       "reitinNimi: "27",
+       "pysahdykset": [
+         "lahtoID": id,
+	 "lahtoNimi": "nimi",
+	 "paateID": id,
+	 "paateNimi": "nimi,
+	 "lahtoAika": "12:30",
+	 "paateAika": "12:31",
+	 "duration": 300
+	 ]}
