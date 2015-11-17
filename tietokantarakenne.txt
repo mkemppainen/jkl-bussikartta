@@ -1,4 +1,4 @@
-Tämä tiedosto sisältää alustavan suunnitelman sovelluksessa käytettävän tietokannan tauluista.
+﻿Tämä tiedosto sisältää alustavan suunnitelman sovelluksessa käytettävän tietokannan tauluista.
 Pidätämme oikeuden muutoksiin.
 
 Kaikki alla olevien taulujen sarakkeiden tietotyypit ovat oletusarvoisesti tekstiä tyyliin "Maanantai"
@@ -46,3 +46,8 @@ Kalenteri
 -sunnuntai: (katso yllä)
 -alku_paiva: ("20150722", Paiva, josta eteenpain kulkee)
 -loppu_paiva: ("20161231", Paiva, jonka jalkeen ei enää kulje)
+
+Pysakkiparit
+-stop_id_1: 143105 //text
+-stop_id_2: 303742 //text
+-tripcrd: "lat1,lon1:lat2,lon2:lat3,lon3" //text
