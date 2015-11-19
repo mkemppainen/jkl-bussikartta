@@ -33,28 +33,37 @@ def get_stops():
             return render_template('index.html')
         
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
-        #TODO kaivannee lisatietoa: lat, lon, trip_id, saapumisajat, lahtoajat?
+        #TODO kaivannee lisatietoa: lat, lon?
         #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
         con = sqlite3.connect("tietokanta_testi.data")
         con.text_factory = str
         cur = con.cursor()
-        cur.execute('select stop_id from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1]) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and service_id like \"' + service_id + ' Kesa\"))')
+        #TODO tarkistus myos sekuntien mukaan. Poikkeuksia on todella vahan, ei kiireinen
+        cur.execute('select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and service_id like \"' + service_id + ' Talvi"))')
         
-        #TODO kannasta haettujen tietojen palautus selaimelle seuraavanlaisena jsonina
-        """
+        rows = cur.fetchall()
+        print(rows, file=sys.stderr)
+
         stopit = {
-             "reitinNimi: "27",
-             "pysahdykset": [
-             "lahtoID": id,
-	     "lahtoNimi": "nimi",
-	     "paateID": id,
-	     "paateNimi": "nimi,
-	     "lahtoAika": "12:30",
-	     "paateAika": "12:31",
-	     "duration": 300
-	 ]}
-        """
-    return render_template('index.html')
+            "reitinNimi": request.args.get('route'),
+            "pysahdykset": []}
+        #TODO loputkin datat dynaamisesti. Kenties lat,lon?
+        for i in range (0, len(rows) -1):
+            stopit["pysahdykset"].append({
+                "tripID": rows[i][0],
+                "lahtoID": rows[i][1],
+                "lahtoNimi": "pysakki1",
+                "paateID": rows[i+1][1],
+                "paateNimi": "pysakki2",
+                "lahtoAika": str(rows[i][2]) + ':' + str(rows[i][3]) + ':' + str(rows[i][4]),
+                "paateAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
+                "duration": "300"
+            })
+        resp = Response(response=json.dumps(stopit),
+        status=200,
+        mimetype="application/json")   
+        
+    return(resp)
 
 def get_weekday(weekday_number):
     return {
