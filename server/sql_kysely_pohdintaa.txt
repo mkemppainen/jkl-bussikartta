@@ -31,7 +31,7 @@ linja = argumentti
 aika = argumentti
 pvm = argumentti
 
-select stop_id
+select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum
 from pysahtymis_ajat
 where saapumis_aika_tunnit = 11 and
 saapumis_aika_minuutit between 49 and 59
@@ -44,6 +44,7 @@ where route_id in
 from matkojen_nimet
 where lnimi like "27")
 and service_id like "M-P Kesä")
+order by trip_id;
 
 
 3.
