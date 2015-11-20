@@ -15,7 +15,7 @@ var reitit =
 ;
 
 var stopit =
-    {
+    [{
         "reitinNimi": "27",
         "matkat": [{
             "tripId": "tripId",
@@ -26,7 +26,7 @@ var stopit =
                 "paateAika": "12:31",
                 "duration": 300}]
         }]
-    }
+    }]
 ;
 
 // kaikki kaytossa olevat pysakit (joiden kautta menee reitteja)
