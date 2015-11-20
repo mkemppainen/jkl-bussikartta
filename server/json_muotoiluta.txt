@@ -1,19 +1,38 @@
-reitti = {
-       "reitinNimi": "27",
-       "pysakinValit": [
-          "lahtoPiste": "koordinaatit",
-	  "paatePiste": "koordinaatit",
-	  "coordinates": [[koordinaatit],[koordinaatit]]
-       ]}
 
-stopit = {
-       "reitinNimi: "27",
-       "pysahdykset": [
-         "lahtoID": id,
-	 "lahtoNimi": "nimi",
-	 "paateID": id,
-	 "paateNimi": "nimi,
-	 "lahtoAika": "12:30",
-	 "paateAika": "12:31",
-	 "duration": 300
-	 ]}
+var reitit =
+    [{
+        "reitinNimi": "reitti27",
+        "pysakinValit": [{
+            "lahtoID": "id",
+	    "lahtoNimi": "pysakin nimi",
+	    "paateID": "id",
+	    "paateNimi": "pysakin nimi",
+            "lahtoPiste": "koordinaatit",
+	    "paatePiste": "koordinaatit",
+	    "coordinates": [["koordinaatit"]]
+        }]
+    }]
+;
+
+var stopit =
+    {
+        "reitinNimi": "27",
+        "matkat": [{
+            "tripId": "tripId",
+            "pysahdykset":[{
+                "lahtoID": "pysakin-id",
+	        "paateID": "pysakin-id",
+                "lahtoAika": "12:30",
+                "paateAika": "12:31",
+                "duration": 300}]
+        }]
+    }
+;
+
+// kaikki kaytossa olevat pysakit (joiden kautta menee reitteja)
+var pysakit =
+    [{
+        id: "id",
+        nimi: "nimi"
+    }]
+;
