@@ -43,7 +43,7 @@ where route_id in
 (select route_id
 from matkojen_nimet
 where lnimi like "27")
-and service_id like "M-P Kesä")
+and service_id like "M-P Talvi")
 order by trip_id;
 
 
