@@ -9,6 +9,7 @@ var reitit =
 	    "paateNimi": "pysakin nimi",
             "lahtoPiste": "koordinaatit",
 	    "paatePiste": "koordinaatit",
+            "duration": 300,
 	    "coordinates": [["koordinaatit"]]
         }]
     }]
@@ -23,8 +24,8 @@ var stopit =
                 "lahtoID": "pysakin-id",
 	        "paateID": "pysakin-id",
                 "lahtoAika": "12:30",
-                "paateAika": "12:31",
-                "duration": 300}]
+                "paateAika": "12:31"
+            }]
         }]
     }]
 ;
