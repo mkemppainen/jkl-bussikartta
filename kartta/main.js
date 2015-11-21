@@ -2,13 +2,15 @@
 // TODO: paivamaarat huomioon, kesa-talviaika
 // onko (lon, lat) aina oikeinpain
 
+// jquery
+var $;
 // L on leafletin/mapboxin maarittelema
 var L;
 // alustetaan kartta
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
 // debuggaukseen
-var test;
+var test,test2,test3;
 // testireitti
 var route = {"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705142,62.248163],[25.705737,62.248268],[25.705143,62.24816],[25.705474,62.247708],[25.704838,62.247601],[25.704543,62.247552],[25.704378,62.247525],[25.705209,62.246437],[25.705275,62.24632],[25.705312,62.246203],[25.705327,62.246083],[25.705318,62.245842],[25.705242,62.245256],[25.705023,62.243766],[25.705026,62.243631],[25.704928,62.243244],[25.70482,62.242994],[25.704761,62.242742],[25.704722,62.242604],[25.704699,62.24251],[25.704887,62.242528],[25.705208,62.242542],[25.705843,62.242577],[25.707366,62.242684],[25.709942,62.242836],[25.710544,62.242829],[25.711122,62.242822],[25.711562,62.2428],[25.711969,62.242771],[25.712514,62.242669],[25.712725,62.242638],[25.713047,62.242589],[25.713238,62.242642],[25.713645,62.243105],[25.71423,62.243485],[25.714716,62.243684],[25.714896,62.2438],[25.715637,62.243998],[25.71701,62.244303],[25.718041,62.244543],[25.720037,62.245111],[25.720847,62.245252],[25.721659,62.245384],[25.722029,62.245406],[25.722457,62.245429],[25.724873,62.245414],[25.725895,62.24542],[25.726733,62.245437],[25.727113,62.245432],[25.72766,62.245449],[25.727971,62.24546],[25.728326,62.24547],[25.728268,62.245339],[25.728265,62.245255],[25.728283,62.245088],[25.728118,62.244562],[25.728092,62.244482],[25.728074,62.244426],[25.727803,62.243548],[25.727783,62.243461],[25.727992,62.243459],[25.729471,62.243398],[25.731802,62.243302],[25.732025,62.243285],[25.732177,62.243267],[25.732454,62.24324],[25.732798,62.243214],[25.734179,62.243149],[25.735582,62.243092],[25.735697,62.243072],[25.735771,62.243041],[25.735798,62.243125],[25.736008,62.244]]};
 
@@ -44,43 +46,19 @@ function testaus (){
     //tick();
 }
 
-function alustaKartta(){
-    L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
-    map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
-}
-
-// TODO: tarkista vastaako serveri, catch block
 function reittiPyynto(){
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        // funktiota kutsutaan kun serverin vastaus on valmis
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            serveriVastasi(xhttp.responseText);
-        }
-    };
-    xhttp.open("GET", "/get_route?time=12:30&route=18", true); // kysyy bussien datan kello 12:30
-
-    xhttp.send();
+    $.ajax({url: "demo_test.txt", success: serveriVastasi
+           });
 }
 
-var kerta = 0; // debug
 function serveriVastasi (vastaus) {
-    if (kerta > 0) return; // debug
-    kerta++;
-
-    //console.log(vastaus); //debug
-    var parsittu = JSON.parse(vastaus);
-    test=parsittu;
-    //alert(vastaus);
-    //console.log(vastaus);
-
-    //var coordinates = parsittu.pysakinValit[5].coordinates;
-    //var coordinates;
-    //var geo1;
+    //var parsittu = JSON.parse(vastaus);
+    // jquery ilmeisesti parsii suoraan vastauksen
+    var parsittu = vastaus;
+    test=parsittu; //debug
+    // TODO: laita tekemaan yksi lista ja lisaa se kartalle
     for (var i = 0; i < parsittu.pysakinValit.length; i++) { 
         var coordinates = parsittu.pysakinValit[i].coordinates;
-        console.log(i);
-
         var geo1 = {coordinates: coordinates, type:'LineString'};
         L.geoJson(geo1).addTo(map);
 
@@ -92,8 +70,6 @@ function serveriVastasi (vastaus) {
                 'marker-symbol': i
             })
         }).addTo(map);
-        
-    
     }
 }
 
@@ -129,7 +105,7 @@ function flip (pair){
 }
 
 
-
+// WIP
 function reittiKartalle(vastaus){
     //var parsittu = JSON.parse(vastaus);
 
@@ -154,6 +130,7 @@ function pisteidenEtaisuus(alku, loppu){
     return Math.sqrt(dx*dx + dy*dy);
 }
 
+// WIP
 // liikuttaa reitilla, reitilla monia bussipysakkeja
 // reitti: [{pysakinId, pysakinNimi, saapumisaika, lahtoaika, kohdeId, }]
 // reitti:lahtoNimi,lahtoAika, lahtoPiste, paateNimi, paatePiste, paateAika, duration, coordinates
@@ -178,6 +155,7 @@ var ReitillaLiikuttaja = function(reitti){
     
 };
 
+// WIP
 // liikuttaa yhdelta pysakilta toiselle
 // vali: [[lon, lat]]
 var nopeus = 3;
@@ -224,8 +202,10 @@ var stopit = {
 function main(){
     //alustaKartta();
     //testaus();
-    reittiPyynto();
-
+    //reittiPyynto();
+    $.ajax({url: "get_route?time=12:30&route=18", success: serveriVastasi});
+    $.ajax({url: "get_stops?time=12:30&route=18", success: function(result){
+        test2 = result;
+    }});
 }
 
-main();
