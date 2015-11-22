@@ -10,7 +10,7 @@ var L;
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
 // debuggaukseen
-var test,test2,test3;
+var test,test2,test3,skewer;
 // testireitti
 var route = {"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705142,62.248163],[25.705737,62.248268],[25.705143,62.24816],[25.705474,62.247708],[25.704838,62.247601],[25.704543,62.247552],[25.704378,62.247525],[25.705209,62.246437],[25.705275,62.24632],[25.705312,62.246203],[25.705327,62.246083],[25.705318,62.245842],[25.705242,62.245256],[25.705023,62.243766],[25.705026,62.243631],[25.704928,62.243244],[25.70482,62.242994],[25.704761,62.242742],[25.704722,62.242604],[25.704699,62.24251],[25.704887,62.242528],[25.705208,62.242542],[25.705843,62.242577],[25.707366,62.242684],[25.709942,62.242836],[25.710544,62.242829],[25.711122,62.242822],[25.711562,62.2428],[25.711969,62.242771],[25.712514,62.242669],[25.712725,62.242638],[25.713047,62.242589],[25.713238,62.242642],[25.713645,62.243105],[25.71423,62.243485],[25.714716,62.243684],[25.714896,62.2438],[25.715637,62.243998],[25.71701,62.244303],[25.718041,62.244543],[25.720037,62.245111],[25.720847,62.245252],[25.721659,62.245384],[25.722029,62.245406],[25.722457,62.245429],[25.724873,62.245414],[25.725895,62.24542],[25.726733,62.245437],[25.727113,62.245432],[25.72766,62.245449],[25.727971,62.24546],[25.728326,62.24547],[25.728268,62.245339],[25.728265,62.245255],[25.728283,62.245088],[25.728118,62.244562],[25.728092,62.244482],[25.728074,62.244426],[25.727803,62.243548],[25.727783,62.243461],[25.727992,62.243459],[25.729471,62.243398],[25.731802,62.243302],[25.732025,62.243285],[25.732177,62.243267],[25.732454,62.24324],[25.732798,62.243214],[25.734179,62.243149],[25.735582,62.243092],[25.735697,62.243072],[25.735771,62.243041],[25.735798,62.243125],[25.736008,62.244]]};
 
@@ -22,45 +22,19 @@ main();
 
 // taman alapuolella ei pitaisi olla muuta kuin funktioita
 
-function testaus (){ 
-    var m1 = [62.244, 25.736];
-    var marker1 = L.marker(m1).addTo(map);
-    marker1.bindPopup("<b>Hello malima.");
-    var j = 0;
-    L.geoJson(route).addTo(map);
-    var marker = L.marker(m1, {
-        icon: L.mapbox.marker.icon({
-            'marker-color': '#f86767'
-        })
-    }).addTo(map);
-    var pisteet = route.coordinates;
-    var piste = pisteet[0];
-    var kohde = pisteet[1];
-    var nopeus = 0.001;
-
-    var m0 = [62.25287, 25.70022];
-    var m9 = [62.24816, 25.70514];
-
-    //var marker0 = L.marker(m0).addTo(map);
-    
-    //tick();
-}
-
-function reittiPyynto(){
-    $.ajax({url: "demo_test.txt", success: serveriVastasi
-           });
-}
-
+// piirtaa yhden reitin ja pysakit
 function serveriVastasi (vastaus) {
     //var parsittu = JSON.parse(vastaus);
     // jquery ilmeisesti parsii suoraan vastauksen
     var parsittu = vastaus;
     test=parsittu; //debug
-    // TODO: laita tekemaan yksi lista ja lisaa se kartalle
+
+    var route = [];
     for (var i = 0; i < parsittu.pysakinValit.length; i++) { 
         var coordinates = parsittu.pysakinValit[i].coordinates;
-        var geo1 = {coordinates: coordinates, type:'LineString'};
-        L.geoJson(geo1).addTo(map);
+        route = route.concat(coordinates);
+        //var geo1 = {coordinates: coordinates, type:'LineString'};
+        //L.geoJson(geo1).addTo(map);
 
         // piirretaan markkerit
         var m1 = coordinates[0];
@@ -71,6 +45,9 @@ function serveriVastasi (vastaus) {
             })
         }).addTo(map);
     }
+    var geo = {coordinates: route, type:'LineString'};
+    L.geoJson(geo).addTo(map);
+    
 }
 
 // kertoo, onko kellonaika alku- ja loppuajan valilla
@@ -98,37 +75,7 @@ function tick() {
     setTimeout(tick, 100);
 }
     
-    // palauttaa parin kannettuna, ei muokkaa alkuperaista
-    // flip([1,2]) -> [2,1], flip([4,5,6]) -> [5,4]
-function flip (pair){
-    return [pair[1],pair[0]];
-}
 
-
-// WIP
-function reittiKartalle(vastaus){
-    //var parsittu = JSON.parse(vastaus);
-
-    //alert(parsittu);
-    alert(vastaus.toString());
-    L.geoJson(route).addTo(vastaus);
-    
-}
-
-// palauttaa suuntavektorin
-function liikuKohti(alkupiste,loppupiste,matka){
-    var dx = loppupiste[0] - alkupiste[0];
-    var dy = loppupiste[1] - alkupiste[1];
-    var suuntavektori = [(dx / Math.sqrt(dx*dx + dy*dy))*matka,(dy / Math.sqrt(dx*dx + dy*dy))*matka];
-    return suuntavektori;
-}
-
-// palauta pisteiden etaisyys toisistaan
-function pisteidenEtaisuus(alku, loppu){
-    var dx = loppu[0] - alku[0];
-    var dy = loppu[1] - alku[1];
-    return Math.sqrt(dx*dx + dy*dy);
-}
 
 // WIP
 // liikuttaa reitilla, reitilla monia bussipysakkeja
@@ -157,26 +104,79 @@ var ReitillaLiikuttaja = function(reitti){
 
 // WIP
 // liikuttaa yhdelta pysakilta toiselle
+// alustetaan valin koordinaateilla, sijainti optional
 // vali: [[lon, lat]]
 var nopeus = 3;
-var ValillaLiikuttaja = function(vali, sijainti){
+var ValillaLiikuttaja = function(vali, sijainti) {
     this.reitti = vali;
-    var seuraavanIndeksi = 1;
-    this.sijainti = sijainti; // lon, lat
+    this.seuraavanIndeksi = 1;
+    if (typeof sijainti === 'undefined') this.sijainti = vali[0];
+    else this.sijainti = sijainti;
 
     // palauta uusi sijainti
     // muuta sijaintia ja indeksia
-    this.siirra = function(matka){
-        var kohde = this.reitti[seuraavanIndeksi];
-        var dx = kohde[0] - this.sijainti[0];
-        var dy = kohde[1] - this.sijainti[1];
-        var matkaKohteeseen = Math.sqrt(dx*dx + dy*dy);
-        var matkaaJaljella = matkaKohteeseen - matka;
-        
-        var suuntavektori = [(dx / Math.sqrt(dx*dx + dy*dy))*nopeus,(dy / Math.sqrt(dx*dx + dy*dy))*nopeus];
-        return suuntavektori;
-    };
+    
 };
+
+// siirtaa reitilla matkan verran eteenpain
+// palauttaa [sijainti, onkoPerilla]
+ValillaLiikuttaja.prototype.siirra = function(matkaP){
+    var matka = matkaP;
+    while(true){
+        var kohde = this.reitti[this.seuraavanIndeksi];
+        var matkaKohteeseen = pisteidenEtaisuus(this.sijainti, kohde);
+        var matkaaJaljella = matkaKohteeseen - matka;
+        if (matkaaJaljella < 0 ){
+            if (this.seuraavanIndeksi === this.reitti.length - 1)
+                return [this.reitti[this.seuraavanIndeksi],true]; //perilla
+            matkaaJaljella = -matkaaJaljella;
+            this.sijainti = this.reitti[this.seuraavanIndeksi];
+            this.seuraavanIndeksi++;
+            continue;
+        }
+        var uusiSijainti = liikuKohti(this.sijainti,kohde,matka);
+        this.sijainti = uusiSijainti;
+        return [uusiSijainti, false]; // ei perilla
+    }
+};
+
+/*************** Puhtaat funktiot ******************/
+
+// palauttaa koordinaattilistan pituuden (vektoripituutena)
+// startIndex optional
+function matkanPituus(coordinates, startIndex){
+    if (typeof startIndex === 'undefined') startIndex = 0;
+    var pituus = 0;
+    for (var i = startIndex; i < coordinates.length - 1; i++){
+        pituus += pisteidenEtaisuus(coordinates[i],coordinates[i+1]);
+    }
+    return pituus;
+}
+
+// palauttaa parin kannettuna, ei muokkaa alkuperaista
+// flip([1,2]) -> [2,1], flip([4,5,6]) -> [5,4]
+function flip (pair){
+    return [pair[1],pair[0]];
+}
+
+// palauttaa uuden sijainnin, kun liikutaan alusta kohti loppua, matkan verran
+function liikuKohti(alkupiste,loppupiste,matka){
+    var dx = loppupiste[0] - alkupiste[0];
+    var dy = loppupiste[1] - alkupiste[1];
+    var pituus = pisteidenEtaisuus(alkupiste, loppupiste);
+    var vektori = [dx / pituus * matka,dy / pituus * matka];
+    return [alkupiste[0] + vektori[0],vektori[1] + alkupiste[1]];
+}
+
+// palauta pisteiden etaisyys toisistaan
+function pisteidenEtaisuus(alku, loppu){
+    var dx = loppu[0] - alku[0];
+    var dy = loppu[1] - alku[1];
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
+/**************************************************/
+
 
 var reitti = {
     "reitinNimi": "27",
@@ -186,6 +186,7 @@ var reitti = {
         "coordinates": [['koordinaatit'],['koordinaatit']]
     }]
 };
+
 
 var stopit = {
     "reitinNimi": "27",
@@ -199,13 +200,27 @@ var stopit = {
         "duration": 300
     }]};
 
+function epaonnistui(xhr, textStatus, error){
+    console.log(textStatus);
+    console.log(error);
+}
+
 function main(){
     //alustaKartta();
-    //testaus();
-    //reittiPyynto();
-    $.ajax({url: "get_route?time=12:30&route=18", success: serveriVastasi});
-    $.ajax({url: "get_stops?time=12:30&route=18", success: function(result){
-        test2 = result;
-    }});
+    console.log('ALKU');
+    $.ajax({
+        url: "/get_route?time=1321322132121&route=16",
+        success: serveriVastasi,
+        dataType: 'json',
+        error: epaonnistui
+    });
+    
+    $.ajax({url: "/get_stops?time=12:30&route=18",
+            success: function(result){
+                test2 = result;},
+            error: epaonnistui
+           });
+    console.log('loppu');
+    
 }
 
