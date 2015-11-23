@@ -20,9 +20,10 @@ def index():
 
 @app.route("/get_stops")
 def get_stops():
-    
+    print('tanne tultiin', file=sys.stderr)
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
-    if request.method == 'GET' and request.args.get('time') is not None:
+    #if request.method == 'GET' and request.args.get('time') is not None:
+    if request.args.get('time') is not None:
         try:
             time.strptime(str(request.args.get('time')), '%H:%M:%S')            
             stoptime = map(int, request.args.get('time').split(':',2))
@@ -72,6 +73,8 @@ def get_stops():
             else:
                 tripId = rows[i][0]
                 j+=1
+        f = open("stoppidata.txt","w")
+        f.write(json.dumps(stopit))
         resp = Response(response=json.dumps(stopit),
         status=200,
         mimetype="application/json")   
@@ -100,7 +103,7 @@ def get_route():
         connection.text_factory = str
         cursor = connection.cursor()
         #haetaan reitin tiedot
-        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\"))group by pysahtymis_ajat.jnum")
+        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49)order by pysahtymis_ajat.trip_id")
        
         
         #kannasta haetut pysakkien koordinaatit
