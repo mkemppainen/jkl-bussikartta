@@ -46,6 +46,10 @@ def get_stops():
         print(rows, file=sys.stderr)
         
         print(rows, file=sys.stderr)
+
+        if len(rows) <= 0: return("Kaalimaassa sataa usein.")#TODO Kasittele paremmin
+        elif len(rows[0]) <= 0: return("Kaalimaassa sataa harvoin.")#TODO Kasittele paremmin
+
         tripId = rows[0][0]
         stopit = {
             "reitinNimi": request.args.get('route'),
