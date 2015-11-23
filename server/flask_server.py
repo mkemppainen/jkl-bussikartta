@@ -18,6 +18,12 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+#Testasin koodia. Täysin turha
+@app.route('/testi/')
+def testi():
+    a = get_service_ids(datetime.datetime.today())
+    return render_template('virhe.html')
+
 @app.route("/get_stops")
 def get_stops():
     print('tanne tultiin', file=sys.stderr)
@@ -96,6 +102,28 @@ def get_weekday(weekday_number):
         5: "L -",
         6: "S -"
     }[weekday_number]
+
+#Antaa sopivat service id:t listana
+def get_service_ids(pvm):
+    connection = sqlite3.connect("tietokanta_testi.data")
+    connection.text_factory = str
+    cursor = connection.cursor()
+    cursor.execute("select distinct service_id, maanantai, tiistai, keskiviikko, torstai, perjantai, lauantai, sunnuntai, alku_paiva, loppu_paiva from Kalenteri")
+
+    id_list = list()
+    for row in cursor.fetchall():#TODO Tarkista toimivuus.
+        if is_day_between(pvm, row[8], row[9]) and row[1+pvm.weekday()] == '1': id_list.append(row[0])
+    print(id_list)
+    return(id_list)
+
+#Tarkistaa onko annettu paiva, muiden kahden annetun paivan valissa.
+def is_day_between(middle,left, right):
+    #TODO Tarkista, etta toimii sellaisina paivina, jolloin kuukausi ja paiva on yhdella luvulla esitettavissa
+    middle_number = int('{0:0=4d}{1:0=2d}{2:0=2d}'.format(middle.year,middle.month,middle.day))#Todella ruma tapa. En tunnusta kirjoittaneeni tata.
+    print('{0} <= {1} <= {2}'.format(left, middle_number, right))
+    return(int(left) <= middle_number and middle_number <= int(right)) #Ei saisi tehdä tarkistamattonta parsimista intiksi. Tietokannassa kuitenkin pitaisi olla vain lukuja.
+        
+
 
 #Pitaa muokata hakemaan dataa dynaamisesti, nyt palautuu osittain staattinen
 #JSON-data
