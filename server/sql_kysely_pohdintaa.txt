@@ -6,24 +6,24 @@ Nämä tulisi vielä jotenkin järkevästi yhdistää.
 
 Haetaan argumenttina saadulle reitille kuuluvat trip id:t
 
-select trip_id
-from matkat
-where route_id in 
-   (select route_id
-    from matkojen_nimet
-    where lnimi is ARGUMENTTI)
+select pysakit.lat, pysakit.lon, pysakit.nimi, pysahtymis_ajat.jnum from pysakit, pysahtymis_ajat
+where pysakit.stop_id = pysahtymis_ajat.stop_id and
+pysahtymis_ajat.trip_id in
+(select trip_id from pysahtymis_ajat
+where saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49) and
+pysahtymis_ajat.trip_id in
+(select trip_id from matkat
+where route_id in
+(select route_id from matkojen_nimet
+where lnimi like "27"))
+order by pysahtymis_ajat.trip_id
 
-Haetaan löydetyille trip_id:lle kuuluvat stop_id:t
+select pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like "18")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49)order by pysahtymis_ajat.trip_id
 
-select stop_id
-from pysahtymis_ajat
-where trip_id in (ylempi kysely)
+select trip_id from pysahtymis_ajat
+where saapumis_aika_tunnit = 05 and saapumis_aika_minuutit = 49
 
-Haetaan löydetyille stop_id:lle koordinaatit
-
-select lat, lon
-from pysakit
-where stop_id in (ylempi kysely)
+pysahtymis_ajat.saapumis_aika_tunnit = 13 and pysahtymis_ajat.saapumis_aika_minuutit between 49 and 59
 
 2.
 Valittuna olevan linjan bussien sijainnit argumenttina saadun ajan peruteella
