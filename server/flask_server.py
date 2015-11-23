@@ -47,8 +47,9 @@ def get_stops():
         
         print(rows, file=sys.stderr)
 
-        if len(rows) <= 0: return("Kaalimaassa sataa usein.")#TODO Kasittele paremmin
-        elif len(rows[0]) <= 0: return("Kaalimaassa sataa harvoin.")#TODO Kasittele paremmin
+        #Estää tilanteet, jolloin sqlite tietokanta antaa tyhjää. Esim jos linjaa ei ole
+        if len(rows) <= 0: return(render_template('virhe.html', selitys='Annettua linjaa ei ole'))#TODO Kasittele paremmin
+        elif len(rows[0]) <= 0: return(render_template('virhe.html', selitys='Kaalimaassa sataa usein'))#TODO Kasittele paremmin
 
         tripId = rows[0][0]
         stopit = {
