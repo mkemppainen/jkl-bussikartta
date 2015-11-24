@@ -49,6 +49,9 @@ def get_stops():
         rows = cur.fetchall()
         print("rivien testi", file=sys.stderr)
         print(rows, file=sys.stderr)
+
+        if len(rows) <= 0: return(render_template('virhe.html',selitys='Annettua linjaa ei ole'))
+        elif len(rows[0]) <= 0: return(render_template('virhe.html',selitys='Kaalimaassa sataa usein'))
         tripId = rows[0][0]
         stopit = {
             "reitinNimi": request.args.get('route'),
