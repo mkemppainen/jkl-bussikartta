@@ -20,7 +20,6 @@ def index():
 
 @app.route("/get_stops")
 def get_stops():
-    print('tanne tultiin', file=sys.stderr)
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
     #if request.method == 'GET' and request.args.get('time') is not None:
     if request.args.get('time') is not None:
@@ -43,8 +42,6 @@ def get_stops():
         cur.execute('select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and service_id like \"' + service_id + ' Talvi"))')
         rows = cur.fetchall()
         print("rivien testi", file=sys.stderr)
-        print(rows, file=sys.stderr)
-        
         print(rows, file=sys.stderr)
         tripId = rows[0][0]
         stopit = {
