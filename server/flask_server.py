@@ -117,8 +117,20 @@ def is_day_between(middle,left, right):
     middle_number = int('{0:0=4d}{1:0=2d}{2:0=2d}'.format(middle.year,middle.month,middle.day))#Todella ruma tapa. En tunnusta kirjoittaneeni tata.
     print('{0} <= {1} <= {2}'.format(left, middle_number, right))
     return(int(left) <= middle_number and middle_number <= int(right)) #Ei saisi tehdä tarkistamattonta parsimista intiksi. Tietokannassa kuitenkin pitaisi olla vain lukuja.
-        
 
+#Tarkistaa annetun argumentin oikeellisuuden        
+def check_argument(argument):
+     if request.method == 'GET' and argument is not None:
+            print(argument, file=sys.stderr)
+            try:
+                time.strptime(str(request.args.get('time')), '%H:%M:%S')            
+                stoptime = map(int, request.args.get('time').split(':',2))
+                print(stoptime, file=sys.stderr)#test
+                service_id = get_weekday(datetime.datetime.today().weekday())
+                print(service_id, file=sys.stderr)#test
+                return stoptime
+            except ValueError:
+                return render_template('virhe.html')
 
 #Pitaa muokata hakemaan dataa dynaamisesti, nyt palautuu osittain staattinen
 #JSON-data
