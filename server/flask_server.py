@@ -31,7 +31,7 @@ def get_stops():
     if request.args.get('time') is not None:
         try:
             time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-            stoptime = map(int, request.args.get('time').split(':',2))
+            stoptime = list(map(int, request.args.get('time').split(':',2)))
             print(stoptime, file=sys.stderr)#test
         except ValueError:
             return render_template('virhe.html',selitys=u'Annetut tiedot ovat väärää tyyppiä')
@@ -45,7 +45,9 @@ def get_stops():
         con.text_factory = str
         cur = con.cursor()
         #TODO tarkistus myos sekuntien mukaan. Poikkeuksia on todella vahan, ei kiireinen
-        cur.execute('select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and ' + service_id_ehto)
+        valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and ' + service_id_ehto + '))'
+        print(valinta)
+        cur.execute(valinta)
         rows = cur.fetchall()
         print("rivien testi", file=sys.stderr)
         print(rows, file=sys.stderr)
@@ -103,7 +105,9 @@ def get_service_id_condition(pvm):
     lista = get_service_ids(pvm)
 
     if len(lista) <= 0: return('(1==2)')
-    return(('(service_id like \"' + '\" OR service_id like \"'.join(lista) + '\")'))
+    a = ('(service_id like \"' + '\" OR service_id like \"'.join(lista) + '\")')
+    print(a)
+    return(a)
     
 
 #Antaa sopivat service id:t listana
@@ -132,7 +136,7 @@ def check_argument(argument):
             print(argument, file=sys.stderr)
             try:
                 time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-                stoptime = map(int, request.args.get('time').split(':',2))
+                stoptime = list(map(int, request.args.get('time').split(':',2)))
                 print(stoptime, file=sys.stderr)#test
                 service_id = get_weekday(datetime.datetime.today().weekday())
                 print(service_id, file=sys.stderr)#test
@@ -148,7 +152,7 @@ def get_route():
         print(request.args.get('route'), file=sys.stderr)
         try:
             time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-            stoptime = map(int, request.args.get('time').split(':',2))
+            stoptime = list(map(int, request.args.get('time').split(':',2)))
             print(stoptime, file=sys.stderr)#test
             service_id = get_weekday(datetime.datetime.today().weekday())
             print(service_id, file=sys.stderr)#test
