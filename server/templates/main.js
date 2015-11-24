@@ -129,25 +129,38 @@ Bussi.prototype.tarkistaLahto = function(){
     
 };
 
+// wip TODO testaa kun get_stops toimii
 // etsii oikean pysakin, palauttaa indeksin
-function etsiAika(stops){
+function etsiAika(stops,time){
     var pysahdykset = this.stops.pysahdykset; //taulukko
     for(var i = 0; i < pysahdykset.length; i++){
-        
+	// jos aika on lahtoaika tai suurempi
+        if(!timeCompare(time, pysahdykset[i].lahtoAika))
+	    if (i===0) return 0;
+	    return i-1;
+	    console.log(pysahdykset[i].lahtoAika);
     }
 }
 
-// palauta true jos time1 suurempi tai yhtasuuri kuin time2
+
+// palauta true jos time1 suurempi kuin time2
 // time hh:mm:ss/ h:m:s
 function timeCompare(time1, time2){
     var t1 = time1.split(":");
     var t2 = time2.split(":");
-    if (t1[0]>=t2[0]); // TODO:
-        };
+    t1 = t1.map(Number);
+    t2 = t2.map(Number);
+    if (t1[0]>t2[0]) return true;
+    if (t1[0]<t2[0]) return false;
+    if (t1[1]>t2[1]) return true;
+    if (t1[1]<t2[1]) return false;
+    if (t1[2]>t2[2]) return true;
+    if (t1[2]<t2[2]) return false;
+    return false;
+}
 
-
+//wip
 function oikeaAika(element, index, array){
-    
     return false;
 }
 
@@ -257,15 +270,18 @@ function epaonnistui(xhr, textStatus, error){
 function main(){
     //alustaKartta();
     console.log('ALKU');
-
+    
+    //get_stops
+    /*
     $.ajax({url: "get_stops?time=12:30:00&route=18",
             success: function(result){
                 test2 = result;},
             error: epaonnistui
            });
-
+    //*/
+    //get_route
     $.ajax({
-        url: "/get_route?time=1321322132121&route=18",
+        url: "/get_route?time=18:00:00&route=18",
         success: serveriVastasi,
         dataType: 'json',
         error: epaonnistui
