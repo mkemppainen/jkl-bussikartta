@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xml:lang="fi">
+    <head>
+	<title>Virhesivu</title>
+    </head>
+    <body>
+	<h1>Virhe</h1>
+	{% if selitys %}
+	<p>{{selitys}}</p>
+	{% else %}
+	<p>Jokin meni pieleen.</p>
+	{% endif %}
+    </body>
+    
+</html>

@@ -9,6 +9,7 @@ var L;
 // alustetaan kartta
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
+var tickInterval = 100; //100ms = 10fps
 // debuggaukseen
 var test,test2,test3,skewer;
 // testireitti
@@ -18,7 +19,7 @@ var route = {"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302
 var original ={"origin":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.700225830078125,62.252872467041016]},"properties":{"name":"Laajavuorentie"}},"destination":{"type":"Feature","geometry":{"type":"Point","coordinates":[25.70514488220215,62.24816131591797]},"properties":{"name":"Tilustie"}},"waypoints":[],"routes":[{"distance":747,"duration":61,"summary":"","geometry":{"type":"LineString","coordinates":[[25.700226,62.252873],[25.700302,62.25277],[25.700726,62.252204],[25.70153,62.251181],[25.701641,62.250946],[25.701811,62.250824],[25.704164,62.247795],[25.704223,62.24764],[25.704378,62.247525],[25.704543,62.247552],[25.704838,62.247601],[25.705474,62.247708],[25.705143,62.24816]]},"steps":[]}]};
 
 // ALOITA OHJELMA
-main();
+window.onload=main;
 
 // taman alapuolella ei pitaisi olla muuta kuin funktioita
 
@@ -54,6 +55,7 @@ function serveriVastasi (vastaus) {
 // function onkoAjanValilla(alku, loppu, aika) { /*implement*/}
 
 // TODO: poista/refaktoroi
+/*
 function tick() {
     var dx = kohde[0] - piste[0];
     var dy = kohde[1] - piste[1];
@@ -74,39 +76,84 @@ function tick() {
     }
     setTimeout(tick, 100);
 }
-    
-
+*/
 
 // WIP
-// liikuttaa reitilla, reitilla monia bussipysakkeja
-// reitti: [{pysakinId, pysakinNimi, saapumisaika, lahtoaika, kohdeId, }]
-// reitti:lahtoNimi,lahtoAika, lahtoPiste, paateNimi, paatePiste, paateAika, duration, coordinates
+// liikuttaa reitilla, reitilla monia pysakkeja
+// reitti: {"reitinNimi":,"pysakinValit:
+//                           [lahtoId:,lahtoNimi:,paateId:,paateNimi:,
+//                            lahtoPiste,paatePiste,duration,coordinates:[]]}
 var ReitillaLiikuttaja = function(reitti){
     this.reitti = reitti;
-    // reitin indeksi
-    this.reittino = 0;
-    this.viimeksiSiirretty = null;
-    this.ValillaLiikuttaja = new ValillaLiikuttaja(bussireitit[0].pysakinValit[this.reittino].coordinates);
+    this.pysakkino = 0;
+    //this.viimeksiSiirretty = null; // TODO: tarvitaanko tata
+    this.ValillaLiikuttaja = new ValillaLiikuttaja(reitti[0].pysakinValit[this.reittino].coordinates);
+};
 
-    // palauta uusi sijainti
-    this.liikuta = function(date){
-        // hae daten perusteella oikea pysakki, liikuta siina tarpeeksi pitkalle
+// palauta [uusi-sijainti, onko-pysakilla]
+ReitillaLiikuttaja.prototype.liikuta = function(matka){
         if (this.viimeksiSiirretty === null){
             this.viimeksiSiirretty = date;
         }
         // etsi aikaa vastaava reitin piste
         // muokkaa rettino
-        
-
     };
+
+
+
+
+
+
+
+
+// reitti: {"reitinNimi":,"pysakinValit:
+//                           [lahtoId:,lahtoNimi:,paateID:,paateNimi:,
+//                            lahtoPiste,paatePiste,duration,coordinates:[]]}
+// stops: {"reitinNimi":, "matkat":
+//                           [ {tripId,pysahdykset:[{lahtoID,paateID,lahtoAika,paateAika}]} ]
+//
+var Bussi = function(tripId, reitti, stops){
+    reitti: reitti;
+    stops: stops;
+    onkoPerilla: false;
     
 };
 
-// WIP
+Bussi.prototype.tick = function(){
+    if (this.onkoPerilla) this.tarkistaLahto();
+};
+
+// tarkistaa milloin lahdetaan pysakilta
+// 
+Bussi.prototype.tarkistaLahto = function(){
+    
+};
+
+// etsii oikean pysakin, palauttaa indeksin
+function etsiAika(stops){
+    var pysahdykset = this.stops.pysahdykset; //taulukko
+    for(var i = 0; i < pysahdykset.length; i++){
+        
+    }
+}
+
+// palauta true jos time1 suurempi tai yhtasuuri kuin time2
+// time hh:mm:ss/ h:m:s
+function timeCompare(time1, time2){
+    var t1 = time1.split(":");
+    var t2 = time2.split(":");
+    if (t1[0]>=t2[0]); // TODO:
+        };
+
+
+function oikeaAika(element, index, array){
+    
+    return false;
+}
+
 // liikuttaa yhdelta pysakilta toiselle
 // alustetaan valin koordinaateilla, sijainti optional
 // vali: [[lon, lat]]
-var nopeus = 3;
 var ValillaLiikuttaja = function(vali, sijainti) {
     this.reitti = vali;
     this.seuraavanIndeksi = 1;
@@ -119,7 +166,8 @@ var ValillaLiikuttaja = function(vali, sijainti) {
 };
 
 // siirtaa reitilla matkan verran eteenpain
-// palauttaa [sijainti, onkoPerilla]
+// palauttaa [sijainti, matkaaJaljella, onkoPerilla]
+// matkaaJaljella voi olla negatiivinen (yli lopun)
 ValillaLiikuttaja.prototype.siirra = function(matkaP){
     var matka = matkaP;
     while(true){
@@ -128,7 +176,7 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
         var matkaaJaljella = matkaKohteeseen - matka;
         if (matkaaJaljella < 0 ){
             if (this.seuraavanIndeksi === this.reitti.length - 1)
-                return [this.reitti[this.seuraavanIndeksi],true]; //perilla
+                return [this.reitti[this.seuraavanIndeksi],matkaaJaljella,true]; //perilla
             matkaaJaljella = -matkaaJaljella;
             this.sijainti = this.reitti[this.seuraavanIndeksi];
             this.seuraavanIndeksi++;
@@ -136,17 +184,18 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
         }
         var uusiSijainti = liikuKohti(this.sijainti,kohde,matka);
         this.sijainti = uusiSijainti;
-        return [uusiSijainti, false]; // ei perilla
+        return [uusiSijainti, matkaaJaljella, false]; // ei perilla
     }
 };
 
 /*************** Puhtaat funktiot ******************/
 
-// palauttaa koordinaattilistan pituuden (vektoripituutena)
-// startIndex optional
-function matkanPituus(coordinates, startIndex){
-    if (typeof startIndex === 'undefined') startIndex = 0;
+// palauttaa matkan pituuden (vektoripituutena)
+// startIndex,(aloitus)sijainti optional
+function matkanPituus(coordinates, sijainti, startIndex){
     var pituus = 0;
+    if (typeof startIndex === 'undefined') startIndex = 0;
+    if (typeof sijainti !== 'undefined') pituus = pisteidenEtaisuus(sijainti, coordinates[startIndex]);
     for (var i = startIndex; i < coordinates.length - 1; i++){
         pituus += pisteidenEtaisuus(coordinates[i],coordinates[i+1]);
     }
@@ -208,18 +257,21 @@ function epaonnistui(xhr, textStatus, error){
 function main(){
     //alustaKartta();
     console.log('ALKU');
-    $.ajax({
-        url: "/get_route?time=1321322132121&route=16",
-        success: serveriVastasi,
-        dataType: 'json',
-        error: epaonnistui
-    });
-    
-    $.ajax({url: "/get_stops?time=12:30&route=18",
+
+    $.ajax({url: "get_stops?time=12:30:00&route=18",
             success: function(result){
                 test2 = result;},
             error: epaonnistui
            });
+
+    $.ajax({
+        url: "/get_route?time=1321322132121&route=18",
+        success: serveriVastasi,
+        dataType: 'json',
+        error: epaonnistui
+    });
+    //*/
+
     console.log('loppu');
     
 }
