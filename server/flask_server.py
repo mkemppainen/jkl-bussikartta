@@ -121,14 +121,22 @@ def is_day_between(middle,left, right):
 #JSON-data
 @app.route("/get_route")
 def get_route():
-    if request.method == 'GET':
+    if request.method == 'GET' and request.args.get('time') is not None:
         print(request.args.get('route'), file=sys.stderr)
+        try:
+            time.strptime(str(request.args.get('time')), '%H:%M:%S')            
+            stoptime = map(int, request.args.get('time').split(':',2))
+            print(stoptime, file=sys.stderr)#test
+            service_id = get_weekday(datetime.datetime.today().weekday())
+            print(service_id, file=sys.stderr)#test
+        except ValueError:
+            return render_template('index.html')
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
         connection = sqlite3.connect("tietokanta_testi.data")
         connection.text_factory = str
         cursor = connection.cursor()
         #haetaan reitin tiedot
-        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49)order by pysahtymis_ajat.trip_id")
+        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + stoptime[0] + "  and saapumis_aika_minuutit = " + stoptime[1] + " order by pysahtymis_ajat.trip_id")
        
         
         #kannasta haetut pysakkien koordinaatit
