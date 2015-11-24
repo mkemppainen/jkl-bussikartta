@@ -159,18 +159,38 @@ def get_route():
         route_crdnts = [] #reitin kaikki koordinaatit
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
 
-        for i in range(0, len(stop_crdnts)):
+        for i in range(0, len(stop_crdnts)-1):
             stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
-            if i+1 < len(stop_crdnts):
-                stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]
-            i+=1
+            #if i+1 < len(stop_crdnts):
+            stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]
+            
             #haetaan pysakkien valin koordinaatit
-            r  = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/'+ stop1 + ';' + stop2 + '.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')    
+            """
+            r  = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/'+ stop1 + ';' + stop2 + '.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')
+           
+            """
+            cursor.execute("select tripcrd from pysakkiparit where stop_id_1 = (select stop_id from pysakit where lat = " + stop_crdnts[i][0] + " and lon = " + stop_crdnts[i][1] + " ) and stop_id_2 = ( select stop_id from pysakit where lat = " + stop_crdnts[i+1][0] + " and lon = " + stop_crdnts[i+1][1] + ")")
+            i+=1
             
             #heitetaan koordinaatit reitin listalle
-            print(r.text, file=sys.stderr)
+            #print(r.text, file=sys.stderr)
+            """
             jisondata = json.loads(r.text)
             route_crdnts.append(jisondata["routes"][0]["geometry"]["coordinates"])
+            """
+            
+            
+            f = cursor.fetchone()
+            if f is not None:
+                a = f[0].replace("(", "")
+                b = a.replace(")", "")
+                c = b.split(',')            
+            d =[]
+            i = 0
+            while i < len(c)-1:
+                d.append([c[i], c[i+1]])
+                i+=2
+            route_crdnts.append(d)
             
             
         #Tassa muodossa palautus selaimelle
