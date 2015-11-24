@@ -21,8 +21,8 @@ def index():
 #Testasin koodia. Täysin turha
 @app.route('/testi/')
 def testi():
-    a = get_service_ids(datetime.datetime.today())
-    return render_template('virhe.html')
+    print(get_service_id_condition(datetime.datetime.today()))
+    return render_template('virhe.html',selitys='aalio')
 
 @app.route("/get_stops")
 def get_stops():
@@ -31,13 +31,13 @@ def get_stops():
     if request.args.get('time') is not None:
         try:
             time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-            stoptime = map(int, request.args.get('time').split(':',2))
+            stoptime = list(map(int, request.args.get('time').split(':',2)))
             print(stoptime, file=sys.stderr)#test
-            service_id = get_weekday(datetime.datetime.today().weekday())
-            print(service_id, file=sys.stderr)#test
         except ValueError:
-            return render_template('index.html')
+            return render_template('virhe.html',selitys=u'Annetut tiedot ovat väärää tyyppiä')
         
+        service_id_ehto = get_service_id_condition(datetime.datetime.today())
+
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
         #TODO kaivannee lisatietoa: lat, lon?
         #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
@@ -45,7 +45,9 @@ def get_stops():
         con.text_factory = str
         cur = con.cursor()
         #TODO tarkistus myos sekuntien mukaan. Poikkeuksia on todella vahan, ei kiireinen
-        cur.execute('select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and service_id like \"' + service_id + ' Talvi"))')
+        valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and ' + service_id_ehto + '))'
+        print(valinta)
+        cur.execute(valinta)
         rows = cur.fetchall()
         print("rivien testi", file=sys.stderr)
         print(rows, file=sys.stderr)
@@ -98,6 +100,16 @@ def get_weekday(weekday_number):
         6: "S -"
     }[weekday_number]
 
+    
+def get_service_id_condition(pvm):
+    lista = get_service_ids(pvm)
+
+    if len(lista) <= 0: return('(1==2)')
+    a = ('(service_id like \"' + '\" OR service_id like \"'.join(lista) + '\")')
+    print(a)
+    return(a)
+    
+
 #Antaa sopivat service id:t listana
 def get_service_ids(pvm):
     connection = sqlite3.connect("tietokanta_testi.data")
@@ -124,7 +136,7 @@ def check_argument(argument):
             print(argument, file=sys.stderr)
             try:
                 time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-                stoptime = map(int, request.args.get('time').split(':',2))
+                stoptime = list(map(int, request.args.get('time').split(':',2)))
                 print(stoptime, file=sys.stderr)#test
                 service_id = get_weekday(datetime.datetime.today().weekday())
                 print(service_id, file=sys.stderr)#test
@@ -140,7 +152,7 @@ def get_route():
         print(request.args.get('route'), file=sys.stderr)
         try:
             time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-            stoptime = map(int, request.args.get('time').split(':',2))
+            stoptime = list(map(int, request.args.get('time').split(':',2)))
             print(stoptime, file=sys.stderr)#test
             service_id = get_weekday(datetime.datetime.today().weekday())
             print(service_id, file=sys.stderr)#test
@@ -151,7 +163,9 @@ def get_route():
         connection.text_factory = str
         cursor = connection.cursor()
         #haetaan reitin tiedot
-        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id")
+
+        service_id_ehto = service_id_ehto = get_service_id_condition(datetime.datetime.today())
+        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id")
        
         
         #kannasta haetut pysakkien koordinaatit
