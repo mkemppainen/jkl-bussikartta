@@ -21,8 +21,8 @@ def index():
 #Testasin koodia. Täysin turha
 @app.route('/testi/')
 def testi():
-    a = get_service_ids(datetime.datetime.today())
-    return render_template('virhe.html')
+    print(get_service_id_condition(datetime.datetime.today()))
+    return render_template('virhe.html',selitys='aalio')
 
 @app.route("/get_stops")
 def get_stops():
@@ -33,11 +33,11 @@ def get_stops():
             time.strptime(str(request.args.get('time')), '%H:%M:%S')            
             stoptime = map(int, request.args.get('time').split(':',2))
             print(stoptime, file=sys.stderr)#test
-            service_id = get_weekday(datetime.datetime.today().weekday())
-            print(service_id, file=sys.stderr)#test
         except ValueError:
-            return render_template('index.html')
+            return render_template('virhe.html',selitys=u'Annetut tiedot ovat väärää tyyppiä')
         
+        service_id_ehto = get_service_id_condition(datetime.datetime.today())
+
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
         #TODO kaivannee lisatietoa: lat, lon?
         #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
@@ -45,7 +45,7 @@ def get_stops():
         con.text_factory = str
         cur = con.cursor()
         #TODO tarkistus myos sekuntien mukaan. Poikkeuksia on todella vahan, ei kiireinen
-        cur.execute('select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and service_id like \"' + service_id + ' Talvi"))')
+        cur.execute('select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and ' + service_id_ehto)
         rows = cur.fetchall()
         print("rivien testi", file=sys.stderr)
         print(rows, file=sys.stderr)
@@ -97,6 +97,14 @@ def get_weekday(weekday_number):
         5: "L -",
         6: "S -"
     }[weekday_number]
+
+    
+def get_service_id_condition(pvm):
+    lista = get_service_ids(pvm)
+
+    if len(lista) <= 0: return('(1==2)')
+    return(('(service_id like \"' + '\" OR service_id like \"'.join(lista) + '\")'))
+    
 
 #Antaa sopivat service id:t listana
 def get_service_ids(pvm):
