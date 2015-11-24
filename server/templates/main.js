@@ -258,14 +258,14 @@ function main(){
     //alustaKartta();
     console.log('ALKU');
 
-    $.ajax({url: "get_stops?time=12:30:00&route=18",
+    $.ajax({url: "get_stops?time=12:30:00&route=1M",
             success: function(result){
                 test2 = result;},
             error: epaonnistui
            });
 
     $.ajax({
-        url: "/get_route?time=1321322132121&route=18",
+        url: "/get_route?time=12:30:00&route=1M",
         success: serveriVastasi,
         dataType: 'json',
         error: epaonnistui
