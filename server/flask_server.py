@@ -27,19 +27,12 @@ def testi():
 @app.route("/get_stops")
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
-    #if request.method == 'GET' and request.args.get('time') is not None:
-    if request.args.get('time') is not None:
-        try:
-            time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-            stoptime = list(map(int, request.args.get('time').split(':',2)))
-            print(stoptime, file=sys.stderr)#test
-        except ValueError:
-            return render_template('virhe.html',selitys=u'Annetut tiedot ovat väärää tyyppiä')
-        
+    check_argument('route', request.args.get('route'))
+    stoptime = check_argument('time', request.args.get('time'))
+    if stoptime is not None:
         service_id_ehto = get_service_id_condition(datetime.datetime.today())
 
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
-        #TODO kaivannee lisatietoa: lat, lon?
         #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
         con = sqlite3.connect("tietokanta_testi.data")
         con.text_factory = str
@@ -49,8 +42,6 @@ def get_stops():
         print(valinta)
         cur.execute(valinta)
         rows = cur.fetchall()
-        print("rivien testi", file=sys.stderr)
-        print(rows, file=sys.stderr)
 
         if len(rows) <= 0: return(render_template('virhe.html',selitys='Annettua linjaa ei ole'))
         elif len(rows[0]) <= 0: return(render_template('virhe.html',selitys='Kaalimaassa sataa usein'))
@@ -60,10 +51,10 @@ def get_stops():
             "matkat": []
                 }
 
-        a = 0
-        j = 0
         i = 0
+        #luodaan selaimelle palautettava json-data
         while i is not len(rows) - 1:
+            #pysahdykset ensimmaiselle trip_id:lle
             if rows[i][0] == tripId:
                  stopit["matkat"].append({
                      "tripID": tripId,
@@ -79,27 +70,18 @@ def get_stops():
                              })
                      i+=1
             else:
+                #vaihdetaan seuraava trip_id
                 tripId = rows[i][0]
                 j+=1
+        #kirjoitus tiedostoon testin vuoksi
         f = open("stoppidata.txt","w")
         f.write(json.dumps(stopit))
+
         resp = Response(response=json.dumps(stopit),
         status=200,
         mimetype="application/json")   
         
     return(resp)
-
-def get_weekday(weekday_number):
-    return {
-        0: "M-P",
-        1: "M-P",
-        2: "M-P",
-        3: "M-P",
-        4: "M-P",
-        5: "L -",
-        6: "S -"
-    }[weekday_number]
-
     
 def get_service_id_condition(pvm):
     lista = get_service_ids(pvm)
@@ -131,16 +113,20 @@ def is_day_between(middle,left, right):
     return(int(left) <= middle_number and middle_number <= int(right)) #Ei saisi tehdä tarkistamattonta parsimista intiksi. Tietokannassa kuitenkin pitaisi olla vain lukuja.
 
 #Tarkistaa annetun argumentin oikeellisuuden        
-def check_argument(argument):
+def check_argument(argument, value):
      if request.method == 'GET' and argument is not None:
             print(argument, file=sys.stderr)
             try:
-                time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-                stoptime = list(map(int, request.args.get('time').split(':',2)))
-                print(stoptime, file=sys.stderr)#test
-                service_id = get_weekday(datetime.datetime.today().weekday())
-                print(service_id, file=sys.stderr)#test
-                return stoptime
+                if argument == 'time':
+                    time.strptime(str(value), '%H:%M:%S')       
+                    stoptime = list(map(int, value.split(':',2)))
+                    print(stoptime, file=sys.stderr)#test
+                    return stoptime
+                elif argument == 'route':
+                    return value
+                else:
+                    print('PALAUTETAAN NONE', file=sys.stderr)
+                    return None
             except ValueError:
                 return render_template('virhe.html')
 
@@ -148,16 +134,9 @@ def check_argument(argument):
 #JSON-data
 @app.route("/get_route")
 def get_route():
-    if request.method == 'GET' and request.args.get('time') is not None:
-        print(request.args.get('route'), file=sys.stderr)
-        try:
-            time.strptime(str(request.args.get('time')), '%H:%M:%S')            
-            stoptime = list(map(int, request.args.get('time').split(':',2)))
-            print(stoptime, file=sys.stderr)#test
-            service_id = get_weekday(datetime.datetime.today().weekday())
-            print(service_id, file=sys.stderr)#test
-        except ValueError:
-            return render_template('index.html')
+    check_argument('route', request.args.get('route'))
+    stoptime = check_argument('time', request.args.get('time'))
+    if stoptime is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
         connection = sqlite3.connect("tietokanta_testi.data")
         connection.text_factory = str
@@ -172,28 +151,16 @@ def get_route():
         stop_crdnts = [[item for item in r] for r in cursor.fetchall()]
         route_crdnts = [] #reitin kaikki koordinaatit
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
-
         for i in range(0, len(stop_crdnts)-1):
             stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
             #if i+1 < len(stop_crdnts):
             stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]
             
             #haetaan pysakkien valin koordinaatit
-            """
-            r  = requests.get('https://api.mapbox.com/v4/directions/mapbox.driving/'+ stop1 + ';' + stop2 + '.json?access_token=pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q&steps=false')
-           
-            """
             cursor.execute("select tripcrd from pysakkiparit where stop_id_1 = (select stop_id from pysakit where lat = " + stop_crdnts[i][0] + " and lon = " + stop_crdnts[i][1] + " ) and stop_id_2 = ( select stop_id from pysakit where lat = " + stop_crdnts[i+1][0] + " and lon = " + stop_crdnts[i+1][1] + ")")
             i+=1
             
             #heitetaan koordinaatit reitin listalle
-            #print(r.text, file=sys.stderr)
-            """
-            jisondata = json.loads(r.text)
-            route_crdnts.append(jisondata["routes"][0]["geometry"]["coordinates"])
-            """
-            
-            
             f = cursor.fetchone()
             if f is not None:
                 a = f[0].replace("(", "")
@@ -228,6 +195,7 @@ def get_route():
         #testin vuoksi datan kirjoitus tiedostoon
         f = open("reittidata.txt","w")
         f.write(json.dumps(r2))
+
     resp = Response(response=json.dumps(r2),
         status=200,
         mimetype="application/json")   
