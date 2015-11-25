@@ -22,7 +22,12 @@ def index():
 @app.route('/testi/')
 def testi():
     print(get_service_id_condition(datetime.datetime.today()))
-    return render_template('virhe.html',selitys='aalio')
+    return render_template('virhe.html'),400
+
+@app.route("/get_all_stops")
+def get_all_stops():
+    
+    return None
 
 @app.route("/get_stops")
 def get_stops():
@@ -43,8 +48,8 @@ def get_stops():
         cur.execute(valinta)
         rows = cur.fetchall()
 
-        if len(rows) <= 0: return(render_template('virhe.html',selitys='Annettua linjaa ei ole'))
-        elif len(rows[0]) <= 0: return(render_template('virhe.html',selitys='Kaalimaassa sataa usein'))
+        if len(rows) <= 0: return(render_template('virhe.html'),400)
+        elif len(rows[0]) <= 0: return(render_template('virhe.html'),400)
         tripId = rows[0][0]
         stopit = {
             "reitinNimi": request.args.get('route'),
@@ -125,16 +130,16 @@ def check_argument(argument, value):
                 elif argument == 'route':
                     return value
                 else:
-                    print('PALAUTETAAN NONE', file=sys.stderr)
                     return None
             except ValueError:
-                return render_template('virhe.html')
+                return None
 
 #Pitaa muokata hakemaan dataa dynaamisesti, nyt palautuu osittain staattinen
 #JSON-data
 @app.route("/get_route")
 def get_route():
-    check_argument('route', request.args.get('route'))
+    
+    route = check_argument('route', request.args.get('route'))
     stoptime = check_argument('time', request.args.get('time'))
     if stoptime is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
