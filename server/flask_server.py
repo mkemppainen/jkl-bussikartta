@@ -199,12 +199,13 @@ def get_route():
         #haetaan reitin tiedot
 
         service_id_ehto = service_id_ehto = get_service_id_condition(datetime.datetime.today())
-        cursor.execute("select distinct pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id")
+        cursor.execute("select distinct pysakit.lat, pysakit.lon, pysakit.nimi from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id")
        
         
         #kannasta haetut pysakkien koordinaatit
         stop_crdnts = [[item for item in r] for r in cursor.fetchall()]
         route_crdnts = [] #reitin kaikki koordinaatit
+        durations = []
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
         for i in range(0, len(stop_crdnts)-1):
             stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
@@ -212,17 +213,19 @@ def get_route():
             stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]
             
             #haetaan pysakkien valin koordinaatit
-            cursor.execute("select tripcrd from pysakkiparit where stop_id_1 = (select stop_id from pysakit where lat = " + stop_crdnts[i][0] + " and lon = " + stop_crdnts[i][1] + " ) and stop_id_2 = ( select stop_id from pysakit where lat = " + stop_crdnts[i+1][0] + " and lon = " + stop_crdnts[i+1][1] + ")")
+            cursor.execute("select tripcrd, duration from pysakkiparit where stop_id_1 = (select stop_id from pysakit where lat = " + stop_crdnts[i][0] + " and lon = " + stop_crdnts[i][1] + " ) and stop_id_2 = ( select stop_id from pysakit where lat = " + stop_crdnts[i+1][0] + " and lon = " + stop_crdnts[i+1][1] + ")")
             i+=1
             
             #heitetaan koordinaatit reitin listalle
             f = cursor.fetchone()
             if f is not None:
+                durations.append(f[1])
                 a = f[0].replace("(", "")
                 b = a.replace(")", "")
                 c = b.split(',')            
             else: return(render_template('virhe.html'),400) 
             d =[]
+            
             i = 0
             while i < len(c)-1:
                 try:
@@ -236,19 +239,20 @@ def get_route():
         #Tassa muodossa palautus selaimelle
         #TODO kannasta saadut tiedot staattisien tilalle
         # Tallainen jokaiselle pysakinvalille {lahtonimi, lahtoaika, lahtopiste, paatenimi, paatepiste, paateaika, duration, coords[[data,data]]}
+        print('***TESTATAAN DURATIONS***',file=sys.stderr)
+        for i in durations:
+            print(i, file=sys.stderr)
         j = 0   
         r2 = {
             "reitinNimi":str(request.args.get('route')),
             "pysakinValit":[]}
         for i in range(0,len(stop_crdnts) - 1):
             r2["pysakinValit"].append({
-            "lahtoNimi":"pysakki3",
-            "lahtoAika":"12:15",
+            "lahtoNimi":stop_crdnts[i][2],
             "lahtoPiste":[stop_crdnts[i][1],stop_crdnts[i][0]],
-            "paateNimi":"pysakki17",
+            "paateNimi":stop_crdnts[i+1][2],
             "paatePiste":[stop_crdnts[i+1][1],stop_crdnts[i+1][0]],
-            "paateAika": "12:20",
-            "duration": 300,
+            "duration": durations[i],
             "coordinates":route_crdnts[i]})#[j]["coordinates"] = route_crdnts[j]
             i+=1
         #testin vuoksi datan kirjoitus tiedostoon
