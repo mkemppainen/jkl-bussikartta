@@ -1,11 +1,9 @@
+//global kommentin tarvii, ettei emacs herjaa alustamattomista muuttujista
+/* global $, L, timeOut, setInterval*/
 // MAPBOX APISSA LATITUDE JA LONGITUDE ON TOISINPAIN
 // TODO: paivamaarat huomioon, kesa-talviaika
 // onko (lon, lat) aina oikeinpain
 
-// jquery
-var $;
-// L on leafletin/mapboxin maarittelema
-var L;
 // alustetaan kartta
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
@@ -231,6 +229,7 @@ function tyhjennaReitit(){
     featureLayer = L.mapbox.featureLayer();
 }
 
+// kutsutaan html:sta
 function testiPiirto(linja){
     $.ajax({
         url: "/get_route?time=18:00:00&route=" + linja,
@@ -249,15 +248,17 @@ function testiPiirto(linja){
 }
 
 function main(){
-    console.log('ALKU');
-    //get_stops
-    /*
+
     $.ajax({url: "get_stops?time=12:30:00&route=18",
             success: function(result){
-                test2 = result;},
+                test2 = result;
+		console.log('success get_stops: test2');
+	    },
+	    
             error: function(xhr, textStatus,error){
                 test2 = xhr;
-                epaonnistui(xhr, textStatus, error);
+		console.log('error get_stops: test2');
+                //epaonnistui(xhr, textStatus, error);
             }
            });
     //*/
@@ -265,7 +266,6 @@ function main(){
     $.ajax({
         url: "/get_route?time=18:00:00&route=18",
         success: function(result){
-            console.log('Succes');
             serveriVastasi(result);
             test3=result;
             var b = new Bussi(1234, result, []);
@@ -275,6 +275,6 @@ function main(){
         dataType: 'json',
         error: epaonnistui
     });
-    console.log('loppu');
-    
+
+    console.log('mainin loppu');
 }
