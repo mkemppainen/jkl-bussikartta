@@ -8,13 +8,11 @@
    list-style-type: none;
    padding: 0;
    width: auto;
-   border-bottom: 2px solid;
    border-radius: 5px;
 }
 
 .vetolaatikko ul li{
     margin: 0em;
-    border-top: 1px solid #1E2023;
     background: #333333;
     float: none;
 }
@@ -27,20 +25,23 @@
     width: 100%;
     display: inline-block;
     padding: 1em 1em;
-    color: #FFFFFF;
+    margin-bottom: 0em;
+    color: #01DF3A;
     background: #182121;
     text-decoration:none;
+    border-radius: 5px;
+}
+
+.vetolaatikko ul li button:hover {
+    background-color: #01DF3A;
 }
 
 .vetolaatikko ul li button {
     display: block;
-    color: #fff;
+    color: #FFFFFF;
+    background-color: #04B431;
     width: 100%;
     padding-right: 1em;
     padding-left: 1em;
-    margin-left: 0em;
-}
-
-.vetolaatikko ul li button {
-    background: #4C4C4C;
+    margin: 0em;
 }
