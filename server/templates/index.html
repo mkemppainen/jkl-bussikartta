@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My test page</title>
     <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" / >-->
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet' />
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <!-- jQuery library -->
@@ -62,6 +62,31 @@
             <button onclick="testiPiirto(27)">
                 Piirrä
             </button>
+            <div class="vetolaatikko">
+                <p>Otsikko</p>
+                <ul>
+                    <li>
+                        <button onclick="testiPiirto(1)">
+                            1
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="testiPiirto(2)">
+                            2
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="testiPiirto(18)">
+                            18
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="testiPiirto(27)">
+                            27
+                        </button>
+                    </li>
+                </ul>
+            </div>
 	    </div>
     <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
    <!-- <script src="main.js"></script>-->

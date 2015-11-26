@@ -221,6 +221,7 @@ def get_route():
                 a = f[0].replace("(", "")
                 b = a.replace(")", "")
                 c = b.split(',')            
+            else: return(render_template('virhe.html'),400) 
             d =[]
             i = 0
             while i < len(c)-1:
@@ -254,6 +255,7 @@ def get_route():
         f = open("reittidata.txt","w")
         f.write(json.dumps(r2))
 
+    else: return(render_template('virhe.html'),400) 
     resp = Response(response=json.dumps(r2),
         status=200,
         mimetype="application/json")   
