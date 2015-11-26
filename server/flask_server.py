@@ -14,6 +14,10 @@ import datetime
 
 app = Flask(__name__)
 
+#TODO
+#paljon toistoa, refaktoroi omiksi aliohjelmiksi
+#virheiden kasittely, vaarista pyynnoista virhekoodit
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -24,10 +28,52 @@ def testi():
     print(get_service_id_condition(datetime.datetime.today()))
     return render_template('virhe.html'),400
 
-@app.route("/get_all_stops")
-def get_all_stops():
-    
-    return None
+#TODO ei viela valmis, tarkista miten oikeasti kannattaa tehda
+def create_response(data):
+    if data is not None:
+        resp = Response(response=json.dumps(data),
+        status = 200,
+        mimetype = "application/json")
+        return resp
+    else:
+        #TODO tarkista miten tama oikeasti tehdaan
+        resp = Response(response=render_template('virhe.html'),
+        status = 400,
+        mimetype = "html")
+        return resp
+
+@app.route("/get_all_routes")
+def get_all_routes():
+    date = check_argument('date', request.args.get('date'))
+    if date is not None:
+        con = sqlite3.connect("tietokanta_testi.data")
+        con.text_factory = str
+        cur = con.cursor()
+        today = translate_weekday_name(datetime.datetime.now().strftime("%A").lower())
+        #kesken
+        valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
+        cur.execute(valinta)
+        rows = [item for item in cur.fetchall()]
+        route_names = {
+            "reitit": [rows]
+            }
+
+        resp = Response(response=json.dumps(route_names),
+        status=200,
+        mimetype="application/json")
+        
+    return(resp)
+
+def translate_weekday_name(weekday):
+    return {
+        'monday': 'maanantai',
+        'tuesday': 'tiistai',
+        'wednesday': 'keskiviikko',
+        'thursday': 'torstai',
+        'friday': 'perjantai',
+        'saturday': 'lauantai',
+        'sunday': 'sunnuntai',
+    }[weekday]
 
 @app.route("/get_stops")
 def get_stops():
@@ -118,6 +164,7 @@ def is_day_between(middle,left, right):
     return(int(left) <= middle_number and middle_number <= int(right)) #Ei saisi tehdä tarkistamattonta parsimista intiksi. Tietokannassa kuitenkin pitaisi olla vain lukuja.
 
 #Tarkistaa annetun argumentin oikeellisuuden        
+#TODO route, date tarkistus
 def check_argument(argument, value):
      if request.method == 'GET' and argument is not None:
             print(argument, file=sys.stderr)
@@ -128,6 +175,8 @@ def check_argument(argument, value):
                     print(stoptime, file=sys.stderr)#test
                     return stoptime
                 elif argument == 'route':
+                    return value
+                elif argument == 'date':
                     return value
                 else:
                     return None
