@@ -1,0 +1,46 @@
+.vetolaatikko {
+
+}
+
+.vetolaatikko ul{
+   display: none; 
+   position: relative;
+   list-style-type: none;
+   padding: 0;
+   width: auto;
+   border-bottom: 2px solid;
+   border-radius: 5px;
+}
+
+.vetolaatikko ul li{
+    margin: 0em;
+    border-top: 1px solid #1E2023;
+    background: #333333;
+    float: none;
+}
+
+.vetolaatikko:hover > ul {
+    display: block;
+}
+
+.vetolaatikko p {
+    width: 100%;
+    display: inline-block;
+    padding: 1em 1em;
+    color: #FFFFFF;
+    background: #182121;
+    text-decoration:none;
+}
+
+.vetolaatikko ul li button {
+    display: block;
+    color: #fff;
+    width: 100%;
+    padding-right: 1em;
+    padding-left: 1em;
+    margin-left: 0em;
+}
+
+.vetolaatikko ul li button {
+    background: #4C4C4C;
+}
