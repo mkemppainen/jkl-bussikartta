@@ -53,9 +53,9 @@ def get_all_routes():
         #kesken
         valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
         cur.execute(valinta)
-        rows = [item for item in cur.fetchall()]
+        rows = [item[0] for item in cur.fetchall()]
         route_names = {
-            "reitit": [rows]
+            "reitit": rows
             }
 
         resp = Response(response=json.dumps(route_names),
