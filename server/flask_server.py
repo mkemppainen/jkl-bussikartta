@@ -223,8 +223,11 @@ def get_route():
             d =[]
             i = 0
             while i < len(c)-1:
-                d.append([c[i], c[i+1]])
-                i+=2
+                try:
+                    d.append([float(c[i]),float(c[i+1])])
+                    i+=2
+                except TypeError:
+                    return render_template('virhe.html'),400
             route_crdnts.append(d)
             
             
