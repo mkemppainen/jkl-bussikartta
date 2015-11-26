@@ -101,7 +101,7 @@ def get_stops():
             "reitinNimi": request.args.get('route'),
             "matkat": []
                 }
-
+        j = 0
         i = 0
         #luodaan selaimelle palautettava json-data
         while i is not len(rows) - 1:
