@@ -131,8 +131,9 @@ def get_stops():
         resp = Response(response=json.dumps(stopit),
         status=200,
         mimetype="application/json")   
-        
-    return(resp)
+        return(resp)
+
+    else: return(render_template('virhe.html'),400)
     
 def get_service_id_condition(pvm):
     lista = get_service_ids(pvm)

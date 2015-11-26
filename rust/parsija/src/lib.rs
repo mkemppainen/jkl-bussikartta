@@ -207,7 +207,7 @@ fn anna_matkanimet(teksti: &str) -> Option<MatkaNimetData> {
         None => return None,
     };
     
-    Some(MatkaNimetData{route_id: napatut.at(1).unwrap().to_string(), lnimi: napatut.at(3).unwrap().to_string(), pnimi: napatut.at(1).unwrap().to_string()}) 
+    Some(MatkaNimetData{route_id: napatut.at(1).unwrap().to_string(), lnimi: napatut.at(3).unwrap().to_string(), pnimi: napatut.at(4).unwrap().to_string()}) 
 }
 
 
@@ -262,6 +262,9 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
         Err(_) => {println!("Transaktiota ei voitu muodostaa."); return 22;},
     };
 
+    match yhteys.execute("DROP TABLE Pysakit",&[]) {
+        _ => (),
+    }
     match yhteys.execute("CREATE TABLE Pysakit (
                     stop_id     varchar(10) PRIMARY KEY,
                     nimi        varchar(50) NOT NULL,
@@ -272,6 +275,9 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     Err(_) => {println!("Virhe Pysakit-taulun luonnissa."); return 31;},
     }
 
+    match yhteys.execute("DROP TABLE Matkat",&[]){
+        _ => (),
+    }
     match yhteys.execute("CREATE TABLE Matkat (
                     trip_id     varchar(50) NOT NULL,
                     route_id    varchar(10) NOT NULL,
@@ -281,6 +287,9 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     Err(_) => {println!("Virhe Matkat-taulun luonnissa."); return 32;},
     }
 
+    match yhteys.execute("DROP TABLE Pysahtymis_ajat",&[]){
+        _ => (),
+    }
     match yhteys.execute("CREATE TABLE Pysahtymis_ajat (
                     trip_id     varchar(50) NOT NULL,
                     stop_id     varchar(10) NOT NULL,
@@ -296,6 +305,9 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     Err(_) => {println!("Virhe Pysahtymis_ajat-taulun luonnissa."); return 33;},
     }
 
+    match yhteys.execute("DROP TABLE Matkojen_nimet",&[]){
+        _ => (),
+    }
     match yhteys.execute("CREATE TABLE Matkojen_nimet (
                     route_id    varchar(10) NOT NULL,
                     lnimi       varchar(10) NOT NULL,
@@ -305,6 +317,9 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                     Err(_) => {println!("Virhe Matkojen_nimet-taulun luonnissa."); return 34;},
     }
 
+    match yhteys.execute("DROP TABLE Kalenteri",&[]){
+        _ => (),
+    }
     match yhteys.execute("CREATE TABLE Kalenteri (
                     service_id  varchar(30) NOT NULL,
                     maanantai   varchar(5) NOT NULL,
@@ -364,7 +379,7 @@ fn kirjoita_tietokantaan(polku: &Path, matkat: Vec<MatkatData>, nimet: Vec<Matka
                         VALUES ($1, $2, $3)",
                         &[&rivi.trip_id, &rivi.route_id, &rivi.service_id]) {
                             Ok(_) => (),
-                            Err(_) => println!("Matkojen_nimet-tauluun kirjoittaminen epäonnistui."),
+                            Err(_) => println!("Matkat-tauluun kirjoittaminen epäonnistui."),
                         }
     }
     println!("Matkat-taulu suoritettu");
