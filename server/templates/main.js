@@ -60,7 +60,7 @@ var Bussi = function(tripId, reittiArg, stops){
     this.stopsLopussa = false;
     this.onkoLiikeessa = false;
     this.reittiLopussa = false;
-    this.marker = L.marker([0,0]).addTo(map);
+    this.marker = L.marker([0,0]).addTo(featureLayer);
     
 };
 
@@ -238,13 +238,14 @@ function testiPiirto(linja){
             console.log('Succes');
             serveriVastasi(result);
             test3=result;
-            //var b = new Bussi(1234, result, []);
-            //bussi = b;
-            //b.tick();
+            var b = new Bussi(1234, result, []);
+            bussi = b;
+	    setInterval(function(){b.tick();},100);
         },
         dataType: 'json',
         error: epaonnistui
     });
+
 }
 
 function main(){
