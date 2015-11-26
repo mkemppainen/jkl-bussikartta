@@ -2,6 +2,35 @@
 
 }
 
+#map { 
+    position:absolute; 
+    top:0; 
+    bottom:0; 
+    width:75%; 
+    height:100%; 
+    float:left;
+}
+
+#teksti { 
+    position:absolute; bottom:0 
+}
+
+#tools {
+    float:right; 
+    text-align:center;
+    vertical-align:center;
+    margin:auto;
+    width:25%;
+}
+
+.col-sm-12 { 
+    padding:2em;
+}
+
+body {
+    background-color: #0080FF;
+}
+
 .vetolaatikko ul{
    display: none; 
    position: relative;
