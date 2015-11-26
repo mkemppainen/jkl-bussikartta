@@ -9,6 +9,7 @@ var L;
 // alustetaan kartta
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
+var featureLayer = L.mapbox.featureLayer();
 var tickInterval = 100; //100ms = 10fps
 // debuggaukseen
 var test,test2,test3,test4,test5,skewer,bussi;
@@ -45,11 +46,12 @@ function serveriVastasi (vastaus) {
             icon: L.mapbox.marker.icon({
                 'marker-symbol': i
             })
-        }).addTo(map);
+        }).addTo(featureLayer);
     }
     var geo = {coordinates: route, type:'LineString'};
-    L.geoJson(geo).addTo(map);
-    
+    L.geoJson(geo).addTo(featureLayer);
+
+    featureLayer.addTo(map);
 }
 
 // kertoo, onko kellonaika alku- ja loppuajan valilla
@@ -304,6 +306,28 @@ function epaonnistui(xhr, textStatus, error){
     console.log(error);
 }
 
+function tyhjennaReitit(){
+    alert("Kutsuttiin tyhjennystä");
+    map.removeLayer(featureLayer);
+    featureLayer = L.mapbox.featureLayer();
+}
+
+function testiPiirto(linja){
+    $.ajax({
+        url: "/get_route?time=18:00:00&route=" + linja,
+        success: function(result){
+            console.log('Succes');
+            serveriVastasi(result);
+            test3=result;
+            //var b = new Bussi(1234, result, []);
+            //bussi = b;
+            //b.tick();
+        },
+        dataType: 'json',
+        error: epaonnistui
+    });
+}
+
 function main(){
     //alustaKartta();
     console.log('ALKU');
@@ -323,17 +347,16 @@ function main(){
     $.ajax({
         url: "/get_route?time=18:00:00&route=18",
         success: function(result){
+            console.log('Succes');
             serveriVastasi(result);
             test3=result;
-            var b = new Bussi(1234, result, []);
-            bussi = b;
-            b.tick();
+            //var b = new Bussi(1234, result, []);
+            //bussi = b;
+            //b.tick();
         },
         dataType: 'json',
         error: epaonnistui
     });
-    //*/
-
     console.log('loppu');
     
 }
