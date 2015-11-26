@@ -25,44 +25,47 @@
     </style>
     
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-  </head>
-  <body>
-     
-      <div class="container-fluid">
-	<div id="maprow" class="row">
-	  <div id="map" class="col-sm-12"></div>
-	</div>
-      </div>
-      <div class="container-fluid" id="tools">
-	<div class="row">
-	  <div class="col-sm-12">
-	    <div class="dropdown">
-	      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
-	      <span class="caret"></span></button>
-	      <ul class="dropdown-menu">
-		<li>27</li>
-		<li>18</li>
-		<li>2</li>
-	      </ul>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div id="maprow" class="row">
+	            <div id="map" class="col-sm-12">
+                </div>
+	        </div>
+        </div>
+        <div class="container-fluid" id="tools">
+	        <div class="row">
+	            <div class="col-sm-12">
+	                <div class="dropdown">
+	                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
+	                        <span class="caret">
+                            </span>
+                        </button>
+	                    <ul class="dropdown-menu">
+                            <li>27</li>
+                            <li>18</li>
+                            <li>2</li>
+	                    </ul>
+                    </div>
+                </div>
+            </div>
+	        <div class="row">
+	            <div class="col-sm-12">toka</div>
+	        </div>
+	        <div class="row">
+	            <div class="col-sm-12">kolmas
+                </div>
+	        </div>
+            <button onclick="tyhjennaReitit()">
+                Tyhjennä
+            </button>
+            <button onclick="testiPiirto(27)">
+                Piirrä
+            </button>
 	    </div>
-	  </div>
-	</div>
-	<div class="row">
-	  <div class="col-sm-12">toka</div>
-	</div>
-	<div class="row">
-	  <div class="col-sm-12">kolmas</div>
-	</div>
-	</div>
-      </div>
-	
-      </div>
-	
-      
     <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
    <!-- <script src="main.js"></script>-->
-   <script type="text/javascript">{% include "main.js" %}</script>
-
-  </body>
+    <script type="text/javascript">{% include "main.js" %}</script>
+    </body>
 </html>
 
