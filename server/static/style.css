@@ -16,6 +16,7 @@
 }
 
 #tools {
+    position:relative;
     float:right; 
     text-align:center;
     vertical-align:center;
@@ -24,7 +25,22 @@
 }
 
 .col-sm-12 { 
-    padding:2em;
+    padding:1.5em;
+}
+
+.form-control{
+    min-width: 4em;
+}
+
+.dropdown-menu li:hover {
+    background-color: #cccccc;
+}
+.dropdown-menu {
+    min-width: 4em;
+}
+
+.dropdown {
+    display:inline-block;
 }
 
 body {

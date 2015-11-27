@@ -34,12 +34,27 @@
                         </button>
 	                    <ul class="dropdown-menu">
                             <li>27</li>
-                            <li>18</li>
+                            <li onclick="testiPiirto(18)">18</li>
                             <li>2</li>
 	                    </ul>
                     </div>
                 </div>
-            </div>
+		</div>
+		<!--TODO aika, päivä tasaus ja koko -->
+		<div class="row">
+		  <div class="col-sm-12">
+		    <form class="form-inline" role="form">
+		      <div class="form-group">
+			<label for="time">Aika:</label>
+			<input type="time" class="form-control" id="time">
+		      </div>
+		      <div class="form-group">
+			<label for="date">Päivä:</label>
+			<input disabled="true" type="date" class="form-control" id="date">
+		      </div>
+		  </div>
+		  </form>
+		</div>
             <div class="row">
                 <button onclick="tyhjennaReitit()">
                     Tyhjennä
@@ -76,7 +91,6 @@
     <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
    <!-- <script src="main.js"></script>-->
     <script type="text/javascript">{% include "main.js" %}</script>
-    <script type="text/javascript">{% include "test.js" %}</script>
     </body>
 </html>
 
