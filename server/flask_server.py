@@ -14,19 +14,11 @@ import datetime
 
 app = Flask(__name__)
 
-#TODO
-#paljon toistoa, refaktoroi omiksi aliohjelmiksi
-#virheiden kasittely, vaarista pyynnoista virhekoodit
+#TODO virheiden kasittely, vaarista pyynnoista virhekoodit ja tieto mika meni pieleen
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-#Testasin koodia. Täysin turha
-@app.route('/testi/')
-def testi():
-    print(get_service_id_condition(datetime.datetime.today()))
-    return render_template('virhe.html'),400
 
 #TODO ei viela valmis, tarkista miten oikeasti kannattaa tehda
 def create_response(data):
@@ -36,10 +28,8 @@ def create_response(data):
         mimetype = "application/json")
         return resp
     else:
-        #TODO tarkista miten tama oikeasti tehdaan
         resp = Response(response=render_template('virhe.html'),
-        status = 400,
-        mimetype = "html")
+        status = 400 )
         return resp
 
 @app.route("/get_all_routes")
@@ -49,16 +39,10 @@ def get_all_routes():
         today = translate_weekday_name(datetime.datetime.now().strftime("%A").lower())
         valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
         rows = [item[0] for item in exec_sql_query(valinta)]
-        """
-        con = sqlite3.connect("tietokanta_testi.data")
-        con.text_factory = str
-        cur = con.cursor()
         
-        #kesken
-       
-        cur.execute(valinta)
-        rows = [item[0] for item in cur.fetchall()]
-        """
+        if len(rows) <= 0:
+            return render_template('virhe.html'),400
+        
         route_names = {
             "reitit": rows
             }
@@ -67,7 +51,9 @@ def get_all_routes():
         status=200,
         mimetype="application/json")
         
-    return(resp)
+        return(resp)
+    else:
+        return render_template('virhe.html'),400
 
 def translate_weekday_name(weekday):
     return {
@@ -81,23 +67,26 @@ def translate_weekday_name(weekday):
     }[weekday]
 
 def exec_sql_query(query):
-    con = sqlite3.connect("tietokanta_testi.data")
-    con.text_factory = str
-    cur = con.cursor()
-    cur.execute(query)
-    return cur.fetchall()
+    try:
+        con = sqlite3.connect("tietokanta_testi.data")
+        con.text_factory = str
+        cur = con.cursor()
+        cur.execute(query)
+        return cur.fetchall()
+    except IOError:
+        return None
 
 @app.route("/get_stops")
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
-    check_argument('route', request.args.get('route'))
+    route = check_argument('route', request.args.get('route'))
     stoptime = check_argument('time', request.args.get('time'))
     if stoptime is not None:
         service_id_ehto = get_service_id_condition(datetime.datetime.today())
 
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
         #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
-        valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + request.args.get('route') + '\" and ' + service_id_ehto + '))'
+        valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))'
         
         rows = exec_sql_query(valinta)
         
@@ -151,7 +140,7 @@ def get_service_id_condition(pvm):
 #Antaa sopivat service id:t listana
 def get_service_ids(pvm):
     id_list = list()
-    for row in exec_sql_query("select distinct service_id, maanantai, tiistai, keskiviikko, torstai, perjantai, lauantai, sunnuntai, alku_paiva, loppu_paiva from Kalenteri"):#cursor.fetchall():#TODO Tarkista toimivuus.
+    for row in exec_sql_query("select distinct service_id, maanantai, tiistai, keskiviikko, torstai, perjantai, lauantai, sunnuntai, alku_paiva, loppu_paiva from Kalenteri"):#TODO Tarkista toimivuus.
         if is_day_between(pvm, row[8], row[9]) and row[1+pvm.weekday()] == '1': id_list.append(row[0])
     print(id_list)
     return(id_list)
@@ -164,10 +153,11 @@ def is_day_between(middle,left, right):
     return(int(left) <= middle_number and middle_number <= int(right)) #Ei saisi tehdä tarkistamattonta parsimista intiksi. Tietokannassa kuitenkin pitaisi olla vain lukuja.
 
 #Tarkistaa annetun argumentin oikeellisuuden        
-#TODO route, date tarkistus
+#TODO date tarkistus
 def check_argument(argument, value):
      if request.method == 'GET' and argument is not None:
             print(argument, file=sys.stderr)
+            #TODO ei hyvaksy "virheellisia" aikoja. Varmaan tehtava oma parsiminen ajalle
             try:
                 if argument == 'time':
                     time.strptime(str(value), '%H:%M:%S')       
@@ -175,6 +165,9 @@ def check_argument(argument, value):
                     print(stoptime, file=sys.stderr)#test
                     return stoptime
                 elif argument == 'route':
+                    routes = [item[0] for item in exec_sql_query('select distinct lnimi from matkojen_nimet')]
+                    if value not in routes:
+                        return None
                     return value
                 elif argument == 'date':
                     return value
@@ -188,10 +181,13 @@ def get_route():
     
     route = check_argument('route', request.args.get('route'))
     stoptime = check_argument('time', request.args.get('time'))
-    if stoptime is not None:
+    if stoptime is not None and route is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
         service_id_ehto = service_id_ehto = get_service_id_condition(datetime.datetime.today())
-        valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + str(request.args.get('route')) + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id"
+        try:
+            valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + route + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id"
+        except TypeError:
+            return render_template('virhe.html'),400
         
         #kannasta haetut pysakkien koordinaatit
         stop_crdnts = [[item for item in r] for r in exec_sql_query(valinta)]
@@ -199,6 +195,10 @@ def get_route():
         route_crdnts = []
         #pysakkivalien kestot
         durations = []
+        
+        if len(stop_crdnts) <= 0:
+            return render_template('virhe.html'),400
+        
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
         for i in range(0, len(stop_crdnts)-1):
             stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
@@ -242,18 +242,17 @@ def get_route():
             "paateNimi":stop_crdnts[i+1][2],
             "paatePiste":[stop_crdnts[i+1][1],stop_crdnts[i+1][0]],
             "duration": durations[i],
-            "coordinates":route_crdnts[i]})#[j]["coordinates"] = route_crdnts[j]
+            "coordinates":route_crdnts[i]})
             i+=1
-        #testin vuoksi datan kirjoitus tiedostoon
-        f = open("reittidata.txt","w")
-        f.write(json.dumps(r2))
-
-    else: return(render_template('virhe.html'),400) 
-    resp = Response(response=json.dumps(r2),
+    
+        resp = Response(response=json.dumps(r2),
         status=200,
         mimetype="application/json")   
         
-    return(resp)
+        return(resp)
+    
+    else:
+        return(render_template('virhe.html'),400) 
     
 
 if __name__ == '__main__':
