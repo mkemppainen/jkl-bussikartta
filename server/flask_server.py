@@ -184,32 +184,54 @@ def get_route():
     if stoptime is not None and route is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
         service_id_ehto = service_id_ehto = get_service_id_condition(datetime.datetime.today())
-        try:
-            valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + route + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id"
-        except TypeError:
-            return render_template('virhe.html'),400
+        #try:
+            #valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi, pysakit.stop_id, pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + route + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum asc"
+        #except TypeError:
+        #    return render_template('virhe.html',selitys='Tyyppivirhe'),400
         
+        trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like " + route + " and " + service_id_ehto + ")" 
+
+        trip_id_lista = [[item for item in r] for r in exec_sql_query(trip_id_ehto)]
+        if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
+
+        try:
+            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id_lista[0][0] + "\" and Pysakit.stop_id = Pysahtymis_ajat.stop_id order by jnum asc" 
+        except TypeError: 
+            return render_template('virhe.html',selitys='Tyyppivirhe'),400
+
+        print(hakuehto,file=sys.stderr)
+
         #kannasta haetut pysakkien koordinaatit
-        stop_crdnts = [[item for item in r] for r in exec_sql_query(valinta)]
+        #stop_crdnts = [[item for item in r] for r in exec_sql_query(valinta)]
+        stop_crdnts = [[item for item in r] for r in exec_sql_query(hakuehto)]
+        #TODO Try catch castaukselle
         #reitin kaikki koordinaatit
         route_crdnts = []
         #pysakkivalien kestot
         durations = []
         
         if len(stop_crdnts) <= 0:
-            return render_template('virhe.html'),400
+            return render_template('virhe.html',selitys='Tyhjä taulukko'),400
         
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
-        for i in range(0, len(stop_crdnts)-1):
-            stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
-            stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]          
+        i = 0
+        while i < len(stop_crdnts)-1:
+            #stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
+            #stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]          
             #haetaan pysakkien valin koordinaatit
             connection = sqlite3.connect("tietokanta_testi.data")
             connection.text_factory = str
             cursor = connection.cursor()
-            cursor.execute("select tripcrd, duration from pysakkiparit where stop_id_1 = (select stop_id from pysakit where lat = " + stop_crdnts[i][0] + " and lon = " + stop_crdnts[i][1] + " ) and stop_id_2 = ( select stop_id from pysakit where lat = " + stop_crdnts[i+1][0] + " and lon = " + stop_crdnts[i+1][1] + ")")
-            i+=1
+            valinta_kasky = "select tripcrd, duration from pysakkiparit where stop_id_1 = " + stop_crdnts[i][3] + " and stop_id_2 = " + stop_crdnts[i+1][3]
+            print(valinta_kasky)
+            cursor.execute(valinta_kasky)
             
+            print(i,file=sys.stderr)
+            print(len(stop_crdnts),file=sys.stderr)
+            print(stop_crdnts[i][3])
+            print(stop_crdnts[i+1][3])
+            i+=1
+
             #heitetaan koordinaatit reitin listalle
             f = cursor.fetchone()
             if f is not None:
@@ -217,16 +239,16 @@ def get_route():
                 a = f[0].replace("(", "")
                 b = a.replace(")", "")
                 c = b.split(',')            
-            else: return(render_template('virhe.html'),400) 
+            else: return(render_template('virhe.html',selitys='Hakuun ei löydy mitään kai.'),400) 
             d =[]
             
-            i = 0
-            while i < len(c)-1:
+            j = 0
+            while j < len(c)-1:
                 try:
-                    d.append([float(c[i]),float(c[i+1])])
-                    i+=2
+                    d.append([float(c[j]),float(c[j+1])])
+                    j+=2
                 except TypeError:
-                    return render_template('virhe.html'),400
+                    return render_template('virhe.html', selitys='Tyyppivirhe'),400
             route_crdnts.append(d)
             
             
