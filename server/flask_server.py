@@ -77,22 +77,23 @@ def exec_sql_query(query):
         return None
 
 @app.route("/get_stops")
-#TODO lisaa palautettavaan dataan alkuaikaa edeltava pysakinvali seka jnum
+#TODO lisaa palautettavaan dataan alkuaikaa edeltava pysakinvali
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
     route = check_argument('route', request.args.get('route'))
     stoptime = check_argument('time', request.args.get('time'))
-    if stoptime is not None:
+    if stoptime is not None and route is not None:
         service_id_ehto = get_service_id_condition(datetime.datetime.today())
-
+        
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
-        #HUOM LOPUSSA PUUTTUU SKANDIT SERVICE_ID:STA
-        valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + 10) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))'
-        
+        if stoptime[1] < stoptime[3]:
+            valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit between ' + str(stoptime[0]) + ' and ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[3]) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))'
+        else:
+            #Melko kömpelö tapa tarkistaa ajat, olisikohan jotain parempaa?
+            valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where ((saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + (59 - stoptime[1])) + ') or (saapumis_aika_tunnit =  ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between 0 and ' + str(stoptime[3]) + ')) and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))order by trip_id'
         rows = exec_sql_query(valinta)
-        
-        if len(rows) <= 0: return(render_template('virhe.html'),400)
-        elif len(rows[0]) <= 0: return(render_template('virhe.html'),400)
+        if len(rows) <= 0: return(render_template('virhe.html', selitys='Tyhja taulukko'),400)
+        elif len(rows[0]) <= 0: return(render_template('virhe.html', selitys='Tyhja taulukko2'),400)
         tripId = rows[0][0]
         stopit = {
             "reitinNimi": request.args.get('route'),
@@ -114,7 +115,7 @@ def get_stops():
                          "paateID": rows[i+1][1],
                          "lahtoAika": str(rows[i][2]) + ':' + str(rows[i][3]) + ':' + str(rows[i][4]),
                          "paateAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
-                         "duration": "300",
+                         "jnum": rows[i][8],
                              })
                      i+=1
             else:
@@ -127,7 +128,7 @@ def get_stops():
         mimetype="application/json")   
         return(resp)
 
-    else: return(render_template('virhe.html'),400)
+    else: return(render_template('virhe.html', selitys='Virheellinen aika tai reitti'),400)
     
 def get_service_id_condition(pvm):
     lista = get_service_ids(pvm)
@@ -158,11 +159,24 @@ def is_day_between(middle,left, right):
 def check_argument(argument, value):
      if request.method == 'GET' and argument is not None:
             print(argument, file=sys.stderr)
-            #TODO ei hyvaksy "virheellisia" aikoja. Varmaan tehtava oma parsiminen ajalle
+            #TODO ei hyvaksy aikoja yli 24h, kannasta sellaisia loytyy. Varmaan tehtava oma parsiminen ajalle
             try:
                 if argument == 'time':
                     time.strptime(str(value), '%H:%M:%S')       
                     stoptime = list(map(int, value.split(':',2)))
+           
+                    if stoptime[1] + 10 >= 60:
+                        stoptime.append(stoptime[1] + 10 - 60)
+                        stoptime.append(stoptime[0] + 1)
+                    else:
+                        stoptime.append(stoptime[1] + 10)
+                        stoptime.append(stoptime[0] + 0)
+                    if stoptime[1] - 5 < 0:
+                        stoptime[1] = stoptime[1] - 5 + 60
+                        stoptime[0] -= 1
+                    else:
+                        stoptime[1] -= 5
+                    
                     print(stoptime, file=sys.stderr)#test
                     return stoptime
                 elif argument == 'route':
