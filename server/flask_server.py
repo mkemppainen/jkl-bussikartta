@@ -77,6 +77,7 @@ def exec_sql_query(query):
         return None
 
 @app.route("/get_stops")
+#TODO lisaa palautettavaan dataan alkuaikaa edeltava pysakinvali seka jnum
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
     route = check_argument('route', request.args.get('route'))
@@ -187,8 +188,8 @@ def get_route():
         #try:
             #valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi, pysakit.stop_id, pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + route + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum asc"
         #except TypeError:
-        #    return render_template('virhe.html',selitys='Tyyppivirhe'),400
-        
+        #    return render_template('virhe.html',selitys='Tyyppivirhe'),4001
+       
         trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like " + route + " and " + service_id_ehto + ")" 
 
         trip_id_lista = [[item for item in r] for r in exec_sql_query(trip_id_ehto)]
@@ -211,7 +212,7 @@ def get_route():
         durations = []
         
         if len(stop_crdnts) <= 0:
-            return render_template('virhe.html',selitys='Tyhjä taulukko'),400
+            return render_template('virhe.html',selitys='Tyhjä taulukko'),4001
         
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
         i = 0
@@ -239,7 +240,7 @@ def get_route():
                 a = f[0].replace("(", "")
                 b = a.replace(")", "")
                 c = b.split(',')            
-            else: return(render_template('virhe.html',selitys='Hakuun ei löydy mitään kai.'),400) 
+            else: return(render_template('virhe.html',selitys='Hakuun ei löydy mitään kai.'),4002) 
             d =[]
             
             j = 0
@@ -248,7 +249,7 @@ def get_route():
                     d.append([float(c[j]),float(c[j+1])])
                     j+=2
                 except TypeError:
-                    return render_template('virhe.html', selitys='Tyyppivirhe'),400
+                    return render_template('virhe.html', selitys='Tyyppivirhe'),4003
             route_crdnts.append(d)
             
             
@@ -274,7 +275,7 @@ def get_route():
         return(resp)
     
     else:
-        return(render_template('virhe.html'),400) 
+        return(render_template('virhe.html'),4004) 
     
 
 if __name__ == '__main__':
