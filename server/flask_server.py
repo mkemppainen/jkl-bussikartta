@@ -77,7 +77,6 @@ def exec_sql_query(query):
         return None
 
 @app.route("/get_stops")
-#TODO lisaa palautettavaan dataan alkuaikaa edeltava pysakinvali
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
     route = check_argument('route', request.args.get('route'))
@@ -164,7 +163,7 @@ def check_argument(argument, value):
                 if argument == 'time':
                     time.strptime(str(value), '%H:%M:%S')       
                     stoptime = list(map(int, value.split(':',2)))
-           
+                    #Lisätään stoptime-taulukkoon myös ajat 5min ennen ja 10min jälkeen haetun ajan
                     if stoptime[1] + 10 >= 60:
                         stoptime.append(stoptime[1] + 10 - 60)
                         stoptime.append(stoptime[0] + 1)
