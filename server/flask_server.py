@@ -190,13 +190,14 @@ def get_route():
         #except TypeError:
         #    return render_template('virhe.html',selitys='Tyyppivirhe'),4001
        
-        trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like " + route + " and " + service_id_ehto + ")" 
+        trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like \"" + route + "\" and " + service_id_ehto + " and trip_id in (select trip_id from Pysahtymis_ajat where lahto_aika_tunnit like \"" + str(stoptime[0]) + "\" and lahto_aika_minuutit BETWEEN " + (str(int(stoptime[1]) - 10)) + " and " + str(int(stoptime[1]) + 10) + "))"
 
+        print(trip_id_ehto)
         trip_id_lista = [[item for item in r] for r in exec_sql_query(trip_id_ehto)]
         if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
 
         try:
-            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id_lista[0][0] + "\" and Pysakit.stop_id = Pysahtymis_ajat.stop_id order by jnum asc" 
+            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id_lista[0][0] + "\" and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by jnum asc" 
         except TypeError: 
             return render_template('virhe.html',selitys='Tyyppivirhe'),400
 
@@ -224,11 +225,11 @@ def get_route():
             connection.text_factory = str
             cursor = connection.cursor()
             valinta_kasky = "select tripcrd, duration from pysakkiparit where stop_id_1 = " + stop_crdnts[i][3] + " and stop_id_2 = " + stop_crdnts[i+1][3]
-            print(valinta_kasky)
+            #print(valinta_kasky)
             cursor.execute(valinta_kasky)
             
-            print(i,file=sys.stderr)
-            print(len(stop_crdnts),file=sys.stderr)
+            #print(i,file=sys.stderr)
+            #print(len(stop_crdnts),file=sys.stderr)
             print(stop_crdnts[i][3])
             print(stop_crdnts[i+1][3])
             i+=1
