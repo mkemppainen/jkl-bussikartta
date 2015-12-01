@@ -77,6 +77,7 @@ def exec_sql_query(query):
         return None
 
 @app.route("/get_stops")
+#TODO lisaa palautettavaan dataan alkuaikaa edeltava pysakinvali seka jnum
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
     route = check_argument('route', request.args.get('route'))
@@ -187,7 +188,7 @@ def get_route():
         try:
             valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + route + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id"
         except TypeError:
-            return render_template('virhe.html'),400
+            return render_template('virhe.html'),4000
         
         #kannasta haetut pysakkien koordinaatit
         stop_crdnts = [[item for item in r] for r in exec_sql_query(valinta)]
@@ -197,12 +198,12 @@ def get_route():
         durations = []
         
         if len(stop_crdnts) <= 0:
-            return render_template('virhe.html'),400
+            return render_template('virhe.html'),4001
         
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
         for i in range(0, len(stop_crdnts)-1):
-            stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
-            stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]          
+            #stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
+            #stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]          
             #haetaan pysakkien valin koordinaatit
             connection = sqlite3.connect("tietokanta_testi.data")
             connection.text_factory = str
@@ -217,7 +218,7 @@ def get_route():
                 a = f[0].replace("(", "")
                 b = a.replace(")", "")
                 c = b.split(',')            
-            else: return(render_template('virhe.html'),400) 
+            else: return(render_template('virhe.html'),4002) 
             d =[]
             
             i = 0
@@ -226,7 +227,7 @@ def get_route():
                     d.append([float(c[i]),float(c[i+1])])
                     i+=2
                 except TypeError:
-                    return render_template('virhe.html'),400
+                    return render_template('virhe.html'),4003
             route_crdnts.append(d)
             
             
@@ -252,7 +253,7 @@ def get_route():
         return(resp)
     
     else:
-        return(render_template('virhe.html'),400) 
+        return(render_template('virhe.html'),4004) 
     
 
 if __name__ == '__main__':
