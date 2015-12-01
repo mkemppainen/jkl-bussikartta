@@ -361,9 +361,10 @@ function main(){
         success: function(result){
 	    //            serveriVastasi(result);
 	    var reittiPysakit = teeReitti(result);
-	    var r = reittiPysakit[0].addTo(map);
-	    var p = reittiPysakit[1].addTo(map);
-	    map.removeLayer(p);
+	    var r = reittiPysakit[0].addTo(map); // reittilayer
+	    var p = reittiPysakit[1].addTo(map); // pysakkilayer 
+	    //map.removeLayer(p); // poistaa pysakit
+	    //map.removeLayer(r); // poistaa reitin
 
 	    featureLayer.addTo(map);
             test3=result;
