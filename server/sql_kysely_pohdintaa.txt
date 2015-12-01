@@ -6,17 +6,29 @@ Nämä tulisi vielä jotenkin järkevästi yhdistää.
 
 Haetaan argumenttina saadulle reitille kuuluvat trip id:t
 
-select pysakit.lat, pysakit.lon, pysakit.nimi, pysahtymis_ajat.jnum from pysakit, pysahtymis_ajat
+select distinct pysakit.stop_id, pysakit.nimi, pysahtymis_ajat.jnum, pysahtymis_ajat.trip_id from pysakit, pysahtymis_ajat
 where pysakit.stop_id = pysahtymis_ajat.stop_id and
 pysahtymis_ajat.trip_id in
 (select trip_id from pysahtymis_ajat
-where saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49) and
+where saapumis_aika_tunnit = 07 and saapumis_aika_minuutit = 32) and
+pysahtymis_ajat.trip_id in
+(select trip_id from matkat
+where route_id in
+(select route_id from matkojen_nimet
+where lnimi like "12"))
+order by pysahtymis_ajat.trip_id
+
+select distinct pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum, pysakit.lat, pysakit.lon, pysakit.nimi, pysahtymis_ajat.jnum from pysakit, pysahtymis_ajat
+where pysakit.stop_id = pysahtymis_ajat.stop_id and
+saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49 and
 pysahtymis_ajat.trip_id in
 (select trip_id from matkat
 where route_id in
 (select route_id from matkojen_nimet
 where lnimi like "27"))
 order by pysahtymis_ajat.trip_id
+
+
 
 select pysakit.lat, pysakit.lon from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like "18")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = 12 and saapumis_aika_minuutit = 49)order by pysahtymis_ajat.trip_id
 
