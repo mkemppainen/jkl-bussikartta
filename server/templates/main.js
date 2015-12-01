@@ -10,6 +10,7 @@ var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
 var featureLayer = L.mapbox.featureLayer();
 var tickInterval = 100; //100ms = 10fps
 var test,test2,test3,test4,test5,skewer,bussi;
+var currentTime = new Date(); // ohjelman aika
 
 // ALOITA OHJELMA
 window.onload=main;
@@ -78,6 +79,7 @@ Bussi.prototype.tarkistaLahto = function(date, leave){
 };
 
 Bussi.prototype.tick = function(){
+    asetaNakyvaAika(new Date()); // tama paivittaa aina kellon TODO
     if (this.reittiLopussa) return;
     if (this.tarkistaLahto('date','leave')) { //todo: oikeat argumentit
 
@@ -247,8 +249,19 @@ function testiPiirto(linja){
 
 }
 
-function main(){
+function asetaNakyvaAika(aika){
+    var aikaString;
+    if (typeof aika === 'string') aikaString = aika;
+    else aikaString = aika.toString('HH:mm:ss');
+    $("#programtime").text(aikaString);
 
+}
+
+function main(){
+    $(document).ready(function() {
+	asetaNakyvaAika(new Date());
+    });
+    
     $.ajax({url: "get_stops?time=12:30:00&route=18",
             success: function(result){
                 test2 = result;

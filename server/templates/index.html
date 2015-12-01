@@ -1,66 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My test page</title>
-    <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" / >-->
-    <link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet' />
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>My test page</title>
+	<!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" / >-->
+	<link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet' />
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
-    <script type="text/javascript">{% include "date.js" %}</script>
-    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+	<!-- Latest compiled JavaScript -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
+	<script type="text/javascript">{% include "date.js" %}</script>
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     </head>
     <body>
         <div class="container-fluid">
             <div id="maprow" class="row">
-	            <div id="map" class="col-sm-12">
+	        <div id="map" class="col-sm-12">
                 </div>
-	        </div>
+	    </div>
         </div>
         <div class="container-fluid" id="tools">
-	        <div class="row">
-	            <div class="col-sm-12">
-	                <div class="dropdown">
-	                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
-	                        <span class="caret">
+	    <div class="row">
+	        <div class="col-sm-12">
+	            <div class="dropdown">
+	                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
+	                    <span class="caret">
                             </span>
                         </button>
-	                    <ul class="dropdown-menu">
+	                <ul class="dropdown-menu">
                             <li>27</li>
                             <li onclick="testiPiirto(18)">18</li>
                             <li>2</li>
-	                    </ul>
+	                </ul>
                     </div>
                 </div>
-		</div>
-		<!--TODO aika, päivä tasaus ja koko -->
-		<div class="row">
-		  <div class="col-sm-12">
+	    </div>
+	    <!--TODO aika, päivä tasaus ja koko -->
+	    <div class="row">
+		<div class="col-sm-12">
 		    <form class="form-inline" role="form">
-		      <div class="form-group">
-			<label for="time">Aika:</label>
-			<input type="time" class="form-control" id="time">
-		      </div>
-		      <div class="form-group">
-			<label for="date">Päivä:</label>
-			<input disabled="true" type="date" class="form-control" id="date">
-		      </div>
-		  </div>
-		  </form>
+			<div class="form-group">
+			    <label for="time" id="aika">Aika:</label>
+			    <input type="time" class="form-control" id="time">
+			</div>
+			<div class="form-group">
+			    <label for="date">Päivä:</label>
+			    <input disabled="true" type="date" class="form-control" id="date">
+			</div>
+		    </form>
 		</div>
-            <div class="row">
+	    </div>
+	    <div class="panel panel-default">
+		<div class="panel-body" id="programtime">
+		    00:00:00
+		</div>
+	    </div>
+	    <div class="row">
                 <button onclick="tyhjennaReitit()">
                     Tyhjennä
                 </button>
-	        </div>
-	        <div class="row">
+	    </div>
+	    <div class="row">
                 <div class="vetolaatikko">
                     <p>Valitse linja</p>
                     <ul>
@@ -86,11 +91,11 @@
                         </li>
                     </ul>
                 </div>
-	        </div>
+	    </div>
         </div>
-    <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
-   <!-- <script src="main.js"></script>-->
-    <script type="text/javascript">{% include "main.js" %}</script>
+	<!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
+	<!-- <script src="main.js"></script>-->
+	<script type="text/javascript">{% include "main.js" %}</script>
     </body>
 </html>
 
