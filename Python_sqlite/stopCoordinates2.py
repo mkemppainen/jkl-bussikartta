@@ -81,7 +81,7 @@ def updateCoordinatePairs():
     #Create a table into the database, first, try to remove the old one
     #print("Initialization")
     #print(initializePairTable())
-    initializePairTable()
+    #initializePairTable()
     #Open a connection to the database
     con = lite.connect(dbname)
     #Initialize paired stop list
@@ -110,28 +110,49 @@ def updateCoordinatePairs():
 
         print(len(lista))
 
+        lisattava_lista = []
 
+        for item in lista:
+            cur.execute("SELECT * FROM Pysakkiparit WHERE stop_id_1 like \"" + item[0] + "\" AND stop_id_2 like \"" + item[1] + "\"")
+            if len(cur.fetchall()) <= 0: lisattava_lista.append(item) 
+        print(len(lisattava_lista))
+        print(lisattava_lista[15])
+
+        count = 0;
 
         #Put values into the stop-stop route table        
-#        for pair in stopPairList:
+        for pair in lisattava_lista:
+            vasen = pair[0]
+            oikea = pair[1]
+            cur.execute("Select lat, lon From Pysakit where stop_id like \"" + vasen + "\"")
+
+            parsittava = cur.fetchone()
+            vasen_lat = parsittava[0]
+            vasen_lon = parsittava[1]
+
+            cur.execute("Select lat, lon From Pysakit where stop_id like \"" + oikea + "\"")
+
+            parsittava = cur.fetchone()
+            oikea_lat = parsittava[0]
+            oikea_lon = parsittava[1]
+
             #Progress monitoring            
-            #if(count%100==0):
-            #    print(count)
+            if(count%100==0):
+                print(count)
             
             #Get the stop to stop coordinates 
             #and route duration
-#            crdString, duration = getMidCoordinates((pair[0][2],pair[0][1]),
-#                                       (pair[1][2],pair[1][1]))
+            crdString, duration = getMidCoordinates((vasen_lon,vasen_lat),(oikea_lon,oikea_lat))
             #Insert data into table
-#            cur.execute("INSERT INTO {tn} VALUES(\"{id1:s}\",\"{id2:s}\",\"{crd:s}\",\"{dur:s}\")".format(tn=tablename,
-#            id1=str(pair[0][0]),
-#            id2=str(pair[1][0]),
-#            crd=str(crdString),
-#            dur=str(duration)))
-#            #Slow down the progress a bit
-#            time.sleep(0.1)
+            cur.execute("INSERT INTO {tn} VALUES(\"{id1:s}\",\"{id2:s}\",\"{crd:s}\",\"{dur:s}\")".format(tn=tablename,
+            id1=str(pair[0][0]),
+            id2=str(pair[1][0]),
+            crd=str(crdString),
+            dur=str(duration)))
+            #Slow down the progress a bit
+            time.sleep(0.1)
             #Progress monitoring
-            #count+=1
+            count+=1
     return 1
 
 #Tests: ===============================================================    
