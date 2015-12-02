@@ -37,7 +37,7 @@ function serveriVastasi (vastaus) {
             icon: L.mapbox.marker.icon({
                 'marker-symbol': i
             })
-        }).addTo(featureLayer);
+        }).addTo(featureLayer).bindPopup(parsittu.pysakinValit[i].lahtoNimi);
     }
     
     // viimeinen pysakki
@@ -47,7 +47,7 @@ function serveriVastasi (vastaus) {
         icon: L.mapbox.marker.icon({
             'marker-symbol': i
         })
-    }).addTo(featureLayer);
+    }).addTo(featureLayer).bindPopup(parsittu.pysakinValit[coordinates.length-1].paateNimi);
 
 
     var geo = {coordinates: route, type:'LineString'};
