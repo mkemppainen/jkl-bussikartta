@@ -11,6 +11,7 @@ var featureLayer = L.mapbox.featureLayer();
 var tickInterval = 100; //100ms = 10fps
 var test,test2,test3,test4,test5,skewer,bussi;
 var currentTime = new Date(); // ohjelman aika
+var routes = {};
 
 // ALOITA OHJELMA
 window.onload=main;
@@ -337,7 +338,51 @@ function asetaNakyvaAika(aika){
     $("#programtime").text(aikaString);
 }
 
+// tekee reitin numeron ja ajan perusteella
+function lisaaReitti(reitti, aika){
+    $.ajax({
+        url: "/get_route?time="+aika+"&route="+reitti,
+        success: function(result){
+	    var reittiPysakit = teeReitti(result);
+            routes[reitti] = reittiPysakit;
+	    //var r = reittiPysakit[0].addTo(map); // reittilayer
+	    //var p = reittiPysakit[1].addTo(map); // pysakkilayer 
+	    //map.removeLayer(p); // poistaa pysakit
+	    //map.removeLayer(r); // poistaa reitin
+//	    featureLayer.addTo(map);
+            var b = new Bussi(1234, result, []);
+            bussi = b;
+	    setInterval(function(){b.tick();},100);
+        },
+        dataType: 'json',
+        error: epaonnistui
+    });
+}
+
+// jos esita on true esita, false niin havita
+// palauta onnistuttiinko
+function esitaHavitaReitti(reittiNro, esita){
+    var reitti = routes[reittiNro];
+    debugger;
+    test = routes;
+    test2 = reitti;
+    if (typeof reitti === 'undefined') return false;
+    if (esita){
+        reitti[0].addTo(map); // reitti
+        reitti[1].addTo(map); // pysakit
+    } else {
+        map.removeLayer(reitti[0]);
+        map.removeLayer(reitti[1]);
+    }
+    return true;
+}
+
 function main(){
+    
+    lisaaReitti(2,'14:00:00');
+    lisaaReitti(18,'14:00:00');
+    esitaHavitaReitti(2,true); // TODO: tama functio kutsutaan ennen kuin edelliset valmistuu
+
     $(document).ready(function() {
 	asetaNakyvaAika();
     });
@@ -354,7 +399,7 @@ function main(){
             }
            });
 
-    //*/
+    /*
     //get_route
     $.ajax({
         url: "/get_route?time=18:00:00&route=18",
@@ -375,6 +420,7 @@ function main(){
         dataType: 'json',
         error: epaonnistui
     });
+    //*/
 
     console.log('mainin loppu');
 }
