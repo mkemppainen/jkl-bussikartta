@@ -88,7 +88,7 @@ def get_stops():
         if stoptime[1] < stoptime[3]:
             valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit between ' + str(stoptime[0]) + ' and ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[3]) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))'
         else:
-            #Melko kömpelö tapa tarkistaa ajat, olisikohan jotain parempaa?
+            #Melko kömpelö tapa tarkistaa ajat kun tunti vaihtuu, olisikohan jotain parempaa?
             valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where ((saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + (59 - stoptime[1])) + ') or (saapumis_aika_tunnit =  ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between 0 and ' + str(stoptime[3]) + ')) and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))order by trip_id'
         rows = exec_sql_query(valinta)
         if len(rows) <= 0: return(render_template('virhe.html', selitys='Tyhja taulukko'),400)
@@ -210,7 +210,7 @@ def get_route():
         if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
 
         try:
-            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id_lista[0][0] + "\" and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by jnum asc" 
+            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id in (" + trip_id_ehto + ") and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by trip_id, jnum asc" 
         except TypeError: 
             return render_template('virhe.html',selitys='Tyyppivirhe'),400
 
@@ -230,6 +230,7 @@ def get_route():
         
         #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
         i = 0
+        ii = 1
         while i < len(stop_crdnts)-1:
             #stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
             #stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]          
@@ -237,6 +238,9 @@ def get_route():
             connection = sqlite3.connect("tietokanta_testi.data")
             connection.text_factory = str
             cursor = connection.cursor()
+            if stop_crdnts[i+1][4] is not stop_crdnts[i][4] + 1:
+                i += 1
+                ii += 1
             valinta_kasky = "select tripcrd, duration from pysakkiparit where stop_id_1 = " + stop_crdnts[i][3] + " and stop_id_2 = " + stop_crdnts[i+1][3]
             #print(valinta_kasky)
             cursor.execute(valinta_kasky)
@@ -272,7 +276,7 @@ def get_route():
         r2 = {
             "reitinNimi":str(request.args.get('route')),
             "pysakinValit":[]}
-        for i in range(0,len(stop_crdnts) - 1):
+        for i in range(0,len(stop_crdnts) - ii):
             r2["pysakinValit"].append({
             "lahtoNimi":stop_crdnts[i][2],
             "lahtoPiste":[stop_crdnts[i][1],stop_crdnts[i][0]],
