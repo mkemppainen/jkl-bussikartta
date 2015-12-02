@@ -47,9 +47,10 @@ def get_all_routes():
             "reitit": rows
             }
 
-        resp = Response(response=json.dumps(route_names),
-        status=200,
-        mimetype="application/json")
+        resp = Response(response=json.dumps(route_names, ensure_ascii=False).encode('utf-8'),
+        content_type="application/json; charset=utf-8",
+        status=200
+        )
         
         return(resp)
     else:
@@ -122,9 +123,10 @@ def get_stops():
                 tripId = rows[i][0]
                 j+=1
                 
-        resp = Response(response=json.dumps(stopit),
-        status=200,
-        mimetype="application/json")   
+        resp = Response(response=json.dumps(stopit, ensure_ascii=False).encode('utf-8'),
+        content_type='application/json; charset=utf-8',
+        status=200
+        )   
         return(resp)
 
     else: return(render_template('virhe.html', selitys='Virheellinen aika tai reitti'),400)
@@ -192,16 +194,12 @@ def check_argument(argument, value):
 
 @app.route("/get_route")
 def get_route():
-    
+    #Tarkistetaan että löytyy oikeat argumentit ja ovat oikeita
     route = check_argument('route', request.args.get('route'))
     stoptime = check_argument('time', request.args.get('time'))
     if stoptime is not None and route is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
         service_id_ehto = service_id_ehto = get_service_id_condition(datetime.datetime.today())
-        #try:
-            #valinta = "select distinct pysakit.lat, pysakit.lon, pysakit.nimi, pysakit.stop_id, pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum from pysakit, pysahtymis_ajat where pysakit.stop_id = pysahtymis_ajat.stop_id and pysahtymis_ajat.trip_id in (select trip_id from matkat where " + service_id_ehto +" and route_id in (select route_id from matkojen_nimet where lnimi like \"" + route + "\")) and pysahtymis_ajat.trip_id in (select trip_id from pysahtymis_ajat where saapumis_aika_tunnit = " + str(stoptime[0]) + "  and saapumis_aika_minuutit = " + str(stoptime[1]) + ") order by pysahtymis_ajat.trip_id, pysahtymis_ajat.jnum asc"
-        #except TypeError:
-        #    return render_template('virhe.html',selitys='Tyyppivirhe'),4001
        
         trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like \"" + route + "\" and " + service_id_ehto + " and trip_id in (select trip_id from Pysahtymis_ajat where lahto_aika_tunnit like \"" + str(stoptime[0]) + "\" and lahto_aika_minuutit BETWEEN " + (str(int(stoptime[1]) - 10)) + " and " + str(int(stoptime[1]) + 10) + "))"
 
@@ -217,7 +215,6 @@ def get_route():
         print(hakuehto,file=sys.stderr)
 
         #kannasta haetut pysakkien koordinaatit
-        #stop_crdnts = [[item for item in r] for r in exec_sql_query(valinta)]
         stop_crdnts = [[item for item in r] for r in exec_sql_query(hakuehto)]
         #TODO Try catch castaukselle
         #reitin kaikki koordinaatit
@@ -286,9 +283,9 @@ def get_route():
             "coordinates":route_crdnts[i]})
             i+=1
     
-        resp = Response(response=json.dumps(r2),
+        resp = Response(response=json.dumps(r2, ensure_ascii=False).encode('utf-8'),
         status=200,
-        mimetype="application/json")   
+        content_type="application/json; charset=utf-8")   
         
         return(resp)
     
