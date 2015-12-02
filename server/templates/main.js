@@ -62,6 +62,7 @@ function serveriVastasi (vastaus) {
 //                            lahtoPiste,paatePiste,duration,coordinates:[]]}
 // stops: {"reitinNimi":, "matkat":
 //                           [ {tripId,pysahdykset:[{lahtoID,paateID,lahtoAika,paateAika}]} ]
+// TODO: bussi ottamaan layer parametri, johon bussi laitetaan
 var Bussi = function(tripId, reittiArg, stops){
     this.reitti = reittiArg;
     this.sijainti = [0,0];
@@ -110,8 +111,8 @@ Bussi.prototype.tarkistaLahto = function(date, leave){
 
 // 
 Bussi.prototype.tick = function(){
-    asetaNakyvaAika(); // tama paivittaa aina kellon TODO
     currentTime = new Date(); // TODO:
+    asetaNakyvaAika(); // tama paivittaa aina kellon TODO
     if (this.reittiLopussa) return;
     if (this.tarkistaLahto('date','leave')) { //todo: oikeat argumentit
 
@@ -218,7 +219,47 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
     }
 };
 
-/*************** Puhtaita funktiot ******************/
+/*************** Puhtaat funktiot ******************/
+
+// palauttaa [routeLayer, stopLayer] eli reitin ja pysakit
+// routeArg = reitti (get_routen palauttama)
+function teeReitti(routeArg){
+    var parsittu = routeArg;
+    var routeLayer = L.mapbox.featureLayer();
+    var stopLayer = L.mapbox.featureLayer();
+
+    var route = [];
+    for (var i = 0; i < parsittu.pysakinValit.length; i++) { 
+        var coordinates = parsittu.pysakinValit[i].coordinates;
+        route = route.concat(coordinates);
+
+        // piirretaan markkerit
+        var m1 = coordinates[0];
+        var m0 = [m1[1],m1[0]];
+        var marker0 = L.marker(m0, {
+            icon: L.mapbox.marker.icon({
+                'marker-symbol': i
+            })
+        }).addTo(stopLayer);
+    }
+    
+    // viimeinen pysakki
+    var vika = coordinates[coordinates.length-1];
+    var vika1 = [vika[1],vika[0]];
+    L.marker(vika1, {
+        icon: L.mapbox.marker.icon({
+            'marker-symbol': i
+        })
+    }).addTo(stopLayer);
+
+    var geo = {coordinates: route, type:'LineString'};
+    L.geoJson(geo).addTo(routeLayer);
+    
+    var layerGroup = L.layerGroup();
+    routeLayer.addTo(layerGroup);
+    stopLayer.addTo(layerGroup);
+    return layerGroup;
+}
 
 // palauttaa matkan pituuden (vektoripituutena)
 // startIndex,(aloitus)sijainti optional
@@ -269,43 +310,6 @@ function tyhjennaReitit(){
     featureLayer = L.mapbox.featureLayer();
 }
 
-// palauttaa [routeLayer, stopLayer] eli reitin ja pysakit
-// routeArg = reitti (get_routen palauttama)
-function teeReitti(routeArg){
-    var parsittu = routeArg;
-    var routeLayer = L.mapbox.featureLayer();
-    var stopLayer = L.mapbox.featureLayer();
-
-    var route = [];
-    for (var i = 0; i < parsittu.pysakinValit.length; i++) { 
-        var coordinates = parsittu.pysakinValit[i].coordinates;
-        route = route.concat(coordinates);
-
-        // piirretaan markkerit
-        var m1 = coordinates[0];
-        var m0 = [m1[1],m1[0]];
-        var marker0 = L.marker(m0, {
-            icon: L.mapbox.marker.icon({
-                'marker-symbol': i
-            })
-        }).addTo(stopLayer);
-    }
-    
-    // viimeinen pysakki
-    var vika = coordinates[coordinates.length-1];
-    var vika1 = [vika[1],vika[0]];
-    L.marker(vika1, {
-        icon: L.mapbox.marker.icon({
-            'marker-symbol': i
-        })
-    }).addTo(stopLayer);
-
-    var geo = {coordinates: route, type:'LineString'};
-    L.geoJson(geo).addTo(routeLayer);
-
-    return [routeLayer, stopLayer];
-}
-
 // tekee
 function teeBussit(stops,route){
     
@@ -338,50 +342,77 @@ function asetaNakyvaAika(aika){
     $("#programtime").text(aikaString);
 }
 
-// tekee reitin numeron ja ajan perusteella
-function lisaaReitti(reitti, aika){
+// tekee layerin reitin numeron ja ajan perusteella
+// tallentaa sen routes
+function lisaaReitti(reittiNro, aika){
+    if (typeof aika === 'undefined'){
+	aika = currentTime.toString('HH:mm:ss');
+    }
     $.ajax({
-        url: "/get_route?time="+aika+"&route="+reitti,
+        url: "/get_route?time="+aika+"&route="+reittiNro,
         success: function(result){
 	    var reittiPysakit = teeReitti(result);
-            routes[reitti] = reittiPysakit;
+            routes[reittiNro] = reittiPysakit;
 	    //var r = reittiPysakit[0].addTo(map); // reittilayer
 	    //var p = reittiPysakit[1].addTo(map); // pysakkilayer 
 	    //map.removeLayer(p); // poistaa pysakit
 	    //map.removeLayer(r); // poistaa reitin
 //	    featureLayer.addTo(map);
-            var b = new Bussi(1234, result, []);
+            var b = new Bussi(1234, result, []); // todo: bussin parametrit
             bussi = b;
 	    setInterval(function(){b.tick();},100);
+	    naytaReitti(reittiNro);
+	    console.log('naytettiin reitti varmaan');
         },
         dataType: 'json',
         error: epaonnistui
     });
 }
 
-// jos esita on true esita, false niin havita
-// palauta onnistuttiinko
-function esitaHavitaReitti(reittiNro, esita){
-    var reitti = routes[reittiNro];
-    debugger;
-    test = routes;
-    test2 = reitti;
-    if (typeof reitti === 'undefined') return false;
-    if (esita){
-        reitti[0].addTo(map); // reitti
-        reitti[1].addTo(map); // pysakit
-    } else {
-        map.removeLayer(reitti[0]);
-        map.removeLayer(reitti[1]);
+
+function toggleReitti(reittiNro){
+    var layer = routes[reittiNro];
+    console.log('togletettiin');
+    console.log(layer);
+    if (typeof layer === 'undefined'){
+	console.log('lisataan reitti');
+	lisaaReitti(reittiNro);
+	console.log('lisattiin se');
     }
+    else if (map.hasLayer(layer)) {
+	console.log('yrita postoa');
+        map.removeLayer(layer);
+    } else {
+	console.log('yrita lisays');
+        //map.addLayer(layer);
+	layer.addTo(map);
+    }
+}
+
+// typeof reittiNro === String
+// palauta onnistuttiinko
+function naytaReitti(reittiNro){
+    var reitti = routes[reittiNro];
+    if (typeof reitti === 'undefined') return false;
+    reitti.addTo(map);
+    return true;
+}
+
+// typeof reittiNro === String
+// palauta onnistuttiinko
+function piilotaReitti(reittiNro){
+    var reitti = routes[reittiNro];
+    if (typeof reitti === 'undefined') return false;
+    map.removeLayer(reitti);
+
     return true;
 }
 
 function main(){
     
-    lisaaReitti(2,'14:00:00');
-    lisaaReitti(18,'14:00:00');
-    esitaHavitaReitti(2,true); // TODO: tama functio kutsutaan ennen kuin edelliset valmistuu
+//    lisaaReitti('2','14:00:00');
+//    lisaaReitti('18','14:00:00');
+//    esitaHavitaReitti(2,true); // TODO: tama functio kutsutaan ennen kuin edelliset valmistuu
 
     $(document).ready(function() {
 	asetaNakyvaAika();
