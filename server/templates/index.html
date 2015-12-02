@@ -88,12 +88,15 @@
                 <div class="vetolaatikko">
                     <p>Valitse linja</p>
                     <ul>
+		        {% for item in lista %}
                         <li>
                             <button onclick="toggleReitti('{{item}}')">{{item}}</button>
                         </li>
+			{% else %}
                         <li>
                             <button onclick="testiPiirto('27')">27</button>
                         </li>
+			{% endfor %}
                     </ul>
                 </div>
             </div>
