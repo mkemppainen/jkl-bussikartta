@@ -9,14 +9,14 @@
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 	<!-- jQuery library -->
-	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 	<!-- Latest compiled JavaScript -->
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
 	<script type="text/javascript">{% include "date.js" %}</script>
-	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-	<script type="text/javascript">{% include "moment.js" %}></script>
+	<script type="text/javascript">{% include "moment.js" %}</script>
     </head>
     <body>
         <div class="container-fluid">
@@ -57,7 +57,7 @@
 		</div>
 	    </div>	    
 	    <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-12">
 		<div class="form-group">
                   <div class="input-group date" id="datetimepicker1">
                     <input type="text" class="form-control" />
@@ -87,19 +87,31 @@
                 <div class="vetolaatikko">
                     <p>Valitse linja</p>
                     <ul>
-                        {% for item in lista %}
                         <li>
-                            <button onclick="testiPiirto({{item}})">{{item}}</button>
+                            <button onclick="testiPiirto(1)">
+                                1
+                            </button>
                         </li>
-                        {% else %}
                         <li>
-                            <button onclick="testiPiirto(27)">27</button>
+                            <button onclick="testiPiirto(2)">
+                                2
+                            </button>
                         </li>
-                        {% endfor %}
+                        <li>
+                            <button onclick="testiPiirto(18)">
+                                18
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="testiPiirto(27)">
+                                27
+                            </button>
+                        </li>
                     </ul>
                 </div>
 	    </div>
         </div>
+	
 	<!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
 	<!-- <script src="main.js"></script>-->
 	<script type="text/javascript">{% include "main.js" %}</script>
