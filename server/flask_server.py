@@ -18,7 +18,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    print("Lähetetään index.html")
+    lista = get_route_list("kala")
+    print("Lista:" + str(lista),file=sys.stderr)
+    return render_template('index.html',lista=lista)
 
 #TODO ei viela valmis, tarkista miten oikeasti kannattaa tehda
 def create_response(data):
@@ -55,6 +58,15 @@ def get_all_routes():
         return(resp)
     else:
         return render_template('virhe.html'),400
+
+#Gives list of all routes on given date
+def get_route_list(date):
+    if date is not None:
+        today = translate_weekday_name(datetime.datetime.now().strftime("%A").lower())
+        valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
+        return [item[0] for item in exec_sql_query(valinta)]
+    else: return([])
+     
 
 def translate_weekday_name(weekday):
     return {
@@ -136,7 +148,7 @@ def get_service_id_condition(pvm):
 
     if len(lista) <= 0: return('(1==2)')
     a = ('(service_id like \"' + '\" OR service_id like \"'.join(lista) + '\")')
-    print(a)
+    #print(a)
     return(a)
     
 
@@ -145,7 +157,7 @@ def get_service_ids(pvm):
     id_list = list()
     for row in exec_sql_query("select distinct service_id, maanantai, tiistai, keskiviikko, torstai, perjantai, lauantai, sunnuntai, alku_paiva, loppu_paiva from Kalenteri"):#TODO Tarkista toimivuus.
         if is_day_between(pvm, row[8], row[9]) and row[1+pvm.weekday()] == '1': id_list.append(row[0])
-    print(id_list)
+    #print(id_list)
     return(id_list)
 
 #Tarkistaa onko annettu paiva, muiden kahden annetun paivan valissa.
@@ -203,7 +215,7 @@ def get_route():
        
         trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like \"" + route + "\" and " + service_id_ehto + " and trip_id in (select trip_id from Pysahtymis_ajat where lahto_aika_tunnit like \"" + str(stoptime[0]) + "\" and lahto_aika_minuutit BETWEEN " + (str(int(stoptime[1]) - 10)) + " and " + str(int(stoptime[1]) + 10) + "))"
 
-        print(trip_id_ehto)
+        #print(trip_id_ehto)
         trip_id_lista = [[item for item in r] for r in exec_sql_query(trip_id_ehto)]
         if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
 
@@ -212,7 +224,7 @@ def get_route():
         except TypeError: 
             return render_template('virhe.html',selitys='Tyyppivirhe'),400
 
-        print(hakuehto,file=sys.stderr)
+        #print(hakuehto,file=sys.stderr)
 
         #kannasta haetut pysakkien koordinaatit
         stop_crdnts = [[item for item in r] for r in exec_sql_query(hakuehto)]
@@ -244,8 +256,8 @@ def get_route():
             
             #print(i,file=sys.stderr)
             #print(len(stop_crdnts),file=sys.stderr)
-            print(stop_crdnts[i][3])
-            print(stop_crdnts[i+1][3])
+            #print(stop_crdnts[i][3])
+            #print(stop_crdnts[i+1][3])
             i+=1
 
             #heitetaan koordinaatit reitin listalle
