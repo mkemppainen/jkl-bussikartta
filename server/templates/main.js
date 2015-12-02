@@ -71,7 +71,7 @@ var Bussi = function(tripId, reittiArg, stops){
     this.stopsLopussa = false;
     this.onkoLiikeessa = false;
     this.reittiLopussa = false;
-    this.marker = L.marker([0,0]).addTo(featureLayer);
+    this.marker = L.marker([0,0]).addTo(featureLayer).bindPopup("Kaali");
     
 };
 
