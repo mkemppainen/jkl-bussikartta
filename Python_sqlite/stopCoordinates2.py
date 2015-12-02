@@ -98,7 +98,7 @@ def updateCoordinatePairs():
         tulos = cur.fetchall()
         nykyinen_trip_id = tulos[0][0]
         edellinen_stop_id = tulos[0][1]
-        for i in range(1,len(tulos)-1):
+        for i in range(1,len(tulos)):
             rivi = tulos[i]
             nykyinen_stop_id = tulos[i][1]
             if rivi[0] != nykyinen_trip_id:
@@ -115,8 +115,9 @@ def updateCoordinatePairs():
         for item in lista:
             cur.execute("SELECT * FROM Pysakkiparit WHERE stop_id_1 like \"" + item[0] + "\" AND stop_id_2 like \"" + item[1] + "\"")
             if len(cur.fetchall()) <= 0: lisattava_lista.append(item) 
+
+        if len(lisattava_lista=0): return 1
         print(len(lisattava_lista))
-        print(lisattava_lista[15])
 
         count = 0;
 
@@ -145,8 +146,8 @@ def updateCoordinatePairs():
             crdString, duration = getMidCoordinates((vasen_lon,vasen_lat),(oikea_lon,oikea_lat))
             #Insert data into table
             cur.execute("INSERT INTO {tn} VALUES(\"{id1:s}\",\"{id2:s}\",\"{crd:s}\",\"{dur:s}\")".format(tn=tablename,
-            id1=str(pair[0][0]),
-            id2=str(pair[1][0]),
+            id1=vasen,
+            id2=oikea,
             crd=str(crdString),
             dur=str(duration)))
             #Slow down the progress a bit
