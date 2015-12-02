@@ -18,45 +18,6 @@ window.onload=main;
 
 // taman alapuolella ei pitaisi olla muuta kuin funktioita
 
-// piirtaa yhden reitin ja pysakit
-function serveriVastasi (vastaus) {
-    console.log('SUCCESS');
-    var parsittu = vastaus;
-
-    var route = [];
-    for (var i = 0; i < parsittu.pysakinValit.length; i++) { 
-        var coordinates = parsittu.pysakinValit[i].coordinates;
-        route = route.concat(coordinates);
-        //var geo1 = {coordinates: coordinates, type:'LineString'};
-        //L.geoJson(geo1).addTo(map);
-
-        // piirretaan markkerit
-        var m1 = coordinates[0];
-        var m0 = [m1[1],m1[0]];
-        var marker0 = L.marker(m0, {
-            icon: L.mapbox.marker.icon({
-                'marker-symbol': i
-            })
-        }).addTo(featureLayer).bindPopup(parsittu.pysakinValit[i].lahtoNimi);
-    }
-    
-    // viimeinen pysakki
-    var vika = coordinates[coordinates.length-1];
-    var vika1 = [vika[1],vika[0]];
-    L.marker(vika1, {
-        icon: L.mapbox.marker.icon({
-            'marker-symbol': i
-        })
-    }).addTo(featureLayer).bindPopup(parsittu.pysakinValit[coordinates.length-1].paateNimi);
-
-
-    var geo = {coordinates: route, type:'LineString'};
-    L.geoJson(geo).addTo(featureLayer);
-
-    featureLayer.addTo(map);
-}
-
-
 // reitti: {"reitinNimi":,"pysakinValit:
 //                           [lahtoId:,lahtoNimi:,paateID:,paateNimi:,
 //                            lahtoPiste,paatePiste,duration,coordinates:[]]}
@@ -89,7 +50,6 @@ Bussi.prototype.haeLisaaPysakkeja = function(aika,stops){
 	    "route=18",
             success: function(result){
                 test2 = result;
-		console.log('success get_stops: var test2');
 	    },
             error: function(xhr, textStatus,error){
                 test2 = xhr;
@@ -240,7 +200,7 @@ function teeReitti(routeArg){
             icon: L.mapbox.marker.icon({
                 'marker-symbol': i
             })
-        }).addTo(stopLayer);
+        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[coordinates.length-1].paateNimi);;
     }
     
     // viimeinen pysakki
@@ -250,7 +210,7 @@ function teeReitti(routeArg){
         icon: L.mapbox.marker.icon({
             'marker-symbol': i
         })
-    }).addTo(stopLayer);
+    }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[coordinates.length-1].paateNimi);
 
     var geo = {coordinates: route, type:'LineString'};
     L.geoJson(geo).addTo(routeLayer);
@@ -310,27 +270,7 @@ function tyhjennaReitit(){
     featureLayer = L.mapbox.featureLayer();
 }
 
-// tekee
-function teeBussit(stops,route){
-    
-}
-
-// kutsutaan html:sta
-function testiPiirto(linja){
-    $.ajax({
-        url: "/get_route?time=18:00:00&route=" + linja,
-        success: function(result){
-            console.log('Succes');
-            serveriVastasi(result);
-            test3=result;
-            var b = new Bussi(1234, result, []); //tripid,route,stops[i]
-            bussi = b;
-	    setInterval(function(){b.tick();},100);
-        },
-        dataType: 'json',
-        error: epaonnistui
-    });
-}
+// todo tee bussit metodissa
 
 function asetaNakyvaAika(aika){
     var aikaString;
@@ -362,7 +302,6 @@ function lisaaReitti(reittiNro, aika){
             bussi = b;
 	    setInterval(function(){b.tick();},100);
 	    naytaReitti(reittiNro);
-	    console.log('naytettiin reitti varmaan');
         },
         dataType: 'json',
         error: epaonnistui
@@ -372,18 +311,12 @@ function lisaaReitti(reittiNro, aika){
 
 function toggleReitti(reittiNro){
     var layer = routes[reittiNro];
-    console.log('togletettiin');
-    console.log(layer);
     if (typeof layer === 'undefined'){
-	console.log('lisataan reitti');
 	lisaaReitti(reittiNro);
-	console.log('lisattiin se');
     }
     else if (map.hasLayer(layer)) {
-	console.log('yrita postoa');
         map.removeLayer(layer);
     } else {
-	console.log('yrita lisays');
         //map.addLayer(layer);
 	layer.addTo(map);
     }
@@ -421,7 +354,6 @@ function main(){
     $.ajax({url: "get_stops?time=12:30:00&route=18",
             success: function(result){
                 test2 = result;
-		console.log('success get_stops: var test2');
 	    },
             error: function(xhr, textStatus,error){
                 test2 = xhr;
@@ -453,5 +385,4 @@ function main(){
     });
     //*/
 
-    console.log('mainin loppu');
 }
