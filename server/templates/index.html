@@ -21,101 +21,87 @@
     <body>
         <div class="container-fluid">
             <div id="maprow" class="row">
-	        <div id="map" class="col-sm-12">
+                <div id="map" class="col-sm-12">
                 </div>
-	    </div>
+            </div>
         </div>
         <div class="container-fluid" id="tools">
-	    <div class="row">
-	        <div class="col-sm-12">
-	            <div class="dropdown">
-	                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
-	                    <span class="caret">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
+                            <span class="caret">
                             </span>
                         </button>
-	                <ul class="dropdown-menu">
+                        <ul class="dropdown-menu">
                             <li>27</li>
                             <li onclick="testiPiirto(18)">18</li>
                             <li>2</li>
-	                </ul>
+                        </ul>
                     </div>
                 </div>
-	    </div>
+            </div>
 	    <!--TODO aika, päivä tasaus ja koko -->
-	    <div class="row">
-		<div class="col-sm-12">
-		    <form class="form-inline" role="form">
-			<div class="form-group">
-			    <label for="time" id="aika">Aika:</label>
-			    <input type="time" class="form-control" id="time">
-			</div>
-			<div class="form-group">
-			    <label for="date">Päivä:</label>
-			    <input disabled="true" type="date" class="form-control" id="date">
-			</div>
-		    </form>
-		</div>
-	    </div>	    
-	    <div class="row">
-              <div class="col-sm-12">
-		<div class="form-group">
-                  <div class="input-group date" id="datetimepicker1">
-                    <input type="text" class="form-control" />
-                    <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                  </div>
-		</div>
-              </div>  
-              <script type="text/javascript">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <label for="time" id="aika">Aika:</label>
+                            <input type="time" class="form-control" id="time">
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Päivä:</label>
+                            <input disabled="true" type="date" class="form-control" id="date">
+                        </div>
+                    </form>
+                </div>
+            </div>	    
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="input-group date" id="datetimepicker1">
+                            <input type="text" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>  
+                <script type="text/javascript">
 		$(function () {
 		$("#datetimepicker1").datetimepicker();
 		});
-              </script>
-	    </div>
-	    <div class="panel panel-default">
-		<div class="panel-body" id="programtime">
-		    00:00:00
-		</div>
-	    </div>
-	    <div class="row">
+                </script>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body" id="programtime">
+                    00:00:00
+                </div>
+            </div>
+            <div class="row">
                 <button onclick="tyhjennaReitit()">
                     Tyhjennä
                 </button>
-	    </div>
-	    <div class="row">
+            </div>
+            <div class="row">
                 <div class="vetolaatikko">
                     <p>Valitse linja</p>
                     <ul>
                         <li>
-                            <button onclick="testiPiirto(1)">
-                                1
-                            </button>
+                            <button onclick="toggleReitti('{{item}}')">{{item}}</button>
                         </li>
                         <li>
-                            <button onclick="testiPiirto(2)">
-                                2
-                            </button>
-                        </li>
-                        <li>
-                            <button onclick="testiPiirto(18)">
-                                18
-                            </button>
-                        </li>
-                        <li>
-                            <button onclick="testiPiirto(27)">
-                                27
-                            </button>
+                            <button onclick="testiPiirto('27')">27</button>
                         </li>
                     </ul>
                 </div>
-	    </div>
+            </div>
         </div>
 	
 	<!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script> -->
 	<!-- <script src="main.js"></script>-->
-	<script type="text/javascript">{% include "main.js" %}</script>
-	<script type="text/javascript">{% include "test.js" %}</script>
+        <script type="text/javascript">{% include "main.js" %}</script>
+        <script type="text/javascript">{% include "test.js" %}</script>
     </body>
 </html>
-
