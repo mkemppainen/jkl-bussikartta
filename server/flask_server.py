@@ -248,8 +248,9 @@ def get_route():
             connection.text_factory = str
             cursor = connection.cursor()
             if stop_crdnts[i+1][4] is not stop_crdnts[i][4] + 1:
-                i += 1
+                #i += 1
                 ii += 1
+                del stop_crdnts[i+1]
             valinta_kasky = "select tripcrd, duration from pysakkiparit where stop_id_1 = " + stop_crdnts[i][3] + " and stop_id_2 = " + stop_crdnts[i+1][3]
             #print(valinta_kasky)
             cursor.execute(valinta_kasky)
@@ -285,7 +286,9 @@ def get_route():
         r2 = {
             "reitinNimi":str(request.args.get('route')),
             "pysakinValit":[]}
-        for i in range(0,len(stop_crdnts) - ii):
+        #for i in range(0,len(stop_crdnts) - ii):
+        i = 0
+        while i < len(stop_crdnts) - ii:
             r2["pysakinValit"].append({
             "lahtoNimi":stop_crdnts[i][2],
             "lahtoPiste":[stop_crdnts[i][1],stop_crdnts[i][0]],
