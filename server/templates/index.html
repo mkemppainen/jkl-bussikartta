@@ -31,18 +31,52 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Valitse linja
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Näkyvät linjat
                             <span class="caret">
                             </span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li>27</li>
-                            <li onclick="testiPiirto(18)">18</li>
-                            <li>2</li>
+                            <li><div class="checkbox"><label><input type="checkbox" value="">18</label></div></li>
+                            <li><div class="checkbox"><label><input type="checkbox" value="">27</label></div></li>
+                            <li><div class="checkbox"><label><input type="checkbox" value="">2</label></div></li>
+			    <li><button>Poista valitut</button></li>
                         </ul>
                     </div>
                 </div>
             </div>
+	    <div class="row">
+	        <div class="col-sm-12">
+		    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Näytä näkyvät linjat</button>
+		</div>
+	    </div>
+	    <div class="modal fade" id="myModal" role="dialog">
+	        <div class="modal-dialog">
+    
+		    <!-- Modal content-->
+		    <div class="modal-content">
+		        <div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal">&times;</button>
+			    <h4 class="modal-title">Kartalla näytettävät linjat</h4>
+			</div>
+			<div class="modal-body">
+			    <p>Some text in the modal.</p>
+			    <div class="checkbox"><label><input type="checkbox" value="">18</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">27</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">2</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">18</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">27</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">2</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">18</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">27</label></div>
+			    <div class="checkbox"><label><input type="checkbox" value="">2</label></div>
+			</div>
+			<div class="modal-footer">
+			    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		    </div>
+      
+		</div>
+	    </div>
 	    <!--TODO aika, päivä tasaus ja koko -->
 
             <div class="row">
