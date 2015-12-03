@@ -289,8 +289,10 @@ def get_route():
             r2["pysakinValit"].append({
             "lahtoNimi":stop_crdnts[i][2],
             "lahtoPiste":[stop_crdnts[i][1],stop_crdnts[i][0]],
+            "lahtoID":[stop_crdnts[i][3],
             "paateNimi":stop_crdnts[i+1][2],
             "paatePiste":[stop_crdnts[i+1][1],stop_crdnts[i+1][0]],
+            "paateID":[stop_crdnts[i+1][3],
             "duration": durations[i],
             "coordinates":route_crdnts[i]})
             i+=1
