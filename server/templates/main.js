@@ -185,14 +185,14 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
 // routeArg = reitti (get_routen palauttama)
 function teeReitti(routeArg){
     var parsittu = routeArg;
+    test = parsittu;
     var routeLayer = L.mapbox.featureLayer();
     var stopLayer = L.mapbox.featureLayer();
-
     var route = [];
     for (var i = 0; i < parsittu.pysakinValit.length; i++) { 
         var coordinates = parsittu.pysakinValit[i].coordinates;
         route = route.concat(coordinates);
-
+	
         // piirretaan markkerit
         var m1 = coordinates[0];
         var m0 = [m1[1],m1[0]];
@@ -200,7 +200,7 @@ function teeReitti(routeArg){
             icon: L.mapbox.marker.icon({
                 'marker-symbol': i
             })
-        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[coordinates.length-1].paateNimi);;
+        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[i].lahtoNimi);;
     }
     
     // viimeinen pysakki
@@ -210,7 +210,7 @@ function teeReitti(routeArg){
         icon: L.mapbox.marker.icon({
             'marker-symbol': i
         })
-    }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[coordinates.length-1].paateNimi);
+    }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[i-1].paateNimi);
 
     var geo = {coordinates: route, type:'LineString'};
     L.geoJson(geo).addTo(routeLayer);
