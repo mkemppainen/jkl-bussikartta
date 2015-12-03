@@ -114,6 +114,10 @@ def get_stops():
         j = 0
         i = 0
         #luodaan selaimelle palautettava json-data
+        """
+        "lahtoAika": str(rows[i][2]) + ':' + str(rows[i][3]) + ':' + str(rows[i][4]),
+        "paateAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
+        """
         while i is not len(rows) - 1:
             #pysahdykset ensimmaiselle trip_id:lle
             if rows[i][0] == tripId:
@@ -125,10 +129,10 @@ def get_stops():
                      stopit["matkat"][j]["pysahdykset"].append({
                          "lahtoID": rows[i][1],
                          "paateID": rows[i+1][1],
-                         "lahtoAika": str(rows[i][2]) + ':' + str(rows[i][3]) + ':' + str(rows[i][4]),
-                         "paateAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
+                         "lahtoAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
+                         "paateAika": str(rows[i+1][2]) + ':' + str(rows[i+1][3]) + ':' + str(rows[i+1][4]),
                          "jnum": rows[i][8],
-                             })
+                     })
                      i+=1
             else:
                 #vaihdetaan seuraava trip_id
