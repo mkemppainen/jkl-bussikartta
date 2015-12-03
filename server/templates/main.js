@@ -71,8 +71,6 @@ Bussi.prototype.tarkistaLahto = function(date, leave){
 
 // 
 Bussi.prototype.tick = function(){
-    currentTime = new Date(); // TODO:
-    asetaNakyvaAika(); // tama paivittaa aina kellon TODO
     if (this.reittiLopussa) return;
     if (this.tarkistaLahto('date','leave')) { //todo: oikeat argumentit
 
@@ -90,6 +88,7 @@ Bussi.prototype.tick = function(){
         }   
     }; //if loppu
     // return true/false
+
 };
 
 // paivita seuraavalle pysakille
@@ -99,12 +98,20 @@ Bussi.prototype.seuraavaPysakki = function(){
     this.liikuttaja = null;//new ValillaLiikuttaja(this.reitti.pysakinValit[this.stopIndex].coordinates);
 };
 
+// TODO: saataminen
+function kelloTick() {
+    currentTime = new Date(); // asettaa globaalin ajan
+    asetaNakyvaAika(); // tama paivittaa aina kellon TODO
+}
+
 // TODO testaa
 // etsii oikean pysakin, palauttaa indeksin tai -1 jos ei loydy
+// stops on yhden tripId:n 
 function etsiAika(stops,time){
-    var pysahdykset = this.stops.pysahdykset; //taulukko
+    var pysahdykset = stops.pysahdykset; //taulukko
+    
     for(var i = 0; i < pysahdykset.length; i++){
-        if(vertaaAikoja(time, pysahdykset[i].lahtoAika)){
+        if(vertaaAikoja(pysahdykset[i].lahtoAika,time)){
 	    if (i===0) return 0;
             return i-1;
         }
@@ -137,7 +144,6 @@ function vertaaAikoja(time1, time2){
     return true;
 }
 
-
 // liikuttaa yhdelta pysakilta toiselle
 // alustetaan valin koordinaateilla, sijainti optional
 // vali: [[lon, lat]]
@@ -165,7 +171,7 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
             if (this.seuraavanIndeksi >= this.reitti.length - 1){
 		var palautus = [this.reitti[this.seuraavanIndeksi],matkaaJaljella,true]; //perilla
                 return palautus;
-	    }
+l	    }
             matkaaJaljella = -matkaaJaljella;
             this.sijainti = this.reitti[this.seuraavanIndeksi];
             this.seuraavanIndeksi++;
@@ -173,9 +179,9 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
             continue;
         }
 
-        var uusiSijainti = liikuKohti(this.sijainti,kohde,matka); // TODO TODO: tassa kutsussa saattaa olla vika
+        var uusiSijainti = liikuKohti(this.sijainti,kohde,matka);
         this.sijainti = uusiSijainti;
-        return [uusiSijainti, matkaaJaljella, false]; // ei perilla
+        return [uusiSijainti, matkaaJaljella, false]; // ei viela perilla
     }
 };
 
@@ -265,9 +271,9 @@ function epaonnistui(xhr, textStatus, error){
 }
 
 function tyhjennaReitit(){
-    alert("Kutsuttiin tyhjennystä");
-    map.removeLayer(featureLayer);
-    featureLayer = L.mapbox.featureLayer();
+    for (var key in routes) {
+	map.removeLayer(routes[key]);
+    }
 }
 
 // todo tee bussit metodissa
@@ -279,7 +285,7 @@ function asetaNakyvaAika(aika){
 	aikaString = currentTime.toString('HH:mm:ss');
     }
     else { aikaString = aika.toString('HH:mm:ss'); }
-    $("#programtime").text(aikaString);
+    $("#programtime").text(aikaString); // paivita sivun kello
 }
 
 // tekee layerin reitin numeron ja ajan perusteella
@@ -291,13 +297,9 @@ function lisaaReitti(reittiNro, aika){
     $.ajax({
         url: "/get_route?time="+aika+"&route="+reittiNro,
         success: function(result){
+	    test5 = result; //debug
 	    var reittiPysakit = teeReitti(result);
-            routes[reittiNro] = reittiPysakit;
-	    //var r = reittiPysakit[0].addTo(map); // reittilayer
-	    //var p = reittiPysakit[1].addTo(map); // pysakkilayer 
-	    //map.removeLayer(p); // poistaa pysakit
-	    //map.removeLayer(r); // poistaa reitin
-//	    featureLayer.addTo(map);
+            routes[reittiNro] = reittiPysakit; // laita 
             var b = new Bussi(1234, result, []); // todo: bussin parametrit
             bussi = b;
 	    setInterval(function(){b.tick();},100);
@@ -312,7 +314,7 @@ function lisaaReitti(reittiNro, aika){
 function toggleReitti(reittiNro){
     var layer = routes[reittiNro];
     if (typeof layer === 'undefined'){
-	lisaaReitti(reittiNro);
+	lisaaReitti(reittiNro,'13:00:00');
     }
     else if (map.hasLayer(layer)) {
         map.removeLayer(layer);
@@ -341,8 +343,14 @@ function piilotaReitti(reittiNro){
     return true;
 }
 
-function main(){
+// route on mallia get_route
+// 
+function pysahdyksetByTripId(tripId, route){
     
+}
+
+function main(){
+    setInterval(kelloTick,100);
 //    lisaaReitti('2','14:00:00');
 //    lisaaReitti('18','14:00:00');
 //    esitaHavitaReitti(2,true); // TODO: tama functio kutsutaan ennen kuin edelliset valmistuu
