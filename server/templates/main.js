@@ -12,6 +12,7 @@ var tickInterval = 100; //100ms = 10fps
 var test,test2,test3,test4,test5,skewer,bussi;
 var currentTime = new Date(); // ohjelman aika
 var routes = {};
+var visibleRoutes = [];
 
 // ALOITA OHJELMA
 window.onload=main;
@@ -276,6 +277,19 @@ function tyhjennaReitit(){
     }
 }
 
+function lisaaNakyvaReitti(reittiNro) {
+	var ul = document.getElementById("routeList");
+	var li = document.createElement("li");
+	var cb = document.createElement("input");
+	cb.type = "checkbox";
+	cb.value = reittiNro;
+        cb.checked = false;
+        cb.id = reittiNro;
+	li.appendChild(cb);
+	li.innerHTML+=reittiNro;
+	ul.appendChild(li);
+}
+
 // todo tee bussit metodissa
 
 function asetaNakyvaAika(aika){
@@ -299,7 +313,11 @@ function lisaaReitti(reittiNro, aika){
         success: function(result){
 	    test5 = result; //debug
 	    var reittiPysakit = teeReitti(result);
-            routes[reittiNro] = reittiPysakit; // laita 
+            routes[reittiNro] = reittiPysakit; // laita
+	    if(visibleRoutes.indexOf(reittiNro) == -1) {
+		visibleRoutes.push(reittiNro);
+		lisaaNakyvaReitti(reittiNro);
+	    }
             var b = new Bussi(1234, result, []); // todo: bussin parametrit
             bussi = b;
 	    setInterval(function(){b.tick();},100);
@@ -318,6 +336,7 @@ function toggleReitti(reittiNro){
     }
     else if (map.hasLayer(layer)) {
         map.removeLayer(layer);
+	visibleRoutes.splice(visibleRoutes.indexOf(reittiNro),1);
     } else {
         //map.addLayer(layer);
 	layer.addTo(map);

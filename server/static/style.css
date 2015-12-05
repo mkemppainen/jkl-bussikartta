@@ -2,6 +2,12 @@
 
 }
 
+.checkboxes li{
+    display: block;
+    float: left;
+    width: 25%;
+}
+
 #map { 
     position:absolute; 
     top:0; 
