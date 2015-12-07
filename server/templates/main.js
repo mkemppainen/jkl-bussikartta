@@ -2,15 +2,17 @@
 /* global $, L, timeOut, setInterval*/
 // MAPBOX APISSA LATITUDE JA LONGITUDE ON TOISINPAIN
 // TODO: paivamaarat huomioon, kesa-talviaika
-// onko (lon, lat) aina oikeinpain
+
+// TODO: jos linjaa klikkaa liian nopeasti, piirtyy se 2 kertaa eika voi poistaa
 
 // alustetaan kartta
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
-var featureLayer = L.mapbox.featureLayer();
-var tickInterval = 100; //100ms = 10fps
+var featureLayer = L.mapbox.featureLayer(); // tassa layerissa on kaikki bussit
+var tickInterval = 100; //millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
-var currentTime = new Date(); // ohjelman aika
+var currentTime = new Date().addHours(6); // ohjelman aika
+var nykyAjassa = false; // true jos currentTime vastaa reaaliaikaa
 var routes = {};
 var visibleRoutes = [];
 
@@ -31,12 +33,15 @@ var Bussi = function(tripId, reittiArg, stops){
     this.liikuttaja = null;
     this.stops = stops;
     this.stopIndex = 0;            // monennellako pysakilla reitilla
-    this.stopsLopussa = false;
-    this.onkoLiikeessa = false;
-    this.reittiLopussa = false;
+
     this.marker = L.marker([0,0]).addTo(featureLayer).bindPopup("Kaali");
     
 };
+
+// todo: funktiohin ehka
+// this.stopsLopussa = false;
+// this.onkoLiikeessa = false;
+// this.reittiLopussa = false;
 
 // palauta true, jos currentTime >= viimeinen aika stops listassa
 // stops= yhden bussin stopit
@@ -45,7 +50,7 @@ Bussi.prototype.stopsLopussa = function(aika,stops){
     return true;
 };
 
-// hakee lisaa pysakkeja stops listaan
+// hakee lisaa pysakkeja stops listaan TODO
 Bussi.prototype.haeLisaaPysakkeja = function(aika,stops){
     $.ajax({url: "get_stops?time=" + currentTime.toString('HH:mm:ss') +
 	    "route=18",
@@ -101,8 +106,13 @@ Bussi.prototype.seuraavaPysakki = function(){
 
 // TODO: saataminen
 function kelloTick() {
-    currentTime = new Date(); // asettaa globaalin ajan
-    asetaNakyvaAika(); // tama paivittaa aina kellon TODO
+    if (nykyAjassa || typeof currentTime === 'undefined'){
+        currentTime = new Date();
+    }
+    else {
+        currentTime.addMilliseconds(tickInterval);
+    }
+    asetaNakyvaAika();
 }
 
 // TODO testaa
@@ -153,10 +163,6 @@ var ValillaLiikuttaja = function(vali, sijainti) {
     this.seuraavanIndeksi = 1;
     if (typeof sijainti === 'undefined') this.sijainti = vali[0];
     else this.sijainti = sijainti;
-
-    // palauta uusi sijainti
-    // muuta sijaintia ja indeksia
-    
 };
 
 // siirtaa reitilla matkan verran eteenpain
@@ -172,7 +178,7 @@ ValillaLiikuttaja.prototype.siirra = function(matkaP){
             if (this.seuraavanIndeksi >= this.reitti.length - 1){
 		var palautus = [this.reitti[this.seuraavanIndeksi],matkaaJaljella,true]; //perilla
                 return palautus;
-l	    }
+	    }
             matkaaJaljella = -matkaaJaljella;
             this.sijainti = this.reitti[this.seuraavanIndeksi];
             this.seuraavanIndeksi++;
@@ -182,7 +188,7 @@ l	    }
 
         var uusiSijainti = liikuKohti(this.sijainti,kohde,matka);
         this.sijainti = uusiSijainti;
-        return [uusiSijainti, matkaaJaljella, false]; // ei viela perilla
+        return [uusiSijainti, false]; // ei viela perilla
     }
 };
 
@@ -292,18 +298,24 @@ function lisaaNakyvaReitti(reittiNro) {
 
 // todo tee bussit metodissa
 
+// asettaa ajan
+// aika: 'HH:mm:ss' tai Date objekti
+function muutaKellonAika(aika){
+    nykyAjassa = false;
+    if (typeof aika === 'string') currentTime = Date.parse(aika);
+    else currentTime = aika;
+}
+
+// ainoastaan paivittaa sivun kellonajan
 function asetaNakyvaAika(aika){
     var aikaString;
     if (typeof aika === 'string'){ aikaString = aika; }
-    else if (typeof aika === 'undefined'){
-	aikaString = currentTime.toString('HH:mm:ss');
-    }
-    else { aikaString = aika.toString('HH:mm:ss'); }
+    else { aikaString = currentTime.toString('HH:mm:ss'); }
     $("#programtime").text(aikaString); // paivita sivun kello
 }
 
 // tekee layerin reitin numeron ja ajan perusteella
-// tallentaa sen routes
+// tallentaa sen 'routes' globaaliin
 function lisaaReitti(reittiNro, aika){
     if (typeof aika === 'undefined'){
 	aika = currentTime.toString('HH:mm:ss');
@@ -313,14 +325,14 @@ function lisaaReitti(reittiNro, aika){
         success: function(result){
 	    test5 = result; //debug
 	    var reittiPysakit = teeReitti(result);
-            routes[reittiNro] = reittiPysakit; // laita
+            routes[reittiNro] = reittiPysakit;
 	    if(visibleRoutes.indexOf(reittiNro) == -1) {
 		visibleRoutes.push(reittiNro);
 		lisaaNakyvaReitti(reittiNro);
 	    }
             var b = new Bussi(1234, result, []); // todo: bussin parametrit
             bussi = b;
-	    setInterval(function(){b.tick();},100);
+	    setInterval(function(){b.tick();},tickInterval);
 	    naytaReitti(reittiNro);
         },
         dataType: 'json',
@@ -330,6 +342,7 @@ function lisaaReitti(reittiNro, aika){
 
 
 function toggleReitti(reittiNro){
+
     var layer = routes[reittiNro];
     if (typeof layer === 'undefined'){
 	lisaaReitti(reittiNro,'13:00:00');
@@ -369,13 +382,13 @@ function pysahdyksetByTripId(tripId, route){
 }
 
 function main(){
-    setInterval(kelloTick,100);
-//    lisaaReitti('2','14:00:00');
+    setInterval(kelloTick,tickInterval);
+    featureLayer.addTo(map); // lisaa Bussit karttaan
 //    lisaaReitti('18','14:00:00');
-//    esitaHavitaReitti(2,true); // TODO: tama functio kutsutaan ennen kuin edelliset valmistuu
 
     $(document).ready(function() {
 	asetaNakyvaAika();
+
     });
     
     $.ajax({url: "get_stops?time=12:30:00&route=18",
