@@ -244,6 +244,9 @@ def get_route():
 
         #kannasta haetut pysakkien koordinaatit
         stop_crdnts = [[item for item in r] for r in exec_sql_query(hakuehto)]
+        
+        print('Löydettyjen pysäkkien määrä: ' + str(len(stop_crdnts)), file=sys.stderr)
+
         #TODO Try catch castaukselle
         #reitin kaikki koordinaatit
         route_crdnts = []
@@ -284,7 +287,7 @@ def get_route():
                 a = f[0].replace("(", "")
                 b = a.replace(")", "")
                 c = b.split(',')            
-            else: return(render_template('virhe.html',selitys='Hakuun ei löydy mitään kai.'),4002) 
+            else: return(render_template('virhe.html',selitys='Ei löydetä pysäkkien välistä reittiä.'),4002) 
             d =[]
             
             j = 0
