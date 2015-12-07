@@ -297,11 +297,28 @@ function lisaaNakyvaReitti(reittiNro) {
 	ul.appendChild(li);
 }
 
+
 function poistaNakyvaReitti(reittiNro) {
     var ul  = document.getElementById("routeList");
     ul.removeChild(document.getElementById("li"+reittiNro));
 }
 
+function piilotaReitit() {
+    var poistetut = [];
+    for (var i = 0; i < visibleRoutes.length; i++) {
+	if (document.getElementById(visibleRoutes[i]).checked) {
+	    console.log("Taulukon pituus: " + visibleRoutes.length);
+	    console.log("Poistettu" + visibleRoutes[i]);
+	    poistaNakyvaReitti(visibleRoutes[i]);
+	    piilotaReitti(visibleRoutes[i]);
+	    poistetut.push(visibleRoutes[i]);
+	}
+	
+    }
+    for (var i = 0; i < poistetut.length; i++) {
+	visibleRoutes.splice(visibleRoutes.indexOf(poistetut[i]),1);
+    }
+}
 // todo tee bussit metodissa
 
 // asettaa ajan
@@ -351,6 +368,8 @@ function toggleReitti(reittiNro){
 
     var layer = routes[reittiNro];
     if (typeof layer === 'undefined'){
+	visibleRoutes.push(reittiNro);
+	lisaaNakyvaReitti(reittiNro);
 	lisaaReitti(reittiNro,'13:00:00');
     }
     else if (map.hasLayer(layer)) {
@@ -360,6 +379,8 @@ function toggleReitti(reittiNro){
     } else {
         //map.addLayer(layer);
 	layer.addTo(map);
+	visibleRoutes.push(reittiNro);
+	lisaaNakyvaReitti(reittiNro);
     }
 }
 
