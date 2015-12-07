@@ -57,21 +57,21 @@
 	    </div>
 	    <!--TODO aika, päivä tasaus ja koko -->
 
-            <div class="row">
+            <!--<div class="row">
                 <div class="col-sm-12">
                     <form class="form-inline" role="form">
                         <div class="form-group">
                             <label for="time" id="aika">Aika:</label>
-                            <input type="time" class="form-control" id="time">
+                            <input type="time" class="form-control" id="time2">
                         </div>
                     </form>
                 </div>
-            </div>	    
+	    </div> --> 
             <div class="row">
                 <div class="col-sm-6">
                     <div class="form-group">
                         <div class="input-group date" id="datetimepicker1">
-                            <input type="text" class="form-control" />
+                            <input type="text" id="time" class="form-control" />
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
                             </span>
@@ -104,7 +104,7 @@
                         </li>
 			{% else %}
                         <li>
-                            <button onclick="testiPiirto('27')">27</button>
+                            <button onclick="toggleReitti('27')">27</button>
                         </li>
 			{% endfor %}
                     </ul>

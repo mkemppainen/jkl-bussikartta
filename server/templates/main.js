@@ -365,12 +365,15 @@ function lisaaReitti(reittiNro, aika){
 
 
 function toggleReitti(reittiNro){
+    var aika = muokkaaAika(haeAnnettuAika());
+    var aikaTeksti = aika.tunnit.toString() + ':' + aika.minuutit.toString() + ':00';
+    alert(aikaTeksti);
 
     var layer = routes[reittiNro];
     if (typeof layer === 'undefined'){
 	visibleRoutes.push(reittiNro);
 	lisaaNakyvaReitti(reittiNro);
-	lisaaReitti(reittiNro,'13:00:00');
+	lisaaReitti(reittiNro,aikaTeksti);
     }
     else if (map.hasLayer(layer)) {
         map.removeLayer(layer);
@@ -382,6 +385,30 @@ function toggleReitti(reittiNro){
 	visibleRoutes.push(reittiNro);
 	lisaaNakyvaReitti(reittiNro);
     }
+}
+
+
+/// Muokkaa ajan sopivaan muotoon.
+function muokkaaAika(teksti){
+    var re = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d?):(\d\d) ((PM|AM))/;//Ihanaa lukea jäkeenpäin
+    var ryhmat = re.exec(teksti);
+    if (ryhmat == null) return "oletus1"
+    if (ryhmat.length < 7) return "oletus2" //TODO Mikä oletus oikeasti olisi?
+    var kuukausi = ryhmat[1];
+    var paiva = ryhmat[2];
+    var vuosi = ryhmat[3];
+    var tunnit = ryhmat[4];
+    var minuutit = ryhmat[5];
+    var aamu_vai_ilta = ryhmat[6];//TODO Käsittele. Nyt ei huomioida
+
+    return {vuosi: vuosi, paiva:paiva, kuukausi:kuukausi, tunnit:tunnit,minuutit:minuutit };
+}
+
+
+/// Hakee annetun ajan ja palauttaa sen
+function haeAnnettuAika(){
+    var a = document.getElementById("time").value;
+    return a;
 }
 
 // typeof reittiNro === String
