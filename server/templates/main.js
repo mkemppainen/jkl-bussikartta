@@ -292,8 +292,14 @@ function lisaaNakyvaReitti(reittiNro) {
         cb.checked = false;
         cb.id = reittiNro;
 	li.appendChild(cb);
-	li.innerHTML+=reittiNro;
+        li.innerHTML+=reittiNro;
+        li.id = "li"+reittiNro;
 	ul.appendChild(li);
+}
+
+function poistaNakyvaReitti(reittiNro) {
+    var ul  = document.getElementById("routeList");
+    ul.removeChild(document.getElementById("li"+reittiNro));
 }
 
 // todo tee bussit metodissa
@@ -350,6 +356,7 @@ function toggleReitti(reittiNro){
     else if (map.hasLayer(layer)) {
         map.removeLayer(layer);
 	visibleRoutes.splice(visibleRoutes.indexOf(reittiNro),1);
+	poistaNakyvaReitti(reittiNro);
     } else {
         //map.addLayer(layer);
 	layer.addTo(map);
