@@ -174,48 +174,60 @@ def is_day_between(middle,left, right):
 #Tarkistaa annetun argumentin oikeellisuuden        
 #TODO date tarkistus
 def check_argument(argument, value):
-     if request.method == 'GET' and argument is not None:
-            print(argument, file=sys.stderr)
-            #TODO ei hyvaksy aikoja yli 24h, kannasta sellaisia loytyy. Varmaan tehtava oma parsiminen ajalle
-            try:
-                if argument == 'time':
-                    time.strptime(str(value), '%H:%M:%S')       
-                    stoptime = list(map(int, value.split(':',2)))
-                    #Lisätään stoptime-taulukkoon myös ajat 5min ennen ja 10min jälkeen haetun ajan
-                    if stoptime[1] + 10 >= 60:
-                        stoptime.append(stoptime[1] + 10 - 60)
-                        stoptime.append(stoptime[0] + 1)
-                    else:
-                        stoptime.append(stoptime[1] + 10)
-                        stoptime.append(stoptime[0] + 0)
-                    if stoptime[1] - 5 < 0:
-                        stoptime[1] = stoptime[1] - 5 + 60
-                        stoptime[0] -= 1
-                    else:
-                        stoptime[1] -= 5
-                    
-                    print(stoptime, file=sys.stderr)#test
-                    return stoptime
-                elif argument == 'route':
-                    routes = [item[0] for item in exec_sql_query('select distinct lnimi from matkojen_nimet')]
-                    if value not in routes:
-                        return None
-                    return value
-                elif argument == 'date':
-                    return value
+    if request.method == 'GET' and argument is not None:
+        print(argument, file=sys.stderr)
+        #TODO ei hyvaksy aikoja yli 24h, kannasta sellaisia loytyy. Varmaan tehtava oma parsiminen ajalle
+        try:
+            if argument == 'time':
+                time.strptime(str(value), '%H:%M:%S')       
+                stoptime = list(map(int, value.split(':',2)))
+                #Lisätään stoptime-taulukkoon myös ajat 5min ennen ja 10min jälkeen haetun ajan
+                if stoptime[1] + 10 >= 60:
+                    stoptime.append(stoptime[1] + 10 - 60)
+                    stoptime.append(stoptime[0] + 1)
                 else:
+                    stoptime.append(stoptime[1] + 10)
+                    stoptime.append(stoptime[0] + 0)
+                if stoptime[1] - 5 < 0:
+                    stoptime[1] = stoptime[1] - 5 + 60
+                    stoptime[0] -= 1
+                else:
+                    stoptime[1] -= 5
+                
+                print(stoptime, file=sys.stderr)#test
+                return stoptime
+            elif argument == 'route':
+                routes = [item[0] for item in exec_sql_query('select distinct lnimi from matkojen_nimet')]
+                if value not in routes:
                     return None
-            except ValueError:
+                return value
+            elif argument == 'date':
+                return value
+            elif argument == 'luku':
+                if value is None: return None
+                return int(value)
+            else:
                 return None
+        except ValueError:
+            return None
+    return None
 
 @app.route("/get_route")
 def get_route():
     #Tarkistetaan että löytyy oikeat argumentit ja ovat oikeita
     route = check_argument('route', request.args.get('route'))
     stoptime = check_argument('time', request.args.get('time'))
+
+    day = check_argument('luku', request.args.get('day'))
+    month = check_argument('luku', request.args.get('month'))
+    year = check_argument('luku', request.args.get('year'))
+
+    if (day is None or month is None or year is None): date = datetime.datetime.today()
+    else: date = datetime.date(year, month, day)
+
     if stoptime is not None and route is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
-        service_id_ehto = service_id_ehto = get_service_id_condition(datetime.datetime.today())
+        service_id_ehto = service_id_ehto = get_service_id_condition(date)
        
         trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like \"" + route + "\" and " + service_id_ehto + " and trip_id in (select trip_id from Pysahtymis_ajat where lahto_aika_tunnit like \"" + str(stoptime[0]) + "\" and lahto_aika_minuutit BETWEEN " + (str(int(stoptime[1]) - 10)) + " and " + str(int(stoptime[1]) + 10) + "))"
 
