@@ -339,12 +339,12 @@ function asetaNakyvaAika(aika){
 
 // tekee layerin reitin numeron ja ajan perusteella
 // tallentaa sen 'routes' globaaliin
-function lisaaReitti(reittiNro, aika){
+function lisaaReitti(reittiNro, aika, pvm = {vuosi:"2015", kuukausi:"12", paiva:"07"}){
     if (typeof aika === 'undefined'){
 	aika = currentTime.toString('HH:mm:ss');
     }
     $.ajax({
-        url: "/get_route?time="+aika+"&route="+reittiNro,
+        url: "/get_route?time="+aika+"&route="+reittiNro+"&year="+pvm.vuosi+"&month="+pvm.kuukausi+"&day="+pvm.paiva,
         success: function(result){
 	    test5 = result; //debug
 	    var reittiPysakit = teeReitti(result);
@@ -365,15 +365,14 @@ function lisaaReitti(reittiNro, aika){
 
 
 function toggleReitti(reittiNro){
-    var aika = muokkaaAika(haeAnnettuAika());
+    var aika = muokkaaAika(haeAnnettuAika()); 
     var aikaTeksti = aika.tunnit.toString() + ':' + aika.minuutit.toString() + ':00';
-    alert(aikaTeksti);
 
     var layer = routes[reittiNro];
     if (typeof layer === 'undefined'){
 	visibleRoutes.push(reittiNro);
 	lisaaNakyvaReitti(reittiNro);
-	lisaaReitti(reittiNro,aikaTeksti);
+	lisaaReitti(reittiNro,aikaTeksti,{vuosi:aika.vuosi, kuukausi: aika.kuukausi, paiva: aika.paiva});
     }
     else if (map.hasLayer(layer)) {
         map.removeLayer(layer);
@@ -392,15 +391,36 @@ function toggleReitti(reittiNro){
 function muokkaaAika(teksti){
     var re = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d?):(\d\d) ((PM|AM))/;//Ihanaa lukea jäkeenpäin
     var ryhmat = re.exec(teksti);
-    if (ryhmat == null) return "oletus1"
-    if (ryhmat.length < 7) return "oletus2" //TODO Mikä oletus oikeasti olisi?
-    var kuukausi = ryhmat[1];
-    var paiva = ryhmat[2];
-    var vuosi = ryhmat[3];
-    var tunnit = ryhmat[4];
-    var minuutit = ryhmat[5];
-    var aamu_vai_ilta = ryhmat[6];//TODO Käsittele. Nyt ei huomioida
+    var kuukausi;
+    var paiva;
+    var vuosi;
+    var tunnit;
+    var minuutit;
+    var aamu_vai_ilta;
+    
+    if (ryhmat == null){
+	var today = new Date();
 
+	kuukausi = today.getMonth()+1;
+	if (kuukausi < 10 ) kuukausi = '0' + kuukausi; 
+	paiva = today.getDate();	
+	if (paiva < 10) paiva = '0' + paiva;
+
+	vuosi = today.getFullYear()
+
+	tunnit = "11";//TODO Pohdi saisiko tästä järkevämmän ajan.
+	minuutit = "00";
+
+	aamu_vai_ilta = "AM";
+    }
+    else {
+	var kuukausi = ryhmat[1];
+	var paiva = ryhmat[2];
+	var vuosi = ryhmat[3];
+	var tunnit = ryhmat[4];
+	var minuutit = ryhmat[5];
+	var aamu_vai_ilta = ryhmat[6];//TODO Käsittele. Nyt ei huomioida
+    }
     return {vuosi: vuosi, paiva:paiva, kuukausi:kuukausi, tunnit:tunnit,minuutit:minuutit };
 }
 
