@@ -337,9 +337,14 @@ function asetaNakyvaAika(aika){
     $("#programtime").text(aikaString); // paivita sivun kello
 }
 
+
+function lisaaReitti(reittiNro, aika){
+   lisaaReitti(reittiNro, aika, {vuosi:"2015", kuukausi:"12", paiva:"07"});
+}
+
 // tekee layerin reitin numeron ja ajan perusteella
 // tallentaa sen 'routes' globaaliin
-function lisaaReitti(reittiNro, aika, pvm = {vuosi:"2015", kuukausi:"12", paiva:"07"}){
+function lisaaReitti(reittiNro, aika, pvm){
     if (typeof aika === 'undefined'){
 	aika = currentTime.toString('HH:mm:ss');
     }
