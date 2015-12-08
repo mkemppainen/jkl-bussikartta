@@ -347,18 +347,21 @@ function lisaaReitti(reittiNro, aika, pvm){
     }
     $.ajax({
         url: "/get_route?time="+aika+"&route="+reittiNro+"&year="+pvm.vuosi+"&month="+pvm.kuukausi+"&day="+pvm.paiva,
-        success: function(result){
-	    test5 = result; //debug
-	    var reittiPysakit = teeReitti(result);
-            routes[reittiNro] = reittiPysakit;
-	    if(visibleRoutes.indexOf(reittiNro) == -1) {
-		visibleRoutes.push(reittiNro);
-		lisaaNakyvaReitti(reittiNro);
-	    }
-            var b = new Bussi(1234, result, []); // todo: bussin parametrit
-            bussi = b;
-	    setInterval(function(){b.tick();},tickInterval);
-	    naytaReitti(reittiNro);
+        success: function(whole_result){
+            for (var i = 0; i < whole_result.reitit.length; i++) {
+                result = whole_result.reitit[i];
+                test5 = result; //debug
+                var reittiPysakit = teeReitti(result);
+                routes[reittiNro] = reittiPysakit;
+                if(visibleRoutes.indexOf(reittiNro) == -1) {
+                    visibleRoutes.push(reittiNro);
+                    lisaaNakyvaReitti(reittiNro);
+                }
+                var b = new Bussi(1234, result, []); // todo: bussin parametrit
+                bussi = b;
+                setInterval(function(){b.tick();},tickInterval);
+                naytaReitti(reittiNro);
+            }
         },
         dataType: 'json',
         error: epaonnistui

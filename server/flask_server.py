@@ -237,6 +237,7 @@ def check_argument(argument, value):
             return None
     return None
 
+
 @app.route("/get_route")
 def get_route():
     #Tarkistetaan että löytyy oikeat argumentit ja ovat oikeita
@@ -258,100 +259,79 @@ def get_route():
 
         #print(trip_id_ehto)
         trip_id_lista = [[item for item in r] for r in exec_sql_query(trip_id_ehto)]
-        if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
+        if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Ei löydy sopivia matkoja'),400
 
-        try:
-            hakuehto = "select Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id in (" + trip_id_ehto + ") and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by trip_id, jnum asc" 
-        except TypeError: 
-            return render_template('virhe.html',selitys='Tyyppivirhe'),400
+        reitti_lista = []
 
-        print(hakuehto,file=sys.stderr)
+        #Haetaan kullekin trip_id:lle reitin tiedot.
+        for trip_id_i in trip_id_lista:
+            trip_id = trip_id_i[0]
+            try:
+                hakuehto = "select Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id + "\" and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by jnum asc" 
+            except TypeError: 
+                return render_template('virhe.html',selitys='Tyyppivirhe3'),400
+            tiedot = [[item for item in r] for r in exec_sql_query(hakuehto)]
 
-        #kannasta haetut pysakkien koordinaatit
-        stop_crdnts = [[item for item in r] for r in exec_sql_query(hakuehto)]
-        
-        print('Löydettyjen pysäkkien määrä: ' + str(len(stop_crdnts)), file=sys.stderr)
+            pari_lista = []
 
-        #TODO Try catch castaukselle
-        #reitin kaikki koordinaatit
-        route_crdnts = []
-        #pysakkivalien kestot
-        durations = []
-        
-        if len(stop_crdnts) <= 0:
-            return render_template('virhe.html',selitys='Tyhjä taulukko'),4001
-        
-        #haetaan jokaiselle koordinaattiparille reitti, tallennetaan
-        i = 0
-        ii = 1
-        while i < len(stop_crdnts)-1:
-            #stop1 = stop_crdnts[i][1] + ',' + stop_crdnts[i][0]
-            #stop2 = stop_crdnts[i+1][1] + ',' + stop_crdnts[i+1][0]          
-            #haetaan pysakkien valin koordinaatit
-            connection = sqlite3.connect("tietokanta_testi.data")
-            connection.text_factory = str
-            cursor = connection.cursor()
-            if stop_crdnts[i+1][4] is not stop_crdnts[i][4] + 1:
-                if stop_crdnts[i+1][3] == stop_crdnts[i][3]:
-                    del stop_crdnts[i+1]
-                else:
-                    i += 1
-                ii += 1
-                
-            valinta_kasky = "select tripcrd, duration from pysakkiparit where stop_id_1 = " + stop_crdnts[i][3] + " and stop_id_2 = " + stop_crdnts[i+1][3]
-            #print(valinta_kasky)
-            cursor.execute(valinta_kasky)
-            
-            #print(i,file=sys.stderr)
-            #print(len(stop_crdnts),file=sys.stderr)
-            #print(stop_crdnts[i][3])
-            #print(stop_crdnts[i+1][3])
-            i+=1
+            #Käydään kaikki muut paitsi viimeinen kierros läpi.
+            for i in range(0, len(tiedot) - 1):
+                a_lat = tiedot[i][0]
+                a_lon = tiedot[i][1]
+                a_nimi = tiedot[i][2]
+                a_stop_id = tiedot[i][3]
+                a_jnum = tiedot[i][4]
 
-            #heitetaan koordinaatit reitin listalle
-            f = cursor.fetchone()
-            if f is not None:
-                durations.append(f[1])
-                a = f[0].replace("(", "")
+                l_lat = tiedot[i+1][0]
+                l_lon = tiedot[i+1][1]
+                l_nimi = tiedot[i+1][2]
+                l_stop_id = tiedot[i+1][3]
+                l_jnum = tiedot[i+1][4]
+
+                reitti_kysely= "select tripcrd, duration from pysakkiparit where stop_id_1 like \"" + a_stop_id + "\" and stop_id_2 = \"" + l_stop_id + "\""
+                reitti = [[item for item in r] for r in exec_sql_query(reitti_kysely)]
+
+                if reitti == None: return(render_template('virhe.html',selitys='Ei löydetä pysäkkien välistä reittiä.'),4002) 
+                duration = reitti[0][1]
+
+                a = reitti[0][0].replace("(", "")
                 b = a.replace(")", "")
-                c = b.split(',')            
-            else: return(render_template('virhe.html',selitys='Ei löydetä pysäkkien välistä reittiä.'),4002) 
-            d =[]
+                c = b.split(',')  
+
+                koordinaatit =[]
             
-            j = 0
-            while j < len(c)-1:
-                try:
-                    d.append([float(c[j]),float(c[j+1])])
-                    j+=2
-                except TypeError:
-                    return render_template('virhe.html', selitys='Tyyppivirhe'),4003
-            route_crdnts.append(d)
-            
-        #Tassa muodossa palautus selaimelle
-        j = 0   
-        r2 = {
-            "reitinNimi":str(request.args.get('route')),
-            "pysakinValit":[]}
-        #for i in range(0,len(stop_crdnts) - ii):
-        i = 0
-        while i < len(stop_crdnts) - ii:
-            r2["pysakinValit"].append({
-            "lahtoNimi":stop_crdnts[i][2],
-            "lahtoPiste":[stop_crdnts[i][1],stop_crdnts[i][0]],
-            "lahtoID":stop_crdnts[i][3],
-            "paateNimi":stop_crdnts[i+1][2],
-            "paatePiste":[stop_crdnts[i+1][1],stop_crdnts[i+1][0]],
-            "paateID":stop_crdnts[i+1][3],
-            "duration": durations[i],
-            "coordinates":route_crdnts[i]})
-            i+=1
-    
-        resp = Response(response=json.dumps(r2, ensure_ascii=False).encode('utf-8'),
+                j = 0
+                while j < len(c)-1:
+                    try:
+                        koordinaatit.append([float(c[j]),float(c[j+1])])
+                        j+=2
+                    except TypeError:
+                        return render_template('virhe.html', selitys='Tyyppivirhe'),4003
+                
+                taso = {
+                    "lahtoNimi": a_nimi,
+                    "lahtoPiste": [a_lon,a_lat],
+                    "lahtoID": a_stop_id,
+                    "paateNimi": l_nimi,
+                    "paatePiste": [l_lon,l_lat],
+                    "paateID": l_stop_id,
+                    "duration": duration,
+                    "coordinates": koordinaatit}
+                pari_lista.append(taso)
+            #Parien läpikäynti loppuu
+            r2 = {
+                "reitinNimi":str(request.args.get('route')),
+                "pysakinValit": pari_lista}
+            reitti_lista.append(r2)
+        #Trip_id läpikäynti loppuu
+        r1 = {"reitit": reitti_lista}
+
+        #Palautetaan tulos
+        resp = Response(response=json.dumps(r1, ensure_ascii=False).encode('utf-8'),
         status=200,
         content_type="application/json; charset=utf-8")   
         
         return(resp)
-    
     else:
         return(render_template('virhe.html'),4004) 
 
