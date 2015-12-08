@@ -90,21 +90,38 @@ def exec_sql_query(query):
         return None
 
 
-@app.route("/get_stops_route")
-def get_stops_route():
-    id_1 = request.args.get('stop1')
-    id_2 = request.args.get('stop2')
+@app.route("/get_single_route")
+def get_single_route():
+    id_1 = str(request.args.get('stop1'))
+    id_2 = str(request.args.get('stop2'))
 
-    valinta = "select tripcrd, duration from Pysakkiparit where stop_id_1 like \"" + id_1 + "\" and stop_id_2 like \"" + id_2 + "\""
+    valinta = "select pysakkiparit.tripcrd, pysakkiparit.duration from Pysakkiparit where stop_id_1 like \"" + id_1 + "\" and stop_id_2 like \"" + id_2 + "\""
 
     tulos = exec_sql_query(valinta)
+    print(tulos,file=sys.stderr)
+    valinta2 = "select nimi, lat, lon from pysakit where stop_id like \"" + id_1 + "\""
+    valinta3 = "select nimi, lat, lon from pysakit where stop_id like \"" + id_2 + "\""
+    tulos2 = exec_sql_query(valinta2)
+    print(tulos2, file=sys.stderr)
+    tulos3 = exec_sql_query(valinta3)
+    #if (len(tulos) <=1): return(render_template('virhe.html', selitys='Sopivaa väliä ei löytynyt.'),4005)
 
-    if (len(tulos) <=1): return(render_template('virhe.html', selitys='Sopivaa väliä ei löytynyt.'),4005)
-
-    coordinaatit = tulos[0]
-    duration = tulos[1]
-
-    return(render_template('virhe.html', selitys='Kesken'),4006)
+    pysakinValit = {
+            "lahtoNimi":tulos2[0][0],
+            "lahtoPiste":[tulos2[0][1],tulos2[0][2]],
+            "lahtoID":id_1,
+            "paateNimi":tulos3[0][0],
+            "paatePiste":[tulos3[0][1],tulos3[0][2]],
+            "paateID":id_2,
+            "duration": tulos[0][1],
+            "coordinates":tulos[0][0]
+    }
+    
+    resp = Response(response=json.dumps(pysakinValit, ensure_ascii=False).encode('utf-8'),
+        content_type='application/json; charset=utf-8',
+        status=200
+        )   
+    return(resp)
 
 @app.route("/get_stops")
 def get_stops():
