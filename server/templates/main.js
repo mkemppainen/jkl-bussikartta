@@ -11,7 +11,7 @@ var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
 var bussiLayer = L.layerGroup(); // tassa layerissa on kaikki bussit
 var tickInterval = 100; //millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
-var currentTime = Date.parse('12:04:57'); // ohjelman aika
+var currentTime = Date.parse('12:00:57'); // ohjelman aika
 //var currentTime = Date.parse('12:00'); // ohjelman aika
 var nykyAjassa = false; // true jos currentTime vastaa reaaliaikaa
 var routes = {};
@@ -43,11 +43,11 @@ var Bussi = function(reittiArg, stops){
     this.stops = stops;
     //    this.stopIndex = etsiAika(stops,currentTime); // FIXME: palauttaa -1
     var b = this;
-    this.stopIndex = 0;
-//    this.reittiIndex = etsiPysakki(this.reitti, this.stops.); //tonow
+    this.stopIndex = etsiAika(this.stops,currentTime);
+    this.reittiIndex = etsiPysakki(this.reitti, this.stops.pysahdykset[Math.max(0,this.stopIndex)].lahtoID); //TONOW
     testStops = this.stops; //debug
     testRoute = this.reitti;
-    printStopTimes(this.stops);
+    //printStopTimes(this.stops);
     this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup("Kaali");
     this.reittiLopussa = false;
     this.kaynnissa = false;
@@ -96,7 +96,13 @@ Bussi.prototype.pysayta = function(){
 };
 
 Bussi.prototype.tick = function(){
-    if (this.reittiLopussa) return; // TODO poista bussi bussiLayerista
+    if (this.reittiLopussa) {
+	bussiLayer.removeLayer(this.marker);
+	console.log('poistettiin layer?');
+	this.marker.bindPopup('perilla joo');
+	this.pysayta();
+	return; // TODO poista bussi bussiLayerista
+    }
     if (this.stopIndex < 0) {
         var lahto = this.stops.pysahdykset[0].lahtoAika;
 	var vikanIndex = this.stops.pysahdykset.length - 1;
@@ -104,8 +110,8 @@ Bussi.prototype.tick = function(){
 	console.log('vikan index: '+vikanIndex);
 	var viimeinen = this.stops.pysahdykset[vikanIndex].paateAika;
 	console.log(this.stops);
-	console.log('viimenen: '+viimeinen);
-        console.log('ensimmainen aika on: '+ lahto);
+	console.log('aika nyt: '+currentTime.toString('HH:mm:ss'));
+        console.log('seuraava/eka aika on: '+ lahto);
         console.log('viimeinen aika on: '+ viimeinen);
 	console.log('');
         this.pysayta();
@@ -115,7 +121,7 @@ Bussi.prototype.tick = function(){
         setTimeout(function(){b.kaynnista();},aikaAlkuun + 100);
         return;
     }
-    var coordinates = this.reitti.pysakinValit[this.stopIndex].coordinates;
+    var coordinates = this.reitti.pysakinValit[this.reittiIndex].coordinates;
     if (this.liikuttaja === null){
         this.liikuttaja = new ValillaLiikuttaja(coordinates);
         this.sijainti = coordinates[0];
@@ -131,10 +137,13 @@ Bussi.prototype.tick = function(){
 // paivita seuraavalle pysakille
 Bussi.prototype.seuraavaPysakki = function(){
     if (this.stopIndex >= this.reitti.pysakinValit.length - 1 || this.stopIndex < 0) {
+	console.log('reitti on loppu');
 	this.reittiLopussa = true;
     }
+    else if (this.reittiIndex >= this.reitti.pysakinValit.length - 1) this.reittiLopussa = false;
     else {
 	this.stopIndex++;
+	this.reittiIndex++;
 	this.liikuttaja = null;
 	this.paivitaStopIndex();
     } // TODO: tee reittilopussa funktio
@@ -144,10 +153,15 @@ Bussi.prototype.seuraavaPysakki = function(){
 
 // etsii pysakin reitilta id:lla, palauttaa sen indeksin TONOW
 function etsiPysakki(reitti, pysakinId) {
+//    var pysakinId = stops.pysahdykset[0].lahtoID;
     for(var i = 0; i < reitti.pysakinValit.length; i++) {
-	var p = reitti.pysakinValit[i].lahtoId;
+	var p = reitti.pysakinValit[i].lahtoID;
+	console.log('etsipysakki');
+	console.log(p);
+	console.log(pysakinId);
 	if (p == pysakinId) return i;
     }
+    return -1;
 }
 
 // stops = yhden tripId:n
@@ -421,7 +435,7 @@ function lisaaReitti(reittiNro, aika, pvm){
 		visibleRoutes.push(reittiNro);
 		lisaaNakyvaReitti(reittiNro);
 	    }
-	    //teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
+	    teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
             
         },
         dataType: 'json',
@@ -471,17 +485,17 @@ function muokkaaAika(teksti){
         paiva = today.getDate();	
         if (paiva < 10) paiva = '0' + paiva;
 
-        vuosi = today.getFullYear()
+        vuosi = today.getFullYear();
 
         tunnit = "11";//TODO Pohdi saisiko tästä järkevämmän ajan.
         minuutit = "00";
     }
     else {
-        var kuukausi = ryhmat[2];
-        var paiva = ryhmat[1];
-        var vuosi = ryhmat[3];
-        var tunnit = ryhmat[4];
-        var minuutit = ryhmat[5];
+        kuukausi = ryhmat[2];
+        paiva = ryhmat[1];
+        vuosi = ryhmat[3];
+        tunnit = ryhmat[4];
+        minuutit = ryhmat[5];
     }
     return {vuosi: vuosi, paiva:paiva, kuukausi:kuukausi, tunnit:tunnit,minuutit:minuutit };
 }
