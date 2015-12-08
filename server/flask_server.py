@@ -130,6 +130,7 @@ def get_stops():
                 }
         j = 0
         i = 0
+        a = 0
         #luodaan selaimelle palautettava json-data
         """
         "lahtoAika": str(rows[i][2]) + ':' + str(rows[i][3]) + ':' + str(rows[i][4]),
@@ -151,12 +152,17 @@ def get_stops():
                          "jnum": rows[i][8],
                          "onkoPaate": False
                      })
+                     a+=1
+                     if i == len(rows) - 2:
+                         stopit["matkat"][j]["pysahdykset"][a-1]["onkoPaate"] = True
                      i+=1
             else:
                 #vaihdetaan seuraava trip_id
-                stopit["matkat"][j]["pysahdykset"][5]["onkoPaate"] = True
+                stopit["matkat"][j]["pysahdykset"][a-1]["onkoPaate"] = True
                 tripId = rows[i][0]
                 j+=1
+                a=0
+
                 
         resp = Response(response=json.dumps(stopit, ensure_ascii=False).encode('utf-8'),
         content_type='application/json; charset=utf-8',
