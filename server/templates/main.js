@@ -391,37 +391,33 @@ function toggleReitti(reittiNro){
 
 /// Muokkaa ajan sopivaan muotoon.
 function muokkaaAika(teksti){
-    var re = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d?):(\d\d) ((PM|AM))/;//Ihanaa lukea jäkeenpäin
+    var re = /(\d\d)\.(\d\d)\.(\d\d\d\d) (\d\d?)\.(\d\d)/;//Ihanaa lukea jäkeenpäin
     var ryhmat = re.exec(teksti);
     var kuukausi;
     var paiva;
     var vuosi;
     var tunnit;
     var minuutit;
-    var aamu_vai_ilta;
     
     if (ryhmat == null){
-	var today = new Date();
+        var today = new Date();
 
-	kuukausi = today.getMonth()+1;
-	if (kuukausi < 10 ) kuukausi = '0' + kuukausi; 
-	paiva = today.getDate();	
-	if (paiva < 10) paiva = '0' + paiva;
+        kuukausi = today.getMonth()+1;
+        if (kuukausi < 10 ) kuukausi = '0' + kuukausi; 
+        paiva = today.getDate();	
+        if (paiva < 10) paiva = '0' + paiva;
 
-	vuosi = today.getFullYear()
+        vuosi = today.getFullYear()
 
-	tunnit = "11";//TODO Pohdi saisiko tästä järkevämmän ajan.
-	minuutit = "00";
-
-	aamu_vai_ilta = "AM";
+        tunnit = "11";//TODO Pohdi saisiko tästä järkevämmän ajan.
+        minuutit = "00";
     }
     else {
-	var kuukausi = ryhmat[1];
-	var paiva = ryhmat[2];
-	var vuosi = ryhmat[3];
-	var tunnit = ryhmat[4];
-	var minuutit = ryhmat[5];
-	var aamu_vai_ilta = ryhmat[6];//TODO Käsittele. Nyt ei huomioida
+        var kuukausi = ryhmat[2];
+        var paiva = ryhmat[1];
+        var vuosi = ryhmat[3];
+        var tunnit = ryhmat[4];
+        var minuutit = ryhmat[5];
     }
     return {vuosi: vuosi, paiva:paiva, kuukausi:kuukausi, tunnit:tunnit,minuutit:minuutit };
 }
