@@ -419,7 +419,6 @@ function muokkaaAika(teksti){
         var tunnit = ryhmat[4];
         var minuutit = ryhmat[5];
     }
-    alert(vuosi);
     return {vuosi: vuosi, paiva:paiva, kuukausi:kuukausi, tunnit:tunnit,minuutit:minuutit };
 }
 
