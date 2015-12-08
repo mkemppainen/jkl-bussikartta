@@ -144,7 +144,10 @@ Bussi.prototype.seuraavaPysakki = function(){
 
 // etsii pysakin reitilta id:lla, palauttaa sen indeksin TONOW
 function etsiPysakki(reitti, pysakinId) {
-    
+    for(var i = 0; i < reitti.pysakinValit.length; i++) {
+	var p = reitti.pysakinValit[i].lahtoId;
+	if (p == pysakinId) return i;
+    }
 }
 
 // stops = yhden tripId:n
