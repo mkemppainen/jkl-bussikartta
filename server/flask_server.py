@@ -261,11 +261,11 @@ def get_route():
         if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
 
         try:
-            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id in (" + trip_id_ehto + ") and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by trip_id, jnum asc" 
+            hakuehto = "select Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id in (" + trip_id_ehto + ") and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by trip_id, jnum asc" 
         except TypeError: 
             return render_template('virhe.html',selitys='Tyyppivirhe'),400
 
-        #print(hakuehto,file=sys.stderr)
+        print(hakuehto,file=sys.stderr)
 
         #kannasta haetut pysakkien koordinaatit
         stop_crdnts = [[item for item in r] for r in exec_sql_query(hakuehto)]
@@ -292,9 +292,12 @@ def get_route():
             connection.text_factory = str
             cursor = connection.cursor()
             if stop_crdnts[i+1][4] is not stop_crdnts[i][4] + 1:
-                #i += 1
+                if stop_crdnts[i+1][3] == stop_crdnts[i][3]:
+                    del stop_crdnts[i+1]
+                else:
+                    i += 1
                 ii += 1
-                del stop_crdnts[i+1]
+                
             valinta_kasky = "select tripcrd, duration from pysakkiparit where stop_id_1 = " + stop_crdnts[i][3] + " and stop_id_2 = " + stop_crdnts[i+1][3]
             #print(valinta_kasky)
             cursor.execute(valinta_kasky)
