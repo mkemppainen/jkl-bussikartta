@@ -435,7 +435,7 @@ function lisaaReitti(reittiNro, aika, pvm){
 		visibleRoutes.push(reittiNro);
 		lisaaNakyvaReitti(reittiNro);
 	    }
-	    teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
+	    //teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
             
         },
         dataType: 'json',
