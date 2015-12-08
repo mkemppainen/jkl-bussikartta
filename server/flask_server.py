@@ -132,10 +132,12 @@ def get_stops():
                          "lahtoAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
                          "paateAika": str(rows[i+1][2]) + ':' + str(rows[i+1][3]) + ':' + str(rows[i+1][4]),
                          "jnum": rows[i][8],
+                         "onkoPaate": False
                      })
                      i+=1
             else:
                 #vaihdetaan seuraava trip_id
+                stopit["matkat"][j]["pysahdykset"][5]["onkoPaate"] = True
                 tripId = rows[i][0]
                 j+=1
                 
