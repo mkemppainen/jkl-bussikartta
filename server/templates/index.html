@@ -13,12 +13,14 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 	<!-- Latest compiled JavaScript -->
+	
 	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
 	<script type="text/javascript">{% include "date.js" %}</script>
 	<script type="text/javascript">{% include "moment.js" %}</script>
 	<script type="text/javascript">{% include "bootstrap-datetimepicker.js" %}</script>
+	<script type="text/javascript">{% include "fi.js" %}</script>
     </head>
     <body>
         <div class="container-fluid">
@@ -68,7 +70,7 @@
                 </div>
 	    </div> --> 
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                     <div class="form-group">
                         <div class="input-group date" id="datetimepicker1">
                             <input type="text" id="time" class="form-control" />
@@ -80,7 +82,9 @@
                 </div>  
                 <script type="text/javascript">
 		$(function () {
-		$("#datetimepicker1").datetimepicker();
+		$("#datetimepicker1").datetimepicker({
+		    locale: 'fi'
+		    });
 		});
                 </script>
             </div>

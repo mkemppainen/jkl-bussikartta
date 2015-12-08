@@ -452,6 +452,13 @@ function piilotaReitti(reittiNro){
     return true;
 }
 
+function asetaAloitusAika() {
+    var dt = document.getElementById("time");
+    var date = new Date();
+    date.setTimeToNow();
+    dt.value = date.toString("dd.MM.yyyy HH:MM");
+}
+
 // route on mallia get_route
 // 
 function pysahdyksetByTripId(tripId, route){
@@ -459,6 +466,7 @@ function pysahdyksetByTripId(tripId, route){
 }
 
 function main(){
+    asetaAloitusAika();
     setInterval(kelloTick,tickInterval);
     featureLayer.addTo(map); // lisaa Bussit karttaan
 //    lisaaReitti('18','14:00:00');
