@@ -261,7 +261,7 @@ def get_route():
         if len(trip_id_lista) <= 0: return render_template('virhe.html',selitys='Tyhjä taulukko'),400
 
         try:
-            hakuehto = "select distinct Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id in (" + trip_id_ehto + ") and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by trip_id, jnum asc" 
+            hakuehto = "select Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id in (" + trip_id_ehto + ") and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by trip_id, jnum asc" 
         except TypeError: 
             return render_template('virhe.html',selitys='Tyyppivirhe'),400
 
@@ -302,10 +302,10 @@ def get_route():
             #print(valinta_kasky)
             cursor.execute(valinta_kasky)
             
-            print(i,file=sys.stderr)
-            print(len(stop_crdnts),file=sys.stderr)
-            print(stop_crdnts[i][3])
-            print(stop_crdnts[i+1][3])
+            #print(i,file=sys.stderr)
+            #print(len(stop_crdnts),file=sys.stderr)
+            #print(stop_crdnts[i][3])
+            #print(stop_crdnts[i+1][3])
             i+=1
 
             #heitetaan koordinaatit reitin listalle
