@@ -89,6 +89,23 @@ def exec_sql_query(query):
     except IOError:
         return None
 
+
+@app.route("/get_stops_route")
+def get_stops_route():
+    id_1 = request.args.get('stop1')
+    id_2 = request.args.get('stop2')
+
+    valinta = "select tripcrd, duration from Pysakkiparit where stop_id_1 like \"" + id_1 + "\" and stop_id_2 like \"" + id_2 + "\""
+
+    tulos = exec_sql_query(valinta)
+
+    if (len(tulos) <=1): return(render_template('virhe.html', selitys='Sopivaa väliä ei löytynyt.'),4005)
+
+    coordinaatit = tulos[0]
+    duration = tulos[1]
+
+    return(render_template('virhe.html', selitys='Kesken'),4006)
+
 @app.route("/get_stops")
 def get_stops():
     #tsekkaillaan että löytyy tarvittavat argumentit ja ovat oikeata muotoa
@@ -132,10 +149,12 @@ def get_stops():
                          "lahtoAika": str(rows[i][5]) + ':' + str(rows[i][6]) + ':' + str(rows[i][7]),
                          "paateAika": str(rows[i+1][2]) + ':' + str(rows[i+1][3]) + ':' + str(rows[i+1][4]),
                          "jnum": rows[i][8],
+                         "onkoPaate": False
                      })
                      i+=1
             else:
                 #vaihdetaan seuraava trip_id
+                stopit["matkat"][j]["pysahdykset"][5]["onkoPaate"] = True
                 tripId = rows[i][0]
                 j+=1
                 
@@ -299,7 +318,6 @@ def get_route():
                     return render_template('virhe.html', selitys='Tyyppivirhe'),4003
             route_crdnts.append(d)
             
-            
         #Tassa muodossa palautus selaimelle
         j = 0   
         r2 = {
@@ -327,7 +345,7 @@ def get_route():
     
     else:
         return(render_template('virhe.html'),4004) 
-    
+
 
 if __name__ == '__main__':
     app.run(debug=True)

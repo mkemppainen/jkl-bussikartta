@@ -520,7 +520,7 @@ function asetaAloitusAika() {
     var dt = document.getElementById("time");
     var date = new Date();
     date.setTimeToNow();
-    dt.value = date.toString("dd.MM.yyyy HH:MM");
+    dt.value = date.toString("dd.MM.yyyy HH:mm");
 }
 
 // route on mallia get_route
