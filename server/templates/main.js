@@ -379,7 +379,7 @@ function epaonnistui(xhr, textStatus, error){
 
 function tyhjennaReitit(){
     for (var key in routes) {
-	map.removeLayer(routes[key]);
+        map.removeLayer(routes[key]);
     }
 }
 
