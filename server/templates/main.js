@@ -329,9 +329,9 @@ function teeReitti(routeArg){
     L.geoJson(geo).addTo(routeLayer);
     
     var layerGroup = L.layerGroup();
-    routeLayer.addTo(layerGroup);
-    stopLayer.addTo(layerGroup);
-    return layerGroup;
+    //routeLayer.addTo(layerGroup);
+    //stopLayer.addTo(layerGroup);
+    return([routeLayer,stopLayer]);
 }
 
 // palauttaa matkan pituuden (vektoripituutena)
@@ -447,17 +447,20 @@ function lisaaReitti(reittiNro, aika, pvm){
     $.ajax({
         url: "/get_route?time="+aika+"&route="+reittiNro+"&year="+pvm.vuosi+"&month="+pvm.kuukausi+"&day="+pvm.paiva,
         success: function(whole_result){
-            for (var i = 0; i < whole_result.reitit.length; i++) { // whole_result.reitit.length; i++) {
+            var layeri_ryhma = L.layerGroup();
+            for (var i = 0; i < whole_result.reitit.length; i++){
                 var result = whole_result.reitit[i];
                 test5 = result; //debug
                 var reittiPysakit = teeReitti(result);
-                routes[reittiNro] = reittiPysakit;
-                //reittiPysakit.addTo(map); Tuskin on oikea paikka tälle.
-                if(visibleRoutes.indexOf(reittiNro) == -1) {
-                    visibleRoutes.push(reittiNro);
-                    lisaaNakyvaReitti(reittiNro);
+                for (var j = 0; j < reittiPysakit.length; j++) {
+                    reittiPysakit[j].addTo(layeri_ryhma);
                 }
                 //teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
+            }
+            routes[reittiNro] = layeri_ryhma;
+            if(visibleRoutes.indexOf(reittiNro) == -1) {
+                visibleRoutes.push(reittiNro);
+                lisaaNakyvaReitti(reittiNro);
             }
         },
         dataType: 'json',
