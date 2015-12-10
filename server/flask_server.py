@@ -46,13 +46,8 @@ def get_all_routes():
         route_names = {
             "reitit": rows
             }
-
-        resp = Response(response=json.dumps(route_names, ensure_ascii=False).encode('utf-8'),
-        content_type="application/json; charset=utf-8",
-        status=200
-        )
-        
-        return(resp)
+    
+        return(create_response(route_names, None, None))
     else:
         return create_response(None, "Virheellinen haku", 400)
 
@@ -113,12 +108,7 @@ def get_single_route():
             "duration": tulos[0][1],
             "coordinates":tulos[0][0]
     }
-    
-    resp = Response(response=json.dumps(pysakinValit, ensure_ascii=False).encode('utf-8'),
-        content_type='application/json; charset=utf-8',
-        status=200
-        )   
-    return(resp)
+    return(create_response(pysakinValit, None, None))
 
 @app.route("/get_stops")
 def get_stops():
@@ -178,11 +168,7 @@ def get_stops():
                 a=0
 
                 
-        resp = Response(response=json.dumps(stopit, ensure_ascii=False).encode('utf-8'),
-        content_type='application/json; charset=utf-8',
-        status=200
-        )   
-        return(resp)
+        return(create_response(stopit, None, None))
 
     else: return(render_template('virhe.html', selitys='Virheellinen aika tai reitti'),400)
     
