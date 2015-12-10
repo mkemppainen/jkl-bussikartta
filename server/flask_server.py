@@ -14,8 +14,6 @@ import datetime
 
 app = Flask(__name__)
 
-#TODO virheiden kasittely, vaarista pyynnoista virhekoodit ja tieto mika meni pieleen
-
 @app.route('/')
 def index():
     print("Lähetetään index.html")
@@ -23,16 +21,15 @@ def index():
     print("Lista:" + str(lista),file=sys.stderr)
     return render_template('index.html',lista=lista)
 
-#TODO ei viela valmis, tarkista miten oikeasti kannattaa tehda
-def create_response(data):
+def create_response(data, error, error_code):
     if data is not None:
-        resp = Response(response=json.dumps(data),
+        resp = Response(response=json.dumps(data, ensure_ascii=False).encode('utf-8'),
         status = 200,
-        mimetype = "application/json")
+        content_type="application/json; charset=utf-8")
         return resp
     else:
-        resp = Response(response=render_template('virhe.html'),
-        status = 400 )
+        resp = Response(response=error,
+        status = error_code )
         return resp
 
 @app.route("/get_all_routes")
@@ -57,7 +54,7 @@ def get_all_routes():
         
         return(resp)
     else:
-        return render_template('virhe.html'),400
+        return create_response(None, "Virheellinen haku", 400)
 
 #Gives list of all routes on given date
 def get_route_list(date):
@@ -138,7 +135,7 @@ def get_stops():
             #Melko kömpelö tapa tarkistaa ajat kun tunti vaihtuu, olisikohan jotain parempaa?
             valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where ((saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + (59 - stoptime[1])) + ') or (saapumis_aika_tunnit =  ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between 0 and ' + str(stoptime[3]) + ')) and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))order by trip_id'
         rows = exec_sql_query(valinta)
-        if len(rows) <= 0: return(render_template('virhe.html', selitys='Tyhja taulukko'),400)
+        if len(rows) <= 0: return create_response(None, "Tyhjä taulukko", 400)
         elif len(rows[0]) <= 0: return(render_template('virhe.html', selitys='Tyhja taulukko2'),400)
         tripId = rows[0][0]
         stopit = {
@@ -218,7 +215,6 @@ def is_day_between(middle,left, right):
 def check_argument(argument, value):
     if request.method == 'GET' and argument is not None:
         print(argument, file=sys.stderr)
-        #TODO ei hyvaksy aikoja yli 24h, kannasta sellaisia loytyy. Varmaan tehtava oma parsiminen ajalle
         try:
             if argument == 'time':
                 try:
@@ -349,15 +345,11 @@ def get_route():
             reitti_lista.append(r2)
         #Trip_id läpikäynti loppuu
         r1 = {"reitit": reitti_lista}
-
-        #Palautetaan tulos
-        resp = Response(response=json.dumps(r1, ensure_ascii=False).encode('utf-8'),
-        status=200,
-        content_type="application/json; charset=utf-8")   
         
-        return(resp)
+        #Palautetaan tulos
+        return create_response(r1, None, None)
     else:
-        return(render_template('virhe.html'),4004) 
+        return(create_response(None, "Virheellinen aika tai reitti", 4004)) 
 
 
 if __name__ == '__main__':
