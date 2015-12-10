@@ -408,6 +408,9 @@ function tyhjennaReitit(){
     for (var key in routes) {
         map.removeLayer(routes[key]);
     }
+    for (var key in visibleRoutes) {
+	poistaNakyvaReitti(visibleRoutes[key]);
+    }
 }
 
 function lisaaNakyvaReitti(reittiNro) {
