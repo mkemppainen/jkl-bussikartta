@@ -513,8 +513,6 @@ function lisaaReitti(reittiNro, aika, pvm){
 
      var layer = routes[reittiNro];
      if (typeof layer === 'undefined'){
-	 //visibleRoutes.push(reittiNro);
-	 //lisaaNakyvaReitti(reittiNro);
 	 lisaaReitti(reittiNro,aikaTeksti,{vuosi:aika.vuosi, kuukausi: aika.kuukausi, paiva: aika.paiva});
 	 //lisaaReitti(reittiNro);
      }
