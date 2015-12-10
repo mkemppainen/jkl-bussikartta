@@ -13,7 +13,7 @@ var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
 var bussiLayer = L.layerGroup(); // tassa layerissa on kaikki bussit
 var tickInterval = 100; //millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
-var currentTime = Date.parse('12:00:56'); // ohjelman aika
+var currentTime = Date.parse('12:04:56'); // ohjelman aika
 //var currentTime = Date.parse('12:00'); // ohjelman aika
 var nykyAjassa = false; // true jos currentTime vastaa reaaliaikaa
 var routes = {};
@@ -40,6 +40,8 @@ window.onload=main;
 // TODO: pysayta bussit tai hae lisaa stopseja kun loppuvat
 
 // TODO jotkin bussit ei liiku ollnkaan, tarkista miksi pysahtyy
+// TODO: //.addTo(bussiLayer).bindPopup("Kaali"); TODO lisaa toisaalla layeriin
+// kaynnista funktio eri funktioon, kuin milla bussi alunperin kaynnistetaan
 var Bussi = function(reittiArg, stops){
     this.reitti = reittiArg;
     this.sijainti = [0,0];
@@ -49,9 +51,9 @@ var Bussi = function(reittiArg, stops){
     this.stopIndex = etsiAika(this.stops,currentTime);
     this.reittiIndex = etsiPysakki(this.reitti, this.stops.pysahdykset[Math.max(0,this.stopIndex)].lahtoID);
     testStops = this.stops; //debug
-    testRoute = this.reitti;
+    testRoute = this.reitti; //debug
     //printStopTimes(this.stops);
-    this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup("Kaali");
+    this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup("Kaali"); //TODO lisaa toisaalla layeriin
     this.reittiLopussa = false;
     this.kaynnissa = false;
 };
@@ -127,6 +129,10 @@ Bussi.prototype.tick = function(){
     //     setTimeout(function(){b.kaynnista();},aikaAlkuun + 100);
     //     return;
     // }
+    if (this.reittiIndex < 0){
+        console.log('ei loytynyt pysakkia');
+        this.pysayta();
+}
     var coordinates = this.reitti.pysakinValit[this.reittiIndex].coordinates;
     this.ehkaOdota();
     if (this.liikuttaja === null){
@@ -190,6 +196,7 @@ function printStopTimes(stops){
         console.log('lahtoAika:' + stops.pysahdykset[i].lahtoAika);
         console.log('paateAika:' + stops.pysahdykset[i].paateAika);
         console.log('jnum: ' + stops.pysahdykset[i].jnum);
+        console.log('onkolopussa:' + stops.pysahdykset[i].onkoPaate);
     }
 }
 
@@ -220,13 +227,20 @@ function kelloStop() {
 function etsiAika(stops,time){
     if(typeof time !== 'string') time = time.toString('HH:mm:ss');
     var pysahdykset = stops.pysahdykset;
+    if(vertaaAikoja(pysahdykset[0].lahtoAika,time)){
+        console.log('palauta 0');
+        return 0; //aika ennen alkua
+    }
     for(var i = 0; i < pysahdykset.length; i++){
         if(vertaaAikoja(time,pysahdykset[i].lahtoAika) &&
 	   !vertaaAikoja(time,pysahdykset[i].paateAika)){
 	    if (i===0) return 0;
+            console.log('palauta: '+i);
             return i;
         }
     }
+    console.log('palautettiin -1');
+    debugger;
     return -1;
 }
 
