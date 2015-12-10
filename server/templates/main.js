@@ -469,6 +469,7 @@ function lisaaReitti(reittiNro, aika, pvm){
                 for (var j = 0; j < reittiPysakit.length; j++) {
                     reittiPysakit[j].addTo(layeri_ryhma);
                 }
+		layeri_ryhma.addTo(map);
                 //teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
             }
             routes[reittiNro] = layeri_ryhma;
