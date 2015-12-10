@@ -494,45 +494,45 @@ function lisaaReitti(reittiNro, aika, pvm){
                     reittiPysakit[j].addTo(layeri_ryhma);
                 }
 		layeri_ryhma.addTo(map);
-                teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
-            }
-            routes[reittiNro] = layeri_ryhma;
-            if(visibleRoutes.indexOf(reittiNro) == -1) {
-                visibleRoutes.push(reittiNro);
-                lisaaNakyvaReitti(reittiNro);
-            }
-        },
-        dataType: 'json',
-        error: epaonnistui
-    });
-}
+		teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
+	     }
+	     routes[reittiNro] = layeri_ryhma;
+	     if(visibleRoutes.indexOf(reittiNro) == -1) {
+		 visibleRoutes.push(reittiNro);
+		 lisaaNakyvaReitti(reittiNro);
+	     }
+	 },
+	 dataType: 'json',
+	 error: epaonnistui
+     });
+ }
 
-function toggleReitti(reittiNro){
-    var aika = muokkaaAika(haeAnnettuAika()); 
-    var aikaTeksti = aika.tunnit.toString() + ':' + aika.minuutit.toString() + ':00';
+ function toggleReitti(reittiNro){
+     var aika = muokkaaAika(haeAnnettuAika()); 
+     var aikaTeksti = aika.tunnit.toString() + ':' + aika.minuutit.toString() + ':00';
 
-    var layer = routes[reittiNro];
-    if (typeof layer === 'undefined'){
-        visibleRoutes.push(reittiNro);
-        lisaaNakyvaReitti(reittiNro);
-        lisaaReitti(reittiNro,aikaTeksti,{vuosi:aika.vuosi, kuukausi: aika.kuukausi, paiva: aika.paiva});
-	//lisaaReitti(reittiNro);
-    }
-    else if (map.hasLayer(layer)) {
-        map.removeLayer(layer);
-        visibleRoutes.splice(visibleRoutes.indexOf(reittiNro),1);
-        poistaNakyvaReitti(reittiNro);
-    } else {
-        //map.addLayer(layer);
-        layer.addTo(map);
-        visibleRoutes.push(reittiNro);
-        lisaaNakyvaReitti(reittiNro);
-    }
-}
+     var layer = routes[reittiNro];
+     if (typeof layer === 'undefined'){
+	 //visibleRoutes.push(reittiNro);
+	 //lisaaNakyvaReitti(reittiNro);
+	 lisaaReitti(reittiNro,aikaTeksti,{vuosi:aika.vuosi, kuukausi: aika.kuukausi, paiva: aika.paiva});
+	 //lisaaReitti(reittiNro);
+     }
+     else if (map.hasLayer(layer)) {
+	 map.removeLayer(layer);
+	 visibleRoutes.splice(visibleRoutes.indexOf(reittiNro),1);
+	 poistaNakyvaReitti(reittiNro);
+     } else {
+	 //map.addLayer(layer);
+	 layer.addTo(map);
+	 visibleRoutes.push(reittiNro);
+	 lisaaNakyvaReitti(reittiNro);
+     }
+ }
 
 
-/// Muokkaa ajan sopivaan muotoon.
-function muokkaaAika(teksti){
+ /// Muokkaa ajan sopivaan muotoon.
+ function muokkaaAika(teksti){
     var re = /(\d\d)\.(\d\d)\.(\d\d\d\d) (\d\d?)\.(\d\d)/;//Ihanaa lukea jäkeenpäin
     var ryhmat = re.exec(teksti);
     var kuukausi;
