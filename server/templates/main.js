@@ -476,7 +476,15 @@ function lisaaReitti(reittiNro, aika, pvm){
     }
     $.ajax({
         url: "/get_route?time="+aika+"&route="+reittiNro+"&year="+pvm.vuosi+"&month="+pvm.kuukausi+"&day="+pvm.paiva,
-        success: function(whole_result){
+	    statusCode: {
+		400: function(response) {
+		    alert("Ei löydy sopivia matkoja");
+		}, 4002: function(response) {
+		    alert("Ei löydetä pysäkkien välistä reittiä.");
+		}, 4004: function(response) {
+		    alert("Haetulle ajalle ja linjalle ei löytynyt reittejä");
+		}
+         }, success: function(whole_result){
             var layeri_ryhma = L.layerGroup();
             for (var i = 0; i < whole_result.reitit.length; i++){
                 var result = whole_result.reitit[i];
