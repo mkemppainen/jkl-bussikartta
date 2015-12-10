@@ -221,8 +221,15 @@ def check_argument(argument, value):
         #TODO ei hyvaksy aikoja yli 24h, kannasta sellaisia loytyy. Varmaan tehtava oma parsiminen ajalle
         try:
             if argument == 'time':
-                time.strptime(str(value), '%H:%M:%S')       
-                stoptime = list(map(int, value.split(':',2)))
+                try:
+                    time.strptime(str(value), '%H:%M:%S')
+                    stoptime = list(map(int, value.split(':',2)))
+                except ValueError:
+                    tmp = list(map(int, value.split(':',2)))
+                    if (tmp[0] >= 24 and tmp[0] < 28) is not True:
+                        return None
+                    stoptime = tmp
+                
                 #Lisätään stoptime-taulukkoon myös ajat 5min ennen ja 10min jälkeen haetun ajan
                 if stoptime[1] + 10 >= 60:
                     stoptime.append(stoptime[1] + 10 - 60)
