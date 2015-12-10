@@ -53,7 +53,7 @@ var Bussi = function(reittiArg, stops){
     testStops = this.stops; //debug
     testRoute = this.reitti; //debug
     //printStopTimes(this.stops);
-    this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup("Kaali"); //TODO lisaa toisaalla layeriin
+    this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup(reittiArg.reitinNimi); //TODO lisaa toisaalla layeriin
     this.reittiLopussa = false;
     this.kaynnissa = false;
 };
