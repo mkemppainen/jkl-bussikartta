@@ -340,7 +340,7 @@ function teeReitti(routeArg){
             icon: L.mapbox.marker.icon({
                 'marker-symbol': i
             })
-        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[i].lahtoNimi);;
+        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[i].lahtoAikaTunnit + ":" + parsittu.pysakinValit[i].lahtoAikaMinuutit + " " + parsittu.pysakinValit[i].lahtoNimi);;
     }
     
     // viimeinen pysakki
