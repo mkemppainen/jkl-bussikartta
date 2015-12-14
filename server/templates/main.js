@@ -13,8 +13,8 @@ var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
 var bussiLayer = L.layerGroup(); // tassa layerissa on kaikki bussit
 var tickInterval = 100; //millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
-var currentTime = Date.parse('12:04:56'); // ohjelman aika
-//var currentTime = Date.parse('12:00'); // ohjelman aika
+//var currentTime = Date.parse('23:59:54'); // ohjelman aika
+var currentTime = new Date().addHours(5); // ohjelman aika
 var nykyAjassa = false; // true jos currentTime vastaa reaaliaikaa
 var routes = {};
 var bussit = [];
@@ -61,7 +61,7 @@ var Bussi = function(reittiArg, stops){
     testRoute = this.reitti; //debug
     testBussi = this;
     //printStopTimes(this.stops);
-    this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup(reittiArg.reitinNimi); //TODO lisaa toisaalla layeriin
+    this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup('Linja: ' + reittiArg.reitinNimi); //TODO lisaa toisaalla layeriin
     this.marker.setIcon(bussiIcon);
     this.reittiLopussa = false;
     this.kaynnissa = false;
@@ -99,7 +99,8 @@ Bussi.prototype.haeLisaaPysakkeja = function(aika,stops){
 
 Bussi.prototype.kaynnista = function(){
     if(this.kaynnissa) return;
-    this.marker.bindPopup(this.reitti.reitinNimi);
+    this.marker.bindPopup('Linja: ' + this.reitti.reitinNimi);
+    this.marker.setIcon(bussiIcon);
     var b = this;
     this.kaynnissa = true;
     this.timer = setInterval(function(){b.tick();}, tickInterval);
@@ -182,7 +183,7 @@ Bussi.prototype.ehkaOdota = function (){
     };
     this.pysayta();
     console.log('odotetaan: '+aikaAlkuun/1000+'s');
-    this.marker.bindPopup('Reitti: ' + this.reitti.reitinNimi + ' STOPPED. Liikkeelle klo: ' + lahto);
+    this.marker.bindPopup('Linja: ' + this.reitti.reitinNimi + ' STOPPED. Liikkeelle klo: ' + Date.parse(lahto).toString('HH:mm'));
     if (aikaAlkuun/1000 > 60){
         this.marker.setIcon(bussiIconHarmaa);
     }
@@ -192,7 +193,9 @@ Bussi.prototype.ehkaOdota = function (){
 
 // paivita seuraavalle pysakille
 Bussi.prototype.seuraavaPysakki = function(){
-    if (this.stops.pysahdykset[this.stopIndex].onkoPaate) this.reittiLopussa = true;
+    if (this.stops.pysahdykset[this.stopIndex].onkoPaate){
+        this.reittiLopussa = true;
+    }
     else {
 	this.stopIndex++;
 	this.reittiIndex++;
@@ -384,7 +387,8 @@ function teeReitti(routeArg){
                 'marker-symbol': i,
                 'marker-size': 'small'
             })
-        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[i].lahtoAikaTunnit + ":" + parsittu.pysakinValit[i].lahtoAikaMinuutit + " " + parsittu.pysakinValit[i].lahtoNimi);;
+        }).addTo(stopLayer).binPopup(parsittu.pysakinValit[i].lahtoNimi);
+                //bindPopup(parsittu.pysakinValit[i].lahtoAikaTunnit + ":" + parsittu.pysakinValit[i].lahtoAikaMinuutit + " " + parsittu.pysakinValit[i].lahtoNimi);;
     }
     
     // viimeinen pysakki
@@ -514,7 +518,7 @@ function asetaNakyvaAika(aika){
 
 // tekee layerin reitin numeron ja ajan perusteella
 // tallentaa sen 'routes' globaaliin
-function lisaaReitti(reittiNro, aika, pvm){
+function lisaaReitti(reittiNro, aika, pvm, tehdaankoBussit){
     if (typeof pvm === 'undefined') pvm = {vuosi:"2015", kuukausi:"12", paiva:"07"}; // TODO: nama currentTimesta
     if (typeof aika === 'undefined'){
 	aika = currentTime.toString('HH:mm:ss');
@@ -539,7 +543,7 @@ function lisaaReitti(reittiNro, aika, pvm){
                     reittiPysakit[j].addTo(layeri_ryhma);
                 }
 		layeri_ryhma.addTo(map);
-		teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
+		if(tehdaankoBussit) teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
 	     }
 	     routes[reittiNro] = layeri_ryhma;
 	     if(visibleRoutes.indexOf(reittiNro) == -1) {
@@ -555,7 +559,6 @@ function lisaaReitti(reittiNro, aika, pvm){
  function toggleReitti(reittiNro){
      var aika = muokkaaAika(haeAnnettuAika()); 
      var aikaTeksti = aika.tunnit.toString() + ':' + aika.minuutit.toString() + ':00';
-
      var layer = routes[reittiNro];
      if (typeof layer === 'undefined'){
 	 lisaaReitti(reittiNro,aikaTeksti,{vuosi:aika.vuosi, kuukausi: aika.kuukausi, paiva: aika.paiva});
@@ -656,9 +659,8 @@ function teeReitinBussit(route){
 
 }
 
-// http://localhost:5000/get_all_routes?date=fjfj
 // TONOW
-function teeBussi(routeNo){
+function teeBussit(routeNo){
     var bareRoute = {reitinNimi:routeNo, pysakinValit:[]};
     $.ajax({url: "get_stops?time="+ currentTime.toString('HH:mm:ss')+"&route="+routeNo,
 	    success: function(result){
@@ -678,57 +680,29 @@ function stopsValmis(route,stops){
         bussi.kaynnista();	    
     }
 }
+// http://localhost:5000/get_all_routes?date=fjfj
+
+function teeKaikkiBussit(){
+    $.ajax({url: '/get_all_routes?date=PLACEHOLDER',
+	    success: function(result){
+                for(var i = 0; i < result.reitit.length; i++) {
+                    teeBussit(result.reitit[i]);
+                }
+	    },
+	    error: function(xhr, textStatus,error){
+		console.log('Epaonnistui get_all_routes');
+                //epaonnistui(xhr, textStatus, error);
+            }
+           });
+
+}
 
 // TONOW: 
 function main(){
     kelloStart();
-    teeBussi('1');
-    teeBussi('2');
-    teeBussi('3');
-
+    teeKaikkiBussit();
     bussiLayer.addTo(map); // lisaa Bussit karttaan
-    
-//    lisaaReitti('4_vi');
-//    lisaaNakyvaReitti('18');
-//    teeReitinBussit('18');
-
     $(document).ready(function() {
 	asetaNakyvaAika();
     });
-
-    /*
-    $.ajax({url: "get_stops?time=12:30:00&route=18",
-            success: function(result){
-                test2 = result;
-	    },
-            error: function(xhr, textStatus,error){
-                test2 = xhr;
-		console.log('error get_stops: var test2');
-                //epaonnistui(xhr, textStatus, error);
-            }
-           });
-     */
-    /*
-    //get_route
-    $.ajax({
-        url: "/get_route?time=18:00:00&route=18",
-        success: function(result){
-	    //            serveriVastasi(result);
-	    var reittiPysakit = teeReitti(result);
-	    var r = reittiPysakit[0].addTo(map); // reittilayer
-	    var p = reittiPysakit[1].addTo(map); // pysakkilayer 
-	    //map.removeLayer(p); // poistaa pysakit
-	    //map.removeLayer(r); // poistaa reitin
-
-	    featureLayer.addTo(map);
-            test3=result;
-            var b = new Bussi(1234, result, []);
-            bussi = b;
-	    setInterval(function(){b.tick();},100);
-        },
-        dataType: 'json',
-        error: epaonnistui
-    });
-    //*/
-
 }
