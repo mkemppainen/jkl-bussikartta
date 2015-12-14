@@ -60,12 +60,19 @@ body {
    padding: 0;
    width: auto;
    border-radius: 5px;
+   height: 40%;
+   -moz-column-count: 8;
+   -moz-column-gap: 3px;
+   -webkit-column-count: 8;
+   -webkit-cloumn-gap: 3px;
+   column-count: 8;
+   column-gap: 3px;
 }
 
 .vetolaatikko ul li{
-    margin: 0em;
+    margin: 0px;
     background: #333333;
-    float: none;
+    padding: 0em;
 }
 
 .vetolaatikko:hover > ul {
@@ -92,6 +99,7 @@ body {
 //    color: #FFFFFF;
 //    background-color: #04B431;
     width: 100%;
+    height: 100%;
     padding-right: 1em;
     padding-left: 1em;
     margin: 0em;
