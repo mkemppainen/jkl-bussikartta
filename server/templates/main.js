@@ -49,7 +49,7 @@ var Bussi = function(reittiArg, stops){
     this.stops = stops;
     var b = this;
     this.stopIndex = etsiAika(this.stops,currentTime);
-    this.reittiIndex = Math.max(0,etsiPysakki(this.reitti, this.stops.pysahdykset[Math.max(0,this.stopIndex)].lahtoID));
+    this.reittiIndex = etsiPysakki(this.reitti, this.stops.pysahdykset[Math.max(0,this.stopIndex)].lahtoID);
     testStops = this.stops; //debug
     testRoute = this.reitti; //debug
     //printStopTimes(this.stops);
@@ -103,7 +103,17 @@ Bussi.prototype.pysayta = function(){
     clearInterval(this.timer);
 };
 
-Bussi.prototype.tick = function(){
+Bussi.prototype.tick = function() {
+    if (this.reittiIndex < 0) { // ei loytynyt pysakkia jolla ollaan
+        this.reitti = {pysakinValit:[],reitinNimi:this.reitti.reitinNimi};
+        var lahto = this.stops.pysahdykset[this.stopIndex].lahtoID;
+        var paate = this.stops.pysahdykset[this.stopIndex].paateID;
+        this.pysayta();
+        this.haePysakki(lahto,paate,this);
+        this.reittiIndex = 0;
+        return;
+    }
+                              
     if (this.reittiLopussa) {
 	bussiLayer.removeLayer(this.marker);
 	console.log('poistettiin layer');
@@ -142,13 +152,15 @@ Bussi.prototype.tick = function(){
     } else {
         var duration = this.reitti.pysakinValit[this.reittiIndex].duration;
         var matka = matkanPituus(this.reitti.pysakinValit[this.reittiIndex].coordinates);
-        var siirtoMatka = siirtoPerTick(duration,matka,tickInterval); //tonow
+        var siirtoMatka = 0.75 * siirtoPerTick(duration,matka,tickInterval); // puolitetaan nopeus
         var siirto = this.liikuttaja.siirra(siirtoMatka); // [pos,perillaP] //TODO siirtoon oikea matka MEMO siirtonopeus
         this.sijainti = siirto[0];
         this.marker.setLatLng(L.latLng(this.sijainti[1],this.sijainti[0]));
 	if (siirto[1]) this.seuraavaPysakki(); //
     }
 };
+
+                              
 
 // odota, jos pysakilta nykyinen aika alle pysakilta lahtoajan
 // TODO: laita timeoutin sijaan bussit listaan, laita this.lahtoaika
@@ -186,7 +198,31 @@ Bussi.prototype.seuraavaPysakki = function(){
 //new ValillaLiikuttaja(this.reitti.pysakinValit[this.stopIndex].coordinates);
 };
 
-// kertoo mika matka pitaa siirtaa per tick TONOW
+// lisaa valin reittiin
+Bussi.prototype.lisaaReitinVali = function(vali) {
+    this.reitti.pysakinValit.push(vali);
+};
+
+// TONOW
+// jos ei reitilla, hae pysakki stopIndeksin osoittama pysakin vali
+Bussi.prototype.haePysakki = function (lahto,paate,kaynnistaP) {
+    var b = this;
+    $.ajax({url: "get_single_route?stop1=" + lahto + "&stop2=" + paate,
+            success: function(result){
+                console.log('haettiin lisaa reittia');
+                b.lisaaReitinVali(result);
+                if(kaynnistaP) b.kaynnista();
+	    },
+            error: function(xhr, textStatus,error){
+		console.log('epaonnistui pysakinvalin haku' );
+                console.log(xhr);
+                //epaonnistui(xhr, textStatus, error);
+            },
+            dataType: 'json'
+
+           });
+};
+
 // duration sekunneissa, matka koordinaateissa, interval millisekunteja
 function siirtoPerTick(duration,matka,interval){
     var siirto = matka / duration * interval / 1000;
@@ -194,7 +230,8 @@ function siirtoPerTick(duration,matka,interval){
 }
 
 function etsiPysakki(reitti, pysakinId) {
-//    var pysakinId = stops.pysahdykset[0].lahtoID;
+    //    var pysakinId = stops.pysahdykset[0].lahtoID;
+    console.log('pysakinId:' + pysakinId);
     for(var i = 0; i < reitti.pysakinValit.length; i++) {
 	var p = reitti.pysakinValit[i].lahtoID;
 	if (p == pysakinId) return i;
@@ -212,8 +249,7 @@ function printStopTimes(stops){
         console.log('jnum: ' + stops.pysahdykset[i].jnum);
         console.log('onkolopussa:' + stops.pysahdykset[i].onkoPaate);
     }
-}
-
+};
 
 function kelloTick() {
     if (nykyAjassa || typeof currentTime === 'undefined'){
@@ -354,7 +390,7 @@ function teeReitti(routeArg){
 
     var geo = {coordinates: route, type:'LineString'};
     L.geoJson(geo).addTo(routeLayer);
-    
+
     var layerGroup = L.layerGroup();
     //routeLayer.addTo(layerGroup);
     //stopLayer.addTo(layerGroup);
@@ -408,8 +444,8 @@ function tyhjennaReitit(){
     for (var key in routes) {
         map.removeLayer(routes[key]);
     }
-    for (var key in visibleRoutes) {
-	poistaNakyvaReitti(visibleRoutes[key]);
+    for (var key2 in visibleRoutes) {
+	poistaNakyvaReitti(visibleRoutes[key2]);
     }
 }
 
