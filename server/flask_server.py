@@ -98,6 +98,9 @@ def get_single_route():
     tulos3 = exec_sql_query(valinta3)
     #if (len(tulos) <=1): return(render_template('virhe.html', selitys='Sopivaa väliä ei löytynyt.'),4005)
 
+    a = tulos[0][0].replace("(", "[")
+    b = a.replace(")", "]")
+    
     pysakinValit = {
             "lahtoNimi":tulos2[0][0],
             "lahtoPiste":[tulos2[0][1],tulos2[0][2]],
@@ -106,7 +109,7 @@ def get_single_route():
             "paatePiste":[tulos3[0][1],tulos3[0][2]],
             "paateID":id_2,
             "duration": tulos[0][1],
-            "coordinates":tulos[0][0]
+            "coordinates":b
     }
     return(create_response(pysakinValit, None, None))
 
