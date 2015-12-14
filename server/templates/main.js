@@ -14,7 +14,7 @@ var bussiLayer = L.layerGroup(); // tassa layerissa on kaikki bussit
 var tickInterval = 100; //millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
 //var currentTime = Date.parse('23:59:54'); // ohjelman aika
-var currentTime = new Date().addHours(5); // ohjelman aika
+var currentTime = new Date(); // ohjelman aika
 var nykyAjassa = false; // true jos currentTime vastaa reaaliaikaa
 var routes = {};
 var bussit = [];
@@ -387,7 +387,7 @@ function teeReitti(routeArg){
                 'marker-symbol': i,
                 'marker-size': 'small'
             })
-        }).addTo(stopLayer).binPopup(parsittu.pysakinValit[i].lahtoNimi);
+        }).addTo(stopLayer).bindPopup(parsittu.pysakinValit[i].lahtoNimi);
                 //bindPopup(parsittu.pysakinValit[i].lahtoAikaTunnit + ":" + parsittu.pysakinValit[i].lahtoAikaMinuutit + " " + parsittu.pysakinValit[i].lahtoNimi);;
     }
     
