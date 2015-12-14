@@ -77,20 +77,20 @@ body {
     display: inline-block;
     padding: 1em 1em;
     margin-bottom: 0em;
-    color: #01DF3A;
+    color: #2E6DA4;
     background: #182121;
     text-decoration:none;
     border-radius: 5px;
 }
 
-.vetolaatikko ul li button:hover {
-    background-color: #01DF3A;
-}
+//.vetolaatikko ul li button:hover {
+//    background-color: #01DF3A;
+//}
 
 .vetolaatikko ul li button {
-    display: block;
-    color: #FFFFFF;
-    background-color: #04B431;
+    display: float;
+//    color: #FFFFFF;
+//    background-color: #04B431;
     width: 100%;
     padding-right: 1em;
     padding-left: 1em;
