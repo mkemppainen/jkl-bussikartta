@@ -276,7 +276,7 @@ def get_route():
         for trip_id_i in trip_id_lista:
             trip_id = trip_id_i[0]
             try:
-                hakuehto = "select Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id + "\" and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by jnum asc" 
+                hakuehto = "select Pysakit.lat, Pysakit.lon, Pysakit.nimi, Pysahtymis_ajat.stop_id, Pysahtymis_ajat.jnum, Pysahtymis_ajat.lahto_aika_tunnit, Pysahtymis_ajat.lahto_aika_minuutit from Pysahtymis_ajat, Pysakit where trip_id like \"" + trip_id + "\" and Pysakit.stop_id like Pysahtymis_ajat.stop_id order by jnum asc" 
             except TypeError: 
                 return render_template('virhe.html',selitys='Tyyppivirhe3'),400
             tiedot = [[item for item in r] for r in exec_sql_query(hakuehto)]
@@ -290,6 +290,9 @@ def get_route():
                 a_nimi = tiedot[i][2]
                 a_stop_id = tiedot[i][3]
                 a_jnum = tiedot[i][4]
+
+                lahto_aika_tunnit = tiedot[i][5]
+                lahto_aika_minuutit = tiedot[i][6]
 
                 l_lat = tiedot[i+1][0]
                 l_lon = tiedot[i+1][1]
@@ -325,6 +328,8 @@ def get_route():
                     "paatePiste": [l_lon,l_lat],
                     "paateID": l_stop_id,
                     "duration": duration,
+                    "lahtoAikaTunnit": lahto_aika_tunnit,
+                    "lahtoAikaMinuutit": lahto_aika_minuutit,
                     "coordinates": koordinaatit}
                 pari_lista.append(taso)
             #Parien läpikäynti loppuu
