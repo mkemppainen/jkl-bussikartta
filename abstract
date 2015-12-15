@@ -1,0 +1,13 @@
+Technologies
+- mapbox - www.mapbox.com
+- Flask
+- bootstrap
+- sqlite
+
+Title: Jyväskylän bussikartta
+
+Abstract
+
+Our program is a web service which shows estimated locations of buses
+in Jyväskylä. User can choose which bus routes to show on the
+map on a specified date and time.
