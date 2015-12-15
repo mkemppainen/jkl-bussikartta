@@ -11,6 +11,7 @@ import sys
 import sqlite3
 import time
 import datetime
+import os
 
 app = Flask(__name__)
 
@@ -347,4 +348,8 @@ def get_route():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = os.environ.get('PORT')
+    if port is not None:
+        app.run(host='0.0.0.0', port=int(port), debug=True)
+    else:
+        app.run(debug=True)
