@@ -9,8 +9,9 @@
 // /get_single_route?stop1=207523&stop2=207532
 // alustetaan kartta
 L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251dHgwbG9hZiJ9.9DLJHVEwbRf7xT0WkFqj5Q';
-var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');    
-var bussiLayer = L.layerGroup(); // tassa layerissa on kaikki bussit
+var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
+var reittiLayer = L.layerGroup().addTo(map);
+var bussiLayer = L.layerGroup().addTo(map); // tassa layerissa on kaikki bussit
 var tickInterval = 100; //millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
 //var currentTime = Date.parse('23:59:54'); // ohjelman aika
@@ -20,6 +21,7 @@ var routes = {};
 var bussit = [];
 var timer; // tassa muuttujassa on kello, stopInterval(timer) pysayttaa sen
 var visibleRoutes = [];
+var bussiLista = [];
 var bussiIcon = L.icon({
     iconUrl: '/static/bussi3.png',
     iconSize: [30, 30]
@@ -62,6 +64,7 @@ var Bussi = function(reittiArg, stops){
     testBussi = this;
     //printStopTimes(this.stops);
     this.marker = L.marker([0,0]).addTo(bussiLayer).bindPopup('Linja: ' + reittiArg.reitinNimi); //TODO lisaa toisaalla layeriin
+    bussiLista.push(this);
     this.marker.setIcon(bussiIcon);
     this.reittiLopussa = false;
     this.kaynnissa = false;
@@ -542,7 +545,7 @@ function lisaaReitti(reittiNro, aika, pvm, tehdaankoBussit){
                 for (var j = 0; j < reittiPysakit.length; j++) {
                     reittiPysakit[j].addTo(layeri_ryhma);
                 }
-		layeri_ryhma.addTo(map);
+		layeri_ryhma.addTo(reittiLayer);
 		if(tehdaankoBussit) teeReitinBussit(result); // pois kommentista niin bussit piirtyvat
 	     }
 	     routes[reittiNro] = layeri_ryhma;
@@ -570,7 +573,7 @@ function lisaaReitti(reittiNro, aika, pvm, tehdaankoBussit){
 	 poistaNakyvaReitti(reittiNro);
      } else {
 	 //map.addLayer(layer);
-	 layer.addTo(map);
+	 layer.addTo(reittiLayer);
 	 visibleRoutes.push(reittiNro);
 	 lisaaNakyvaReitti(reittiNro);
      }
@@ -622,7 +625,7 @@ function haeAnnettuAika(){
 function naytaReitti(reittiNro){
     var reitti = routes[reittiNro];
     if (typeof reitti === 'undefined') return false;
-    reitti.addTo(map);
+    reitti.addTo(reittiLayer);
     return true;
 }
 
@@ -682,6 +685,26 @@ function stopsValmis(route,stops){
 }
 // http://localhost:5000/get_all_routes?date=fjfj
 
+function paivitaAika(){
+    var aika = muokkaaAika(haeAnnettuAika());
+    var date = Date.parse(aika.vuosi+'.'+aika.kuukausi+'.' + aika.paiva);
+    date.setHours(aika.tunnit);
+    date.setMinutes(aika.minuutit);
+    currentTime = date;
+    nollaaKartta();
+    teeKaikkiBussit();
+}
+
+function nollaaKartta(){
+    map.removeLayer(reittiLayer);
+    map.removeLayer(bussiLayer);
+    for(var i = 0; i < bussiLista.length; i++) {
+        bussiLista[i].pysayta();
+    }
+    reittiLayer = L.layerGroup().addTo(map);
+    bussiLayer = L.layerGroup().addTo(map); // tassa layerissa on kaikki bussit
+}
+
 function teeKaikkiBussit(){
     $.ajax({url: '/get_all_routes?date=PLACEHOLDER',
 	    success: function(result){
@@ -696,12 +719,11 @@ function teeKaikkiBussit(){
            });
 
 }
-
 // TONOW: 
 function main(){
     kelloStart();
     teeKaikkiBussit();
-    bussiLayer.addTo(map); // lisaa Bussit karttaan
+//    bussiLayer.addTo(map); // lisaa Bussit karttaan
     $(document).ready(function() {
 	asetaNakyvaAika();
     });
