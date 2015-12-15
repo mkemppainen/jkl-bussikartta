@@ -1,1 +1,1 @@
-web: python server/flask_server.py
+web: cd server && python flask_server.py
