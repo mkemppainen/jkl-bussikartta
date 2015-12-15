@@ -61,12 +61,12 @@ body {
    width: auto;
    border-radius: 5px;
    height: 40%;
-   -moz-column-count: 8;
-   -moz-column-gap: 3px;
-   -webkit-column-count: 8;
-   -webkit-cloumn-gap: 3px;
-   column-count: 8;
-   column-gap: 3px;
+   -moz-column-count: 4;
+   -moz-column-gap: 1px;
+   -webkit-column-count: 4;
+   -webkit-cloumn-gap: 1px;
+   column-count: 4;
+   column-gap: 1px;
 }
 
 .vetolaatikko ul li{
