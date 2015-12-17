@@ -97,7 +97,7 @@ def get_single_route():
     tulos2 = exec_sql_query(valinta2)
     print(tulos2, file=sys.stderr)
     tulos3 = exec_sql_query(valinta3)
-    #if (len(tulos) <=1): return(render_template('virhe.html', selitys='Sopivaa väliä ei löytynyt.'),4005)
+    if (len(tulos) <=0): return(create_response(None, "Tyhjä taulukko", 400))
 
     a = tulos[0][0].replace("(", "[")
     b = a.replace(")", "]")

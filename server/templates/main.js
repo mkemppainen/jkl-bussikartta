@@ -87,7 +87,7 @@ Bussi.prototype.stopsLopussa = function(aika,stops){
 // TODO: onko paate 
 // hakee lisaa pysakkeja stops listaan TODO
 Bussi.prototype.haeLisaaPysakkeja = function(aika,stops){
-    $.ajax({url: "get_stops?time=" + currentTime.toString('HH:mm:ss') +
+    $.ajax({url: "get_stops?time=" + aika.tunnit + ":" + aika.minuutit + ":00" /*currentTime.toString('HH:mm:ss')*/ +
 	    "route=" + this.reitti.reitinNimi,
             success: function(result){
                 test2 = result;
@@ -648,7 +648,7 @@ function asetaAloitusAika() {
 // hakee reitin stopsit ja tekee siihen bussit
 function teeReitinBussit(route){
     var routeNo = route.reitinNimi;
-    $.ajax({url: "get_stops?time="+ currentTime.toString('HH:mm:ss')+"&route="+routeNo,
+    $.ajax({url: "get_stops?time=" + currentTime.toString('HH:mm:ss')+"&route="+routeNo,
 	    success: function(result){
                 stopsValmis(route,result);
 	    },
@@ -665,7 +665,9 @@ function teeReitinBussit(route){
 // TONOW
 function teeBussit(routeNo){
     var bareRoute = {reitinNimi:routeNo, pysakinValit:[]};
-    $.ajax({url: "get_stops?time="+ currentTime.toString('HH:mm:ss')+"&route="+routeNo,
+    aika = haeAnnettuAika();
+    aika = muokkaaAika(aika);
+    $.ajax({url: "get_stops?time=" + currentTime.toString('HH:mm:ss')+"&route="+routeNo,
 	    success: function(result){
                 stopsValmis(bareRoute, result);
 	    },
@@ -686,6 +688,7 @@ function stopsValmis(route,stops){
 // http://localhost:5000/get_all_routes?date=fjfj
 
 function paivitaAika(){
+    nykyAjassa = false;
     var aika = muokkaaAika(haeAnnettuAika());
     var date = Date.parse(aika.vuosi+'.'+aika.kuukausi+'.' + aika.paiva);
     date.setHours(aika.tunnit);
