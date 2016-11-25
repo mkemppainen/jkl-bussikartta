@@ -648,6 +648,7 @@ function asetaAloitusAika() {
 // hakee reitin stopsit ja tekee siihen bussit
 function teeReitinBussit(route){
     var routeNo = route.reitinNimi;
+    var urli = "get_stops?time=" + currentTime.toString('HH:mm:ss')+"&route="+routeNo;
     $.ajax({url: "get_stops?time=" + currentTime.toString('HH:mm:ss')+"&route="+routeNo,
 	    success: function(result){
                 stopsValmis(route,result);
@@ -655,6 +656,7 @@ function teeReitinBussit(route){
 	    error: function(xhr, textStatus,error){
                 test2 = xhr;
 		console.log('teeBussi error get_stops: var test2');
+                console.log(urli);
                 //epaonnistui(xhr, textStatus, error);
             }
            });

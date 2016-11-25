@@ -30,7 +30,7 @@ SourcePageAddress = 'http://data.jyvaskyla.fi/data.php'
 
 """Package dating information address on the webpage in XPath-coding:
 NOTE: this is an absolute address, it has to be changed into a dynamic one later"""
-PackageDateAddress_XPath = '/html/body/div/div[3]/div[2]/div[1]/div[1]/div[14]/div[5]/br'
+PackageDateAddress_XPath = '/html/body/div/div[3]/div[2]/div[1]/div[1]/div[15]/div[5]/br'
 #PackageDateAddress_XPath = '/html/body/div/div[3]/div[2]/div[1]/div[1]/div[14]/div[5]/br/text()'
 
 """Package http-donwload address"""
@@ -83,7 +83,7 @@ def checkIfUpdateAvailable(updateDateFileAddress):
         brcstr = etree.tostring(dating[0])
         rcstr = brcstr.decode("utf-8")
         cstr=rcstr.replace("\n","").replace("\t","").replace("<br/>","")
-        #print(cstr)    
+        print(cstr)
         
         #Form datetime objects for package update status comparison
         dLastUpdatedDate = datetime.datetime.\

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from flask import Flask, Response
@@ -19,7 +19,7 @@ app = Flask(__name__)
 def index():
     print("Lähetetään index.html")
     lista = get_route_list("kala")
-    print("Lista:" + str(lista),file=sys.stderr)
+#    print("Lista:" + str(lista),file=sys.stderr)
     return render_template('index.html',lista=lista)
 
 def create_response(data, error, error_code):
@@ -37,17 +37,17 @@ def create_response(data, error, error_code):
 def get_all_routes():
     date = check_argument('date', request.args.get('date'))
     if date is not None:
-        today = translate_weekday_name(datetime.datetime.now().strftime("%A").lower())
+        today = translate_weekday_name(datetime.datetime(2015, 11, 18).strftime("%A").lower())
         valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
         rows = [item[0] for item in exec_sql_query(valinta)]
-        
+#        print(valinta)
         if len(rows) <= 0:
             return render_template('virhe.html'),400
         
         route_names = {
             "reitit": rows
             }
-    
+
         return(create_response(route_names, None, None))
     else:
         return create_response(None, "Virheellinen haku", 400)
@@ -55,8 +55,16 @@ def get_all_routes():
 #Gives list of all routes on given date
 def get_route_list(date):
     if date is not None:
-        today = translate_weekday_name(datetime.datetime.now().strftime("%A").lower())
+        # muutettu datetime.now() -> datetime.
+        today = translate_weekday_name(datetime.datetime(2016, 11, 18).strftime("%A").lower())
+        #valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
         valinta = 'select distinct lnimi from matkojen_nimet where route_id in (select route_id from matkat where service_id in (select service_id from kalenteri where ' + today + ' = 1))'
+
+        sulut = lambda s: '(' + s + ')'
+        inner1 = 'select service_id from kalenteri where ' + today + ' = 1'
+        inner2 = 'select route_id from matkat where service_id in ' + sulut(inner1)
+        valinta = 'select distinct lnimi from matkojen_nimet where route_id in ' + sulut(inner2)
+                  
         return [item[0] for item in exec_sql_query(valinta)]
     else: return([])
      
@@ -78,7 +86,8 @@ def exec_sql_query(query):
         con.text_factory = str
         cur = con.cursor()
         cur.execute(query)
-        return cur.fetchall()
+        resp = cur.fetchall()
+        return resp
     except IOError:
         return None
 
@@ -91,11 +100,11 @@ def get_single_route():
     valinta = "select pysakkiparit.tripcrd, pysakkiparit.duration from Pysakkiparit where stop_id_1 like \"" + id_1 + "\" and stop_id_2 like \"" + id_2 + "\""
 
     tulos = exec_sql_query(valinta)
-    print(tulos,file=sys.stderr)
+#    print(tulos,file=sys.stderr)
     valinta2 = "select nimi, lat, lon from pysakit where stop_id like \"" + id_1 + "\""
     valinta3 = "select nimi, lat, lon from pysakit where stop_id like \"" + id_2 + "\""
     tulos2 = exec_sql_query(valinta2)
-    print(tulos2, file=sys.stderr)
+#    print(tulos2, file=sys.stderr)
     tulos3 = exec_sql_query(valinta3)
     if (len(tulos) <=0): return(create_response(None, "Tyhjä taulukko", 400))
 
@@ -124,13 +133,22 @@ def get_stops():
         
         #Hakee ajan perusteella tiedon missa kohdissa busseja on liikkeella
         if stoptime[1] < stoptime[3]:
-            valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit between ' + str(stoptime[0]) + ' and ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[3]) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))'
+            print(' SE ON IFFI!!')
+            valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where saapumis_aika_tunnit between ' + str(stoptime[0]) + ' and ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[3]) + ' and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\"))'
         else:
             #Melko kömpelö tapa tarkistaa ajat kun tunti vaihtuu, olisikohan jotain parempaa?
-            valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat where ((saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + (59 - stoptime[1])) + ') or (saapumis_aika_tunnit =  ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between 0 and ' + str(stoptime[3]) + ')) and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + '))order by trip_id'
+            valinta = 'select trip_id, stop_id, saapumis_aika_tunnit, saapumis_aika_minuutit, saapumis_aika_sekunnit, lahto_aika_tunnit, lahto_aika_minuutit, lahto_aika_sekunnit, jnum from pysahtymis_ajat \
+            where ((saapumis_aika_tunnit = ' + str(stoptime[0]) + ' and saapumis_aika_minuutit between ' + str(stoptime[1]) + ' and ' + str(stoptime[1] + (59 - stoptime[1])) + ') or (saapumis_aika_tunnit =  ' + str(stoptime[4]) + ' and saapumis_aika_minuutit between 0 and ' + str(stoptime[3]) + ')) \
+            and trip_id in (select trip_id from matkat where route_id in (select route_id from matkojen_nimet where lnimi like \"' + route + '\" and ' + service_id_ehto + ')) \
+            order by trip_id'
+        print('balinta on:')
+        print(valinta)
         rows = exec_sql_query(valinta)
-        if len(rows) <= 0: return create_response(None, "Tyhjä taulukko", 400)
-        elif len(rows[0]) <= 0: return(render_template('virhe.html', selitys='Tyhja taulukko2'),400)
+        print (rows)
+        if len(rows) <= 0:
+            return create_response(None, "Tyhjä taulukko", 400)
+        elif len(rows[0]) <= 0:
+            return(render_template('virhe.html', selitys='Tyhja taulukko2'),400)
         tripId = rows[0][0]
         stopit = {
             "reitinNimi": request.args.get('route'),
@@ -150,7 +168,7 @@ def get_stops():
                  stopit["matkat"].append({
                      "tripID": tripId,
                      "pysahdykset" : []})
-                 print(i, file=sys.stderr)
+#                 print(i, file=sys.stderr)
                  while rows[i][0] == tripId and i < len(rows) - 1:
                      stopit["matkat"][j]["pysahdykset"].append({
                          "lahtoID": rows[i][1],
@@ -197,14 +215,14 @@ def get_service_ids(pvm):
 def is_day_between(middle,left, right):
     #TODO Tarkista, etta toimii sellaisina paivina, jolloin kuukausi ja paiva on yhdella luvulla esitettavissa
     middle_number = int('{0:0=4d}{1:0=2d}{2:0=2d}'.format(middle.year,middle.month,middle.day))#Todella ruma tapa. En tunnusta kirjoittaneeni tata.
-    print('{0} <= {1} <= {2}'.format(left, middle_number, right))
+    #print('{0} <= {1} <= {2}'.format(left, middle_number, right))
     return(int(left) <= middle_number and middle_number <= int(right)) #Ei saisi tehdä tarkistamattonta parsimista intiksi. Tietokannassa kuitenkin pitaisi olla vain lukuja.
 
 #Tarkistaa annetun argumentin oikeellisuuden        
 #TODO date tarkistus
 def check_argument(argument, value):
     if request.method == 'GET' and argument is not None:
-        print(argument, file=sys.stderr)
+#        print(argument, file=sys.stderr)
         try:
             if argument == 'time':
                 try:
@@ -229,7 +247,7 @@ def check_argument(argument, value):
                 else:
                     stoptime[1] -= 5
                 
-                print(stoptime, file=sys.stderr)#test
+#                print(stoptime, file=sys.stderr)#test
                 return stoptime
             elif argument == 'route':
                 routes = [item[0] for item in exec_sql_query('select distinct lnimi from matkojen_nimet')]
@@ -258,12 +276,15 @@ def get_route():
     month = check_argument('luku', request.args.get('month'))
     year = check_argument('luku', request.args.get('year'))
 
+    
+
     if (day is None or month is None or year is None): date = datetime.datetime.today()
+    # todo: tonow: 
     else: date = datetime.date(year, month, day)
 
     if stoptime is not None and route is not None:
         #Haetaan kannasta halutulle linjalle kuuluvat pysakit
-        service_id_ehto = service_id_ehto = get_service_id_condition(date)
+        service_id_ehto = service_id_ehto = get_service_id_condition(date) #todo: tassa saattaa olla vikaa, onko date vs datetime oikein get_service_id_ssa
        
         trip_id_ehto = "select distinct trip_id from Matkat where route_id in (select route_id from Matkojen_nimet where lnimi like \"" + route + "\" and " + service_id_ehto + " and trip_id in (select trip_id from Pysahtymis_ajat where lahto_aika_tunnit like \"" + str(stoptime[0]) + "\" and lahto_aika_minuutit BETWEEN " + (str(int(stoptime[1]) - 10)) + " and " + str(int(stoptime[1]) + 10) + "))"
 
