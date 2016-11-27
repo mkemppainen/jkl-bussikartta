@@ -1,4 +1,3 @@
-//global kommentin tarvii, ettei emacs herjaa alustamattomista muuttujista
 /* global $, L, timeOut, setInterval, clearInterval, setTimeout*/
 // MAPBOX APISSA LATITUDE JA LONGITUDE ON TOISINPAIN
 // TODO: paivamaarat huomioon, kesa-talviaika
@@ -12,7 +11,7 @@ L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251d
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
 var reittiLayer = L.layerGroup().addTo(map);
 var bussiLayer = L.layerGroup().addTo(map); // tassa layerissa on kaikki bussit
-var tickInterval = 100; //millisekunteina
+var tickInterval = 1000; // paivitysnopeus millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
 //var currentTime = Date.parse('23:59:54'); // ohjelman aika
 var currentTime = new Date(); // ohjelman aika
@@ -181,11 +180,19 @@ Bussi.prototype.ehkaOdota = function (){
     }
     var lahto = this.stops.pysahdykset[i].lahtoAika;
     var aikaAlkuun = Date.parse(lahto) - currentTime;
+    var delahto = Date.parse(lahto);
+    var numero = delahto - 0;
+    // console.log('lahtoaika On: ');
+    
+    // console.log(Date.parse(currentTime).toString('yyyy-MM-dd hh:mm'));
+    // console.log(Date.parse(lahto).toString('yyyy-MM-dd hh:mm'));
+//    console.log(Date.parse(currentTime).toString('dddd, MMMM d, yyyy'));
+    
     if (aikaAlkuun <= 0){ 
         return;  
     };
     this.pysayta();
-    console.log('odotetaan: '+aikaAlkuun/1000+'s');
+    // console.log('odotetaan: '+aikaAlkuun/1000+'s');
     this.marker.bindPopup('Linja: ' + this.reitti.reitinNimi + ' STOPPED. Liikkeelle klo: ' + Date.parse(lahto).toString('HH:mm'));
     if (aikaAlkuun/1000 > 60){
         this.marker.setIcon(bussiIconHarmaa);
@@ -664,10 +671,9 @@ function teeReitinBussit(route){
 
 }
 
-// TONOW
 function teeBussit(routeNo){
     var bareRoute = {reitinNimi:routeNo, pysakinValit:[]};
-    aika = haeAnnettuAika();
+    var aika = haeAnnettuAika();
     aika = muokkaaAika(aika);
     $.ajax({url: "get_stops?time=" + currentTime.toString('HH:mm:ss')+"&route="+routeNo,
 	    success: function(result){
@@ -692,10 +698,11 @@ function stopsValmis(route,stops){
 function paivitaAika(){
     nykyAjassa = false;
     var aika = muokkaaAika(haeAnnettuAika());
-    var date = Date.parse(aika.vuosi+'.'+aika.kuukausi+'.' + aika.paiva);
-    date.setHours(aika.tunnit);
-    date.setMinutes(aika.minuutit);
-    currentTime = date;
+    // muokattu riveja
+    // var date = Date.parse(aika.vuosi+'.'+aika.kuukausi+'.' + aika.paiva);
+    currentTime.setHours(aika.tunnit);
+    currentTime.setMinutes(aika.minuutit);
+    // currentTime = date;
     nollaaKartta();
     teeKaikkiBussit();
 }
