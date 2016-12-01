@@ -11,7 +11,7 @@ L.mapbox.accessToken = 'pk.eyJ1IjoibWlra29rZW0iLCJhIjoiY2lmcDIwMDNlMDFpMnRha251d
 var map = L.mapbox.map('map', 'mikkokem.nmk0egh3');
 var reittiLayer = L.layerGroup().addTo(map);
 var bussiLayer = L.layerGroup().addTo(map); // tassa layerissa on kaikki bussit
-var tickInterval = 1000; // paivitysnopeus millisekunteina
+var tickInterval = 250; // paivitysnopeus millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
 //var currentTime = Date.parse('23:59:54'); // ohjelman aika
 var currentTime = new Date(); // ohjelman aika
