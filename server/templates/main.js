@@ -14,8 +14,8 @@ var bussiLayer = L.layerGroup().addTo(map); // tassa layerissa on kaikki bussit
 var tickInterval = 250; // paivitysnopeus millisekunteina
 var test,test2,test3,test4,test5,skewer,bussi;
 //var currentTime = Date.parse('23:59:54'); // ohjelman aika
-var currentTime = new Date(); // ohjelman aika
-var nykyAjassa = true; // true jos currentTime vastaa reaaliaikaa
+var currentTime = Date.today().addHours(8).addMinutes(30); // ohjelman aika
+var nykyAjassa = false; // true jos currentTime vastaa reaaliaikaa
 var routes = {};
 var bussit = [];
 var timer; // tassa muuttujassa on kello, stopInterval(timer) pysayttaa sen
